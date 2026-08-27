@@ -1,0 +1,152 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
+import { Loader2, Code, FileText, LogOut, LayoutDashboard, Settings } from 'lucide-react';
+
+export default function Dashboard() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState<any>(null);
+
+  useEffect(() => {
+    const checkUserSession = async () => {
+      // 1. Get the current active user session
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        // If not logged in, redirect them back to the registration page safely
+        router.push('/register');
+        return;
+      }
+
+      // 2. Query our public.profiles database table for user type meta records
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (profile) {
+        setUserProfile(profile);
+      }
+      setLoading(false);
+    };
+
+    checkUserSession();
+  }, [router]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push('/');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400 gap-2">
+        <Loader2 className="animate-spin text-indigo-500" size={20} />
+        <span>Syncing Cloud Profile Workspace...</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row">
+      
+      {/* Dashboard Sidebar Workspace */}
+      <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r border-slate-900 bg-slate-900/20 p-6 flex flex-col justify-between">
+        <div className="space-y-8">
+          <div className="flex items-center gap-2">
+            <div className="h-7 w-7 rounded bg-indigo-600 flex items-center justify-center font-bold text-white text-xs">DC</div>
+            <span className="font-bold text-sm tracking-tight text-white">Console Engine</span>
+          </div>
+
+          <nav className="space-y-1">
+            <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold">
+              <LayoutDashboard size={14} /> {"Overview Terminal"}
+            </div>
+            <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 hover:text-slate-300 text-xs font-medium cursor-not-allowed">
+              <Settings size={14} /> {"Account Configurations"}
+            </div>
+          </nav>
+        </div>
+
+        <button onClick={handleSignOut} className="mt-8 flex items-center gap-2 text-xs font-medium text-slate-500 hover:text-red-400 transition-colors w-full px-3 py-2 rounded-lg hover:bg-red-500/5 border border-transparent hover:border-red-500/10">
+          <LogOut size={14} /> {"Disconnect Session"}
+        </button>
+      </aside>
+
+      {/* Main Workspace Switchboard Content Area */}
+      <main className="flex-1 p-6 md:p-10 max-w-5xl">
+        <div className="mb-8">
+          <h1 className="text-xl font-bold text-white">{"Welcome back, "}{userProfile?.full_name || "Applicant"}</h1>
+          <p className="text-xs text-slate-500 mt-1">{"Account Session Status: Verified. Active."}</p>
+        </div>
+
+        {/* Dynamic Branch Rendering Based on User Type Category fields */}
+        {userProfile?.user_type === 'programmer' ? (
+          /* DEVELOPER WORKSPACE */
+          <div className="space-y-6">
+            <div className="p-6 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 relative overflow-hidden">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-bold tracking-wider uppercase">
+                    <Code size={10} /> {"Developer Portfolio Engine Active"}
+                  </div>
+                  <h2 className="text-lg font-bold text-white">{"Your Live Portfolio Status"}</h2>
+                  <p className="text-xs text-slate-400 max-w-xl">
+                    {"Connect your repository networks to import projects instantly. When printed physically, this view changes to a streamlined recruiter summary page."}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="mt-6 flex flex-wrap gap-3">
+                <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition-all">
+                  {"+ Sync GitHub Account"}
+                </button>
+                <button className="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-300 rounded-lg text-xs font-medium hover:border-slate-700 transition-all">
+                  {"Preview Online View"}
+                </button>
+              </div>
+            </div>
+
+            {/* Placeholder Container For Repository Layout Blocks */}
+            <div className="border border-dashed border-slate-800 rounded-2xl p-12 text-center text-xs text-slate-600">
+              {"No repositories synced yet. Link GitHub above to populate workspace projects."}
+            </div>
+          </div>
+        ) : (
+          /* GENERAL PUBLIC CV WORKSPACE */
+          <div className="space-y-6">
+            <div className="p-6 rounded-2xl border border-purple-500/20 bg-purple-500/5 relative overflow-hidden">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] font-bold tracking-wider uppercase">
+                    <FileText size={10} /> {"ATS-Optimized CV Engine Active"}
+                  </div>
+                  <h2 className="text-lg font-bold text-white">{"Your Professional Resume Blueprint"}</h2>
+                  <p className="text-xs text-slate-400 max-w-xl">
+                    {"Type your work history details below. The system automatically structures margins, text hierarchies, and keywords so parsing machines can index your content cleanly."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 flex flex-wrap gap-3">
+                <button className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-semibold transition-all">
+                  {"+ Create New CV Version"}
+                </button>
+              </div>
+            </div>
+
+            {/* Placeholder Container For Resumes Histories Layout Blocks */}
+            <div className="border border-dashed border-slate-800 rounded-2xl p-12 text-center text-xs text-slate-600">
+              {"No CV versions initialized yet. Click above to start building an ATS-friendly draft."}
+            </div>
+          </div>
+        )}
+      </main>
+
+    </div>
+  );
+}
