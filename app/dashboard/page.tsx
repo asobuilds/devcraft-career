@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Loader2, Code, FileText, LogOut, LayoutDashboard, Settings } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -22,7 +23,7 @@ export default function Dashboard() {
       }
 
       // 2. Query our public.profiles database table for user type meta records
-      const { data: profile, error } = await supabase
+      const { data: profile } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
@@ -66,9 +67,9 @@ export default function Dashboard() {
             <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold">
               <LayoutDashboard size={14} /> {"Overview Terminal"}
             </div>
-            <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 hover:text-slate-300 text-xs font-medium cursor-not-allowed">
+            <Link href="/settings" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 text-xs font-medium transition-colors">
               <Settings size={14} /> {"Account Configurations"}
-            </div>
+            </Link>
           </nav>
         </div>
 
@@ -133,9 +134,21 @@ export default function Dashboard() {
               </div>
 
               <div className="mt-6 flex flex-wrap gap-3">
-                <button className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-semibold transition-all">
-                  {"+ Create New CV Version"}
-                </button>
+                <Link href="/cv-builder" className="inline-block">
+                  <span className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-semibold transition-all cursor-pointer inline-block">
+                    {"+ Create New CV Version"}
+                  </span>
+                </Link>
+                <Link href="/tracker" className="inline-block">
+                  <span className="px-4 py-2 bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 rounded-lg text-xs font-medium transition-all cursor-pointer inline-block">
+                    {"📋 Track Sent Applications"}
+                  </span>
+                </Link>
+                <Link href="/analyzer" className="inline-block">
+                  <span className="px-4 py-2 bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 rounded-lg text-xs font-medium transition-all cursor-pointer inline-block">
+                    {"🔍 Scan Job Keyword Match"}
+                  </span>
+                </Link>
               </div>
             </div>
 
