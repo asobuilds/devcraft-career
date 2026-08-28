@@ -78,7 +78,13 @@ export default function Login() {
 
         <form onSubmit={handleSignIn} className="space-y-5">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Email Address</label>
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400">Password</label>
+              <Link href="/forgot-password" className="text-[11px] text-indigo-400 hover:underline">
+                Forgot Password?
+              </Link>
+            </div>
+
             <div className="relative">
               <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-sm text-white" required disabled={loading} />
