@@ -5,6 +5,21 @@ import { supabase } from '@/lib/supabase';
 import { Search, Loader2, Code2, ArrowRight, Globe, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
+// Helper to normalize tech_stack into an array of strings
+const getTechArray = (tech: any): string[] => {
+  if (!tech) return [];
+  if (Array.isArray(tech)) return tech.map(t => t.trim()).filter(Boolean);
+  if (typeof tech === 'string') return tech.split(',').map(t => t.trim()).filter(Boolean);
+  return [];
+};
+
+// Semantic synonym mapping
+const semanticSynonymsMap: Record<string, string[]> = {
+  backend: ['sql', 'postgres', 'python', 'node', 'api', 'docker', 'aws', 'database', 'postgresql', 'mongodb'],
+  frontend: ['react', 'typescript', 'javascript', 'tailwind', 'next.js', 'css', 'ui', 'vue', 'angular'],
+  cloud: ['aws', 'docker', 'kubernetes', 'ci/cd', 'deployment', 'security', 'azure', 'gcp'],
+};
+
 export default function RecruiterDirectory() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -23,37 +38,36 @@ export default function RecruiterDirectory() {
     fetchAllPublicPortfolios();
   }, []);
 
-  // Contextual Semantic Synonym Mapping Engine
-  const semanticSynonymsMap: Record<string, string[]> = {
-    'backend': ['sql', 'postgres', 'python', 'node', 'api', 'docker', 'aws', 'database'],
-    'frontend': ['react', 'typescript', 'javascript', 'tailwind', 'next.js', 'css', 'ui'],
-    'cloud': ['aws', 'docker', 'kubernetes', 'ci/cd', 'deployment', 'security']
-  };
-
+  // Filter with semantic synonyms
   const filteredPortfolios = portfolios.filter(p => {
     const query = searchTerm.toLowerCase().trim();
     if (!query) return true;
 
-    const stack = p.tech_stack?.toLowerCase() || '';
-    const bio = p.bio?.toLowerCase() || '';
-    const title = p.title?.toLowerCase() || '';
+    // Get tech array and combine with bio and title
+    const techArray = getTechArray(p.tech_stack);
+    const techString = techArray.join(' ').toLowerCase();
+    const bio = (p.bio || '').toLowerCase();
+    const title = (p.title || '').toLowerCase();
 
-    const hasDirectMatch = stack.includes(query) || bio.includes(query) || title.includes(query);
-    if (hasDirectMatch) return true;
+    // Direct match in tech, bio, or title
+    if (techString.includes(query) || bio.includes(query) || title.includes(query)) {
+      return true;
+    }
 
-    let hasSemanticProximityMatch = false;
+    // Semantic proximity: check if query matches a synonym category and any synonym appears
+    let hasSemanticMatch = false;
     Object.keys(semanticSynonymsMap).forEach(key => {
       if (query.includes(key) || key.includes(query)) {
-        const structuralKeywords = semanticSynonymsMap[key];
-        structuralKeywords.forEach(word => {
-          if (stack.includes(word) || bio.includes(word)) {
-            hasSemanticProximityMatch = true;
+        const synonyms = semanticSynonymsMap[key];
+        synonyms.forEach(word => {
+          if (techString.includes(word) || bio.includes(word)) {
+            hasSemanticMatch = true;
           }
         });
       }
     });
 
-    return hasSemanticProximityMatch;
+    return hasSemanticMatch;
   });
 
   if (loading) {
@@ -85,49 +99,64 @@ export default function RecruiterDirectory() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search concepts (e.g. backend, cloud, frontend)..." 
-              className="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 pl-10 pr-4 text-xs text-white focus:outline-none focus:border-slate-700"
+              className="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 pl-10 pr-4 text-xs text-white focus:outline-none focus:border-slate-700 placeholder-slate-600"
             />
           </div>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredPortfolios.map((p) => (
-            <div key={p.id} className="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between backdrop-blur-sm hover:border-indigo-500/40 transition-all group">
-              <div className="space-y-4">
-                <div className="flex items-start justify-between">
-                  <div className="h-10 w-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
-                    <Code2 size={18} />
+          {filteredPortfolios.map((p) => {
+            const techArray = getTechArray(p.tech_stack);
+            return (
+              <div key={p.id} className="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between backdrop-blur-sm hover:border-indigo-500/40 transition-all group">
+                <div className="space-y-4">
+                  <div className="flex items-start justify-between">
+                    <div className="h-10 w-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
+                      <Code2 size={18} />
+                    </div>
+                    <span className="text-[9px] font-mono font-bold text-slate-600 bg-slate-950 border border-slate-900 px-2 py-0.5 rounded">
+                      {p.custom_subdomain}.devcraft.com
+                    </span>
                   </div>
-                  <span className="text-[9px] font-mono font-bold text-slate-600 bg-slate-950 border border-slate-900 px-2 py-0.5 rounded">
-                    {p.custom_subdomain}.devcraft.com
-                  </span>
+                  <div className="space-y-1">
+                    <h3 className="text-sm font-bold text-white group-hover:text-indigo-400 transition-colors truncate">
+                      {p.title || 'Untitled Portfolio'}
+                    </h3>
+                    <p className="text-xs text-slate-400 line-clamp-3 text-justify leading-relaxed">
+                      {p.bio || 'No professional biography synchronized yet.'}
+                    </p>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-bold text-white group-hover:text-indigo-400 transition-colors truncate">{p.title}</h3>
-                  <p className="text-xs text-slate-400 line-clamp-3 text-justify leading-relaxed">{p.bio || "No professional biography synchronized yet."}</p>
-                </div>
-              </div>
 
-              <div className="space-y-4 mt-6 pt-4 border-t border-slate-900">
-                {p.tech_stack && (
-                  <div className="flex flex-wrap gap-1">
-                    {p.tech_stack.split(',').slice(0, 4).map((tech: string, idx: number) => (
-                      <span key={idx} className="bg-slate-950 border border-slate-800/80 text-slate-400 text-[9px] font-mono px-1.5 py-0.5 rounded">
-                        {tech.trim()}
-                      </span>
-                    ))}
-                  </div>
-                )}
-                <Link href={`/p/${p.custom_subdomain}`} className="w-full bg-slate-800 group-hover:bg-indigo-600 text-white font-medium text-xs py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 border border-slate-700/60">
-                  <Globe size={12} /> Inspect Live Engine <ArrowRight size={12} />
-                </Link>
+                <div className="space-y-4 mt-6 pt-4 border-t border-slate-900">
+                  {techArray.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {techArray.slice(0, 4).map((tech, idx) => (
+                        <span key={idx} className="bg-slate-950 border border-slate-800/80 text-slate-400 text-[9px] font-mono px-1.5 py-0.5 rounded">
+                          {tech}
+                        </span>
+                      ))}
+                      {techArray.length > 4 && (
+                        <span className="text-[9px] text-slate-500">+{techArray.length - 4} more</span>
+                      )}
+                    </div>
+                  )}
+                  <Link
+                    href={`/p/${p.custom_subdomain}`}
+                    className="w-full bg-slate-800 group-hover:bg-indigo-600 text-white font-medium text-xs py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 border border-slate-700/60 group-hover:border-transparent"
+                  >
+                    <Globe size={12} /> Inspect Live Engine <ArrowRight size={12} />
+                  </Link>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {filteredPortfolios.length === 0 && (
-          <p className="text-center text-xs text-slate-700 italic py-20">No portfolios matched the semantic threshold query.</p>
+          <p className="text-center text-xs text-slate-700 italic py-20">
+            No portfolios matched the semantic threshold query.
+          </p>
         )}
       </div>
     </div>

@@ -88,7 +88,7 @@ export default function Dashboard() {
               <LayoutDashboard size={14} /> {"Overview Terminal"}
             </div>
             
-            {/* FIXED & OPERATIONAL LINK FOR CONFIGURATIONS */}
+            {/* Account Configurations – wrapped in Link */}
             <Link href="/settings" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900/40 text-xs font-medium transition-colors border border-transparent">
               <Settings size={14} /> {"Account Configurations"}
             </Link>
@@ -151,6 +151,7 @@ export default function Dashboard() {
                   {"🛠️ Open Programmer Portfolio Builder"}
                 </span>
               </Link>
+              {/* Browse Candidate Marketplace – wrapped in Link */}
               <Link href="/directory" className="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-300 rounded-lg text-xs font-medium hover:border-slate-700 transition-all cursor-pointer inline-block">
                 {"🔍 Browse Candidate Marketplace"}
               </Link>
