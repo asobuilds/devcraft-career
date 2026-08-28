@@ -75,9 +75,10 @@ export default function Dashboard() {
             <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold">
               <LayoutDashboard size={14} /> Overview Terminal
             </div>
-            {/* ✅ Fixed: Full‑width block link */}
+            {/* Account Configurations – now with onClick debug */}
             <Link
               href="/settings"
+              onClick={() => console.log('Navigating to /settings')}
               className="block w-full px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900/40 text-xs font-medium transition-colors border border-transparent"
             >
               <span className="flex items-center gap-2.5">
@@ -148,9 +149,10 @@ export default function Dashboard() {
               >
                 🛠️ Open Programmer Portfolio Builder
               </Link>
-              {/* ✅ Fixed: direct Link, no inner wrapper */}
+              {/* Browse Candidate Marketplace – with onClick debug */}
               <Link
                 href="/directory"
+                onClick={() => console.log('Navigating to /directory')}
                 className="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-300 rounded-lg text-xs font-medium hover:border-slate-700 transition-all inline-block"
               >
                 🔍 Browse Candidate Marketplace
