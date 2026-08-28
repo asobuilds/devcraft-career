@@ -20,7 +20,6 @@ export default function JobTracker() {
   const [userId, setUserId] = useState<string | null>(null);
   const [apps, setApps] = useState<ApplicationItem[]>([]);
 
-  // Input modal overlay state trackers
   const [company, setCompany] = useState('');
   const [title, setTitle] = useState('');
   const [salary, setSalary] = useState('');
@@ -72,25 +71,39 @@ export default function JobTracker() {
     }
   };
 
+  // --- UPGRADE: Optimistic UI State Updates Strategy ---
   const handleUpdateStatus = async (id: string, nextStatus: ApplicationItem['status']) => {
+    // 1. Instantly save original state backup configuration in case server fails
+    const originalApps = [...apps];
+
+    // 2. Perform Optimistic Update: Change the visual UI state instantly before writing to DB
+    setApps(apps.map(a => a.id === id ? { ...a, status: nextStatus } : a));
+
+    // 3. Silently dispatch the write instruction payload to Supabase background threads
     const { error } = await supabase
       .from('job_applications')
       .update({ status: nextStatus })
       .eq('id', id);
 
-    if (!error) {
-      setApps(apps.map(a => a.id === id ? { ...a, status: nextStatus } : a));
+    // 4. Rollback visual state if a server dropout error occurs
+    if (error) {
+      setApps(originalApps);
+      alert('⚠️ Cloud sync drop detected. Rolling back card state parameters.');
     }
   };
 
   const handleDeleteApplication = async (id: string) => {
+    const originalApps = [...apps];
+    setApps(apps.filter(a => a.id !== id));
+
     const { error } = await supabase
       .from('job_applications')
       .delete()
       .eq('id', id);
 
-    if (!error) {
-      setApps(apps.filter(a => a.id !== id));
+    if (error) {
+      setApps(originalApps);
+      alert('⚠️ Erase sequence failed. Card rolled back.');
     }
   };
 
@@ -98,7 +111,7 @@ export default function JobTracker() {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400 gap-2">
         <Loader2 className="animate-spin text-indigo-500" size={20} />
-        <span>Synchronizing CRM Core Matrix...</span>
+        <span>Synchronizing Core CRM Engine...</span>
       </div>
     );
   }
@@ -107,8 +120,6 @@ export default function JobTracker() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-6 font-sans">
-      
-      {/* Control Navbar Header */}
       <header className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-slate-900">
         <div className="flex items-center gap-4">
           <Link href="/dashboard" className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition-all">
@@ -116,22 +127,20 @@ export default function JobTracker() {
           </Link>
           <div>
             <h1 className="text-xl font-bold text-white">Job Search Board Terminal</h1>
-            <p className="text-xs text-slate-500 mt-0.5">Manage your applications through pipeline tracking lanes.</p>
+            <p className="text-xs text-slate-500 mt-0.5">Optimistic Live Sync Engine Active.</p>
           </div>
         </div>
 
-        {/* Inline Entry Input Panel Form */}
         <form onSubmit={handleAddApplication} className="flex flex-wrap items-center gap-2 bg-slate-900/40 border border-slate-800/80 p-3 rounded-xl max-w-2xl w-full">
           <input type="text" placeholder="Company" value={company} onChange={e => setCompany(e.target.value)} className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-slate-700 flex-1 min-w-[120px]" required />
           <input type="text" placeholder="Position" value={title} onChange={e => setTitle(e.target.value)} className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-slate-700 flex-1 min-w-[120px]" required />
-          <input type="text" placeholder="Salary (Optional)" value={salary} onChange={e => setSalary(e.target.value)} className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-slate-700 w-28" />
+          <input type="text" placeholder="Salary" value={salary} onChange={e => setSalary(e.target.value)} className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-slate-700 w-28" />
           <button type="submit" className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2 rounded-lg transition-all flex items-center gap-1">
             <Plus size={12} /> Add
           </button>
         </form>
       </header>
 
-      {/* Kanban Layout Board Matrix Grid columns display tracking states fields loops cards items */}
       <main className="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
         {sections.map(columnKey => {
           const filteredCards = apps.filter(item => item.status === columnKey);
@@ -157,12 +166,11 @@ export default function JobTracker() {
                     </div>
                     {card.salary_range ? <p className="text-[10px] text-slate-500 font-mono">{card.salary_range}</p> : null}
                     
-                    {/* Status Step Toggles Control Interface select element buttons selectors */}
                     <div className="pt-2 border-t border-slate-900 flex justify-end gap-1">
                       <select 
                         value={card.status} 
                         onChange={(e) => handleUpdateStatus(card.id, e.target.value as any)}
-                        className="bg-slate-950 border border-slate-800 rounded px-1.5 py-0.5 text-[10px] text-slate-400 font-medium focus:outline-none focus:border-slate-700"
+                        className="bg-slate-950 border border-slate-800 rounded px-1.5 py-0.5 text-[10px] text-slate-400 font-medium focus:outline-none"
                       >
                         <option value="applied">Move to Applied</option>
                         <option value="interviewing">Move to Interview</option>
@@ -178,7 +186,6 @@ export default function JobTracker() {
           );
         })}
       </main>
-
     </div>
   );
 }
