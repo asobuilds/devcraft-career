@@ -146,14 +146,16 @@ export default function Dashboard() {
             </div>
             
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/portfolio-builder">
+              <Link href="/portfolio-builder" className="inline-block">
                 <span className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition-all cursor-pointer inline-block">
                   {"🛠️ Open Programmer Portfolio Builder"}
                 </span>
               </Link>
               {/* Browse Candidate Marketplace – wrapped in Link */}
-              <Link href="/directory" className="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-300 rounded-lg text-xs font-medium hover:border-slate-700 transition-all cursor-pointer inline-block">
-                {"🔍 Browse Candidate Marketplace"}
+              <Link href="/directory" className="inline-block">
+                <span className="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-300 rounded-lg text-xs font-medium hover:border-slate-700 transition-all cursor-pointer inline-block">
+                  {"🔍 Browse Candidate Marketplace"}
+                </span>
               </Link>
             </div>
           </div>
@@ -192,7 +194,6 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
-
     </div>
   );
 }
