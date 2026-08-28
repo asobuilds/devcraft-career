@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, KeyRound, Mail, Loader2, Code2, Globe } from 'lucide-react';
@@ -10,8 +10,28 @@ export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const [initializing, setInitializing] = useState(true);
+  const [progress, setProgress] = useState(0);
+
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Progressive loading animation
+  useEffect(() => {
+    let start = 0;
+    const interval = setInterval(() => {
+      start += Math.floor(Math.random() * 15) + 5;
+      if (start >= 100) {
+        start = 100;
+        clearInterval(interval);
+        setInitializing(false);
+      }
+      setProgress(start);
+    }, 40);
+
+    return () => clearInterval(interval); // cleanup on unmount
+  }, []);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +44,10 @@ export default function Login() {
         password,
       });
       if (error) throw error;
-      if (data.user) router.push('/dashboard');
+      if (data.user) {
+        localStorage.setItem('devcraft_session_active', 'true');
+        router.push('/dashboard');
+      }
     } catch (err: any) {
       setErrorMsg(err.message || 'Invalid login credentials.');
     } finally {
@@ -44,6 +67,19 @@ export default function Login() {
     }
   };
 
+  if (initializing) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-400 gap-4">
+        <Loader2 className="animate-spin text-indigo-500 h-8 w-8" />
+        <div className="text-sm font-semibold tracking-wide text-white">Syncing Gateway Secure Locks...</div>
+        <div className="w-48 bg-slate-900 h-1.5 rounded-full overflow-hidden border border-slate-800">
+          <div className="bg-indigo-600 h-full transition-all duration-75" style={{ width: `${progress}%` }} />
+        </div>
+        <span className="text-xs font-mono text-indigo-400">{progress}% Loaded</span>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6 relative">
       <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -60,13 +96,13 @@ export default function Login() {
 
         {errorMsg && <div className="p-3 mb-5 rounded-xl border border-red-500/20 bg-red-500/5 text-xs text-red-400">{errorMsg}</div>}
 
-        {/* Social Logins Block */}
+        {/* Social Logins */}
         <div className="grid grid-cols-2 gap-3 mb-6">
           <button type="button" onClick={() => handleSocialSignIn('github')} className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs font-medium text-slate-300 hover:bg-slate-900 transition-all">
-            <Code2 size={14} /> GitHub
+            <Code2 size={14} className="text-indigo-400" /> GitHub
           </button>
           <button type="button" onClick={() => handleSocialSignIn('google')} className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs font-medium text-slate-300 hover:bg-slate-900 transition-all">
-            <Globe size={14} /> Google
+            <Globe size={14} className="text-purple-400" /> Google
           </button>
         </div>
 
@@ -78,24 +114,37 @@ export default function Login() {
 
         <form onSubmit={handleSignIn} className="space-y-5">
           <div>
-            <div className="flex justify-between items-center mb-2">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400">Password</label>
-              <Link href="/forgot-password" className="text-[11px] text-indigo-400 hover:underline">
-                Forgot Password?
-              </Link>
-            </div>
-
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Email Address</label>
             <div className="relative">
               <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-sm text-white" required disabled={loading} />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-slate-700"
+                required
+                disabled={loading}
+              />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Password</label>
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400">Password</label>
+              <Link href="/forgot-password" className="text-[11px] text-indigo-400 hover:underline">Forgot Password?</Link>
+            </div>
             <div className="relative">
               <KeyRound size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-sm text-white" required disabled={loading} />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-slate-700"
+                required
+                disabled={loading}
+              />
             </div>
           </div>
 
