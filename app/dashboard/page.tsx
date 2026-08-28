@@ -22,7 +22,7 @@ export default function Dashboard() {
         return;
       }
 
-      // 2. Query our public.profiles database table for user type meta records
+      // 2. Query our public.profiles database table for user type records
       const { data: profile } = await supabase
         .from('profiles')
         .select('*')
@@ -85,6 +85,22 @@ export default function Dashboard() {
           <p className="text-xs text-slate-500 mt-1">{"Account Session Status: Verified. Active."}</p>
         </div>
 
+        {/* Corporate Console Usage Indicators Metrics Grid panel rows containers */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+          <div className="p-4 bg-slate-900/40 border border-slate-800 rounded-xl">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Dossier Access Count</span>
+            <span className="text-xl font-bold font-mono text-indigo-400 mt-1 block">14 <span className="text-[10px] text-slate-600 font-normal">views</span></span>
+          </div>
+          <div className="p-4 bg-slate-900/40 border border-slate-800 rounded-xl">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">ATS Keyword Index</span>
+            <span className="text-xl font-bold font-mono text-purple-400 mt-1 block">85% <span className="text-[10px] text-slate-600 font-normal">score</span></span>
+          </div>
+          <div className="p-4 bg-slate-900/40 border border-slate-800 rounded-xl col-span-2 md:col-span-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Storage Vault Data weight</span>
+            <span className="text-xl font-bold font-mono text-green-400 mt-1 block">1.2 <span className="text-[10px] text-slate-600 font-normal">MB of 50MB</span></span>
+          </div>
+        </div>
+
         {/* Dynamic Branch Rendering Based on User Type Category fields */}
         {userProfile?.user_type === 'programmer' ? (
           /* DEVELOPER WORKSPACE */
@@ -103,9 +119,11 @@ export default function Dashboard() {
               </div>
               
               <div className="mt-6 flex flex-wrap gap-3">
-                <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition-all">
-                  {"+ Sync GitHub Account"}
-                </button>
+                <Link href="/portfolio-builder">
+                  <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition-all">
+                    {"🛠️ Open Programmer Portfolio Builder"}
+                  </button>
+                </Link>
                 <button className="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-300 rounded-lg text-xs font-medium hover:border-slate-700 transition-all">
                   {"Preview Online View"}
                 </button>
