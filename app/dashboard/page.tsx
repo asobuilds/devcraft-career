@@ -85,36 +85,45 @@ export default function Dashboard() {
 
           <nav className="space-y-1">
             <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold">
-              <LayoutDashboard size={14} /> {"Overview Terminal"}
+              <LayoutDashboard size={14} /> Overview Terminal
             </div>
             
-            {/* Account Configurations – wrapped in Link */}
-            <Link href="/settings" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900/40 text-xs font-medium transition-colors border border-transparent">
-              <Settings size={14} /> {"Account Configurations"}
+            {/* Account Configurations – Link with all styles applied directly */}
+            <Link 
+              href="/settings" 
+              className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900/40 text-xs font-medium transition-colors border border-transparent"
+            >
+              <Settings size={14} /> Account Configurations
             </Link>
           </nav>
         </div>
 
-        <button onClick={handleSignOut} className="mt-8 flex items-center gap-2 text-xs font-medium text-slate-500 hover:text-red-400 transition-colors w-full px-3 py-2 rounded-lg hover:bg-red-500/5 border border-transparent hover:border-red-500/10">
-          <LogOut size={14} /> {"Disconnect Session"}
+        <button 
+          onClick={handleSignOut} 
+          className="mt-8 flex items-center gap-2 text-xs font-medium text-slate-500 hover:text-red-400 transition-colors w-full px-3 py-2 rounded-lg hover:bg-red-500/5 border border-transparent hover:border-red-500/10"
+        >
+          <LogOut size={14} /> Disconnect Session
         </button>
       </aside>
 
-      {/* Main Switchboard Content Sheet Panel */}
+      {/* Main Content */}
       <main className="flex-1 p-6 md:p-10 max-w-5xl">
         <div className="mb-8 flex justify-between items-start border-b border-slate-900 pb-6">
           <div>
-            <h1 className="text-xl font-bold text-white">{"Welcome back, "}{userProfile?.full_name || "User"}</h1>
-            <p className="text-xs text-slate-500 mt-1">{"Account Session Status: Verified. Active."}</p>
+            <h1 className="text-xl font-bold text-white">Welcome back, {userProfile?.full_name || "User"}</h1>
+            <p className="text-xs text-slate-500 mt-1">Account Session Status: Verified. Active.</p>
           </div>
           {userProfile?.is_admin && (
-            <Link href="/admin" className="text-[10px] bg-red-950/20 border border-red-900/30 text-red-400 px-3 py-1 rounded-md uppercase font-mono font-bold tracking-wider hover:bg-red-950/40">
-              {"Open Admin Terminal"}
+            <Link 
+              href="/admin" 
+              className="text-[10px] bg-red-950/20 border border-red-900/30 text-red-400 px-3 py-1 rounded-md uppercase font-mono font-bold tracking-wider hover:bg-red-950/40"
+            >
+              Open Admin Terminal
             </Link>
           )}
         </div>
 
-        {/* Global Analytics Usage Row indicators metrics */}
+        {/* Analytics Row */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
           <div className="p-4 bg-slate-900/40 border border-slate-800 rounded-xl">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Dossier Access Count</span>
@@ -131,64 +140,69 @@ export default function Dashboard() {
         </div>
 
         <div className="space-y-8">
-          {/* SECTION A: PROGRAMMER PORTFOLIO WORKSPACE */}
+          {/* Programmer Portfolio Workspace */}
           <div className="p-6 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 relative overflow-hidden">
             <div className="flex items-start justify-between">
               <div className="space-y-2">
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-bold tracking-wider uppercase">
-                  <Code size={10} /> {"Developer Portfolio Engine Active"}
+                  <Code size={10} /> Developer Portfolio Engine Active
                 </div>
-                <h2 className="text-lg font-bold text-white">{"Your Engineering Profile"}</h2>
+                <h2 className="text-lg font-bold text-white">Your Engineering Profile</h2>
                 <p className="text-xs text-slate-400 max-w-xl">
-                  {"Connect project data nodes, map technical language badges, and auto-compile copyable profile README files for your GitHub repositories."}
+                  Connect project data nodes, map technical language badges, and auto-compile copyable profile README files for your GitHub repositories.
                 </p>
               </div>
             </div>
             
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/portfolio-builder" className="inline-block">
-                <span className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition-all cursor-pointer inline-block">
-                  {"🛠️ Open Programmer Portfolio Builder"}
-                </span>
+              <Link 
+                href="/portfolio-builder" 
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition-all inline-block"
+              >
+                🛠️ Open Programmer Portfolio Builder
               </Link>
-              {/* Browse Candidate Marketplace – wrapped in Link */}
-              <Link href="/directory" className="inline-block">
-                <span className="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-300 rounded-lg text-xs font-medium hover:border-slate-700 transition-all cursor-pointer inline-block">
-                  {"🔍 Browse Candidate Marketplace"}
-                </span>
+              {/* Browse Candidate Marketplace – direct Link, no inner span */}
+              <Link 
+                href="/directory" 
+                className="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-300 rounded-lg text-xs font-medium hover:border-slate-700 transition-all inline-block"
+              >
+                🔍 Browse Candidate Marketplace
               </Link>
             </div>
           </div>
 
-          {/* SECTION B: GENERAL APPLICANT CV WORKSPACE */}
+          {/* General CV Workspace */}
           <div className="p-6 rounded-2xl border border-purple-500/20 bg-purple-500/5 relative overflow-hidden">
             <div className="flex items-start justify-between">
               <div className="space-y-2">
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] font-bold tracking-wider uppercase">
-                  <FileText size={10} /> {"ATS-Optimized CV Engine Active"}
+                  <FileText size={10} /> ATS-Optimized CV Engine Active
                 </div>
-                <h2 className="text-lg font-bold text-white">{"Your Professional Resume Blueprint"}</h2>
+                <h2 className="text-lg font-bold text-white">Your Professional Resume Blueprint</h2>
                 <p className="text-xs text-slate-400 max-w-xl">
-                  {"Structure standard, bot-friendly layout sheets. Uses built-in vocabulary advisors to optimize points for recruitment parsed tracking filters."}
+                  Structure standard, bot-friendly layout sheets. Uses built-in vocabulary advisors to optimize points for recruitment parsed tracking filters.
                 </p>
               </div>
             </div>
 
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/cv-builder" className="inline-block">
-                <span className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-semibold transition-all cursor-pointer inline-block">
-                  {"+ Edit CV Document"}
-                </span>
+              <Link 
+                href="/cv-builder" 
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-semibold transition-all inline-block"
+              >
+                + Edit CV Document
               </Link>
-              <Link href="/tracker" className="inline-block">
-                <span className="px-4 py-2 bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 rounded-lg text-xs font-medium transition-all cursor-pointer inline-block">
-                  {"📋 Track Sent Applications"}
-                </span>
+              <Link 
+                href="/tracker" 
+                className="px-4 py-2 bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 rounded-lg text-xs font-medium transition-all inline-block"
+              >
+                📋 Track Sent Applications
               </Link>
-              <Link href="/analyzer" className="inline-block">
-                <span className="px-4 py-2 bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 rounded-lg text-xs font-medium transition-all cursor-pointer inline-block">
-                  {"🔍 Scan Job Keyword Match"}
-                </span>
+              <Link 
+                href="/analyzer" 
+                className="px-4 py-2 bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 rounded-lg text-xs font-medium transition-all inline-block"
+              >
+                🔍 Scan Job Keyword Match
               </Link>
             </div>
           </div>
