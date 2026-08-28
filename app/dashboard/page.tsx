@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { Loader2, Code, FileText, LogOut, LayoutDashboard, Settings, Layers, Briefcase } from 'lucide-react';
+import { Loader2, Code, FileText, LogOut, LayoutDashboard, Settings } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Dashboard() {
@@ -88,7 +88,8 @@ export default function Dashboard() {
               <LayoutDashboard size={14} /> {"Overview Terminal"}
             </div>
             
-            <Link href="/settings" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 text-xs font-medium transition-colors border border-transparent hover:bg-slate-900/40">
+            {/* FIXED & OPERATIONAL LINK FOR CONFIGURATIONS */}
+            <Link href="/settings" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900/40 text-xs font-medium transition-colors border border-transparent">
               <Settings size={14} /> {"Account Configurations"}
             </Link>
           </nav>
@@ -99,7 +100,7 @@ export default function Dashboard() {
         </button>
       </aside>
 
-      {/* Main Workspace */}
+      {/* Main Switchboard Content Sheet Panel */}
       <main className="flex-1 p-6 md:p-10 max-w-5xl">
         <div className="mb-8 flex justify-between items-start border-b border-slate-900 pb-6">
           <div>
@@ -113,7 +114,7 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Global Analytics Row */}
+        {/* Global Analytics Usage Row indicators metrics */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
           <div className="p-4 bg-slate-900/40 border border-slate-800 rounded-xl">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Dossier Access Count</span>
@@ -130,7 +131,7 @@ export default function Dashboard() {
         </div>
 
         <div className="space-y-8">
-          {/* Section A: Programmer Portfolio */}
+          {/* SECTION A: PROGRAMMER PORTFOLIO WORKSPACE */}
           <div className="p-6 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 relative overflow-hidden">
             <div className="flex items-start justify-between">
               <div className="space-y-2">
@@ -146,17 +147,17 @@ export default function Dashboard() {
             
             <div className="mt-6 flex flex-wrap gap-3">
               <Link href="/portfolio-builder">
-                <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition-all">
+                <span className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition-all cursor-pointer inline-block">
                   {"🛠️ Open Programmer Portfolio Builder"}
-                </button>
+                </span>
               </Link>
-              <Link href="/directory" className="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-300 rounded-lg text-xs font-medium hover:border-slate-700 transition-all">
+              <Link href="/directory" className="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-300 rounded-lg text-xs font-medium hover:border-slate-700 transition-all cursor-pointer inline-block">
                 {"🔍 Browse Candidate Marketplace"}
               </Link>
             </div>
           </div>
 
-          {/* Section B: General CV Workspace */}
+          {/* SECTION B: GENERAL APPLICANT CV WORKSPACE */}
           <div className="p-6 rounded-2xl border border-purple-500/20 bg-purple-500/5 relative overflow-hidden">
             <div className="flex items-start justify-between">
               <div className="space-y-2">
@@ -190,6 +191,7 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
+
     </div>
   );
-} // <-- Added missing closing brace
+}
