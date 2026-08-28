@@ -45,7 +45,7 @@ The platform is compiled utilizing low-overhead engineering tools to achieve nea
 
 ## 🏁 Ongoing Platform Maintenance Routine
 
-Whenever you update components, write new features, or alter your user interface designs locally inside VS Code, your routine terminal deployment workflow is these exact three commands:
+Whenever i update components, write new features, or alter user interface designs locally inside VS Code, the routine terminal deployment workflow is these exact three commands:
 
 ```bash
 # 1. Track all adjusted workspace files
