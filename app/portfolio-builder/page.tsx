@@ -52,10 +52,13 @@ export default function PortfolioBuilder() {
       if (portfolio) {
         setPortfolioTitle(portfolio.title || 'My Developer Portfolio');
         setBio(portfolio.bio || '');
+        // Handle tech_stack: could be array or string
         if (Array.isArray(portfolio.tech_stack)) {
           setTechStack(portfolio.tech_stack.join(', '));
         } else if (typeof portfolio.tech_stack === 'string') {
           setTechStack(portfolio.tech_stack);
+        } else {
+          setTechStack('');
         }
         setSubdomain(portfolio.custom_subdomain || '');
         if (portfolio.projects && Array.isArray(portfolio.projects)) {
@@ -85,6 +88,7 @@ export default function PortfolioBuilder() {
     if (!userId) return;
     setSaving(true);
 
+    // Convert techStack string to array for storage
     const techArray = techStack.split(',').map(s => s.trim()).filter(Boolean);
 
     const { error } = await supabase.from('portfolios').upsert({
@@ -144,8 +148,6 @@ ${projects.map(p => `
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">
-      
-      {/* Control Navigation Header Bar */}
       <header className="border-b border-slate-900 bg-slate-900/40 backdrop-blur-md sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/dashboard" className="p-2 rounded-lg bg-slate-900 text-slate-400 hover:text-white transition-all border border-slate-800">
@@ -170,10 +172,8 @@ ${projects.map(p => `
         </div>
       </header>
 
-      {/* Main Dynamic Split Grid */}
       <div className="max-w-[1600px] mx-auto grid lg:grid-cols-2 min-h-[calc(100vh-65px)]">
-        
-        {/* LEFT COLUMN: Controls Input Management Panel */}
+        {/* LEFT COLUMN: Input Panel */}
         <div className="p-6 md:p-10 border-r border-slate-900 space-y-8 overflow-y-auto h-[calc(100vh-70px)]">
           <div className="space-y-1">
             <h2 className="text-lg font-bold text-white">Engineering Profile Parameters</h2>
@@ -200,7 +200,7 @@ ${projects.map(p => `
             </div>
           </div>
 
-          {/* Dynamic Interactive Projects Mapping */}
+          {/* Projects Matrix */}
           <div className="space-y-4">
             <div className="flex items-center justify-between border-b border-slate-900 pb-2">
               <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Production Proof of Work Card Matrix</label>
@@ -217,8 +217,10 @@ ${projects.map(p => `
                 <div className="grid sm:grid-cols-2 gap-3">
                   <input type="text" placeholder="Application Name Title" value={proj.title} onChange={(e) => handleProjectChange(proj.id, 'title', e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white" />
                   <input type="text" placeholder="Languages Used (e.g., Python, SQL)" value={proj.languages} onChange={(e) => handleProjectChange(proj.id, 'languages', e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white" />
-                  <input type="text" placeholder="Live Deployment preview URL link" value={proj.liveUrl} onChange={(e) => handleProjectChange(proj.id, 'liveUrl', e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white" />
-                  <input type="text" placeholder="GitHub Repository Git URL" value={proj.repoUrl} onChange={(e) => handleProjectChange(proj.id, 'repoUrl', e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white" />
+                </div>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <input type="text" placeholder="Live Deployment URL" value={proj.liveUrl} onChange={(e) => handleProjectChange(proj.id, 'liveUrl', e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white" />
+                  <input type="text" placeholder="GitHub Repository URL" value={proj.repoUrl} onChange={(e) => handleProjectChange(proj.id, 'repoUrl', e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white" />
                 </div>
                 <textarea rows={2} placeholder="Brief summary of application features, architecture bottlenecks cleared, or performance speeds optimized..." value={proj.description} onChange={(e) => handleProjectChange(proj.id, 'description', e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white resize-none" />
               </div>
@@ -226,11 +228,9 @@ ${projects.map(p => `
           </div>
         </div>
 
-        {/* RIGHT COLUMN: Real-Time Preview Digital Representation Canvas Sheet Panel Layout */}
+        {/* RIGHT COLUMN: Live Preview */}
         <div className="p-6 md:p-10 bg-slate-900/20 overflow-y-auto h-[calc(100vh-70px)]">
           <div className="w-full max-w-3xl mx-auto bg-slate-800/30 border border-slate-800 rounded-2xl p-6 shadow-xl">
-            
-            {/* Header Identity */}
             <div className="border-b border-slate-700 pb-4 mb-4">
               <h1 className="text-2xl font-bold text-white">{fullName || "YOUR NAME"}</h1>
               <div className="text-xs text-slate-400 mt-1">
@@ -238,14 +238,12 @@ ${projects.map(p => `
               </div>
             </div>
 
-            {/* Bio */}
             {bio && (
               <div className="mb-4">
                 <p className="text-sm text-slate-300 leading-relaxed">{bio}</p>
               </div>
             )}
 
-            {/* Tech Stack Badges */}
             {techStack && (
               <div className="mb-4">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Tech Stack Matrix</h3>
@@ -262,7 +260,6 @@ ${projects.map(p => `
               </div>
             )}
 
-            {/* Projects Cards */}
             {projects.some(p => p.title || p.description) && (
               <div>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Production Portfolio Cards</h3>
@@ -273,13 +270,9 @@ ${projects.map(p => `
                       <div key={p.id} className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
                         <div className="flex items-start justify-between">
                           <h4 className="font-semibold text-white text-sm">{p.title || "Untitled Project"}</h4>
-                          {p.languages && (
-                            <span className="text-xs text-slate-400">{p.languages}</span>
-                          )}
+                          {p.languages && <span className="text-xs text-slate-400">{p.languages}</span>}
                         </div>
-                        {p.description && (
-                          <p className="text-xs text-slate-300 leading-relaxed">{p.description}</p>
-                        )}
+                        {p.description && <p className="text-xs text-slate-300 leading-relaxed">{p.description}</p>}
                         <div className="flex flex-wrap gap-3 text-xs">
                           {p.liveUrl && (
                             <a href={p.liveUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-indigo-400 hover:underline">
