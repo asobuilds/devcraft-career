@@ -88,7 +88,6 @@ export default function Dashboard() {
               <LayoutDashboard size={14} /> {"Overview Terminal"}
             </div>
             
-            {/* FIXED: Account configurations is now an active redirection Link tag element */}
             <Link href="/settings" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 text-xs font-medium transition-colors border border-transparent hover:bg-slate-900/40">
               <Settings size={14} /> {"Account Configurations"}
             </Link>
@@ -100,7 +99,7 @@ export default function Dashboard() {
         </button>
       </aside>
 
-      {/* Main Workspace Workspace Content Sheet Panel */}
+      {/* Main Workspace */}
       <main className="flex-1 p-6 md:p-10 max-w-5xl">
         <div className="mb-8 flex justify-between items-start border-b border-slate-900 pb-6">
           <div>
@@ -114,7 +113,7 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Global Analytics Usage Row indicators metrics */}
+        {/* Global Analytics Row */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
           <div className="p-4 bg-slate-900/40 border border-slate-800 rounded-xl">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Dossier Access Count</span>
@@ -131,7 +130,7 @@ export default function Dashboard() {
         </div>
 
         <div className="space-y-8">
-          {/* 💻 SECTION A: PROGRAMMER PORTFOLIO WORKSPACE (Always available) */}
+          {/* Section A: Programmer Portfolio */}
           <div className="p-6 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 relative overflow-hidden">
             <div className="flex items-start justify-between">
               <div className="space-y-2">
@@ -157,7 +156,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* 📄 SECTION B: GENERAL APPLICANT CV WORKSPACE (Always available) */}
+          {/* Section B: General CV Workspace */}
           <div className="p-6 rounded-2xl border border-purple-500/20 bg-purple-500/5 relative overflow-hidden">
             <div className="flex items-start justify-between">
               <div className="space-y-2">
@@ -191,6 +190,6 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
-
     </div>
   );
+} // <-- Added missing closing brace
