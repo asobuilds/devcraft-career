@@ -1,0 +1,47 @@
+================================================================================
+          DEVCRAFT CAREER: PLATFORM SYSTEMS MAINTENANCE REFERENCE HANDBOOK
+================================================================================
+
+[1] LIVE ENDPOINT LINK DIRECTORY
+--------------------------------------------------------------------------------
+- Primary Landing Portal:       https://vercel.app
+- User Console Dashboard:       https://vercel.app/dashboard
+- Job Search Kanban CRM:        https://vercel.app/tracker
+- ATS Keyword Match Scanner:    https://vercel.app/analyzer
+- Security Configurations Room: https://vercel.app/settings
+- Candidate Marketplace:        https://vercel.app/directory
+- Administrative Control Node:  https://vercel.app/admin
+- Live System Telemetry Stream: https://vercel.app/admin/logs
+
+
+[2] BACKEND STORAGE & DATA UTILITY HOOKS
+--------------------------------------------------------------------------------
+- Database Table Names: public.profiles, public.resumes, public.portfolios,
+                        public.job_applications
+- Object File Storage Bucket: "resume-docs" (Configured as PUBLIC)
+- Client-Side Data Exporter File Name Output: devcraft-profile-backup.json
+- Client-Side Tech Stack Lead Sourcing API: POST /api/source-leads
+- GitHub Repository Miner API: POST /api/github-sync
+
+
+[3] SECURITY CONFIGURATIONS CHECKLIST (SUPABASE AUTH)
+--------------------------------------------------------------------------------
+To maintain your zero-friction user registrations and fully functional social buttons:
+- Sign In / Providers > Email: Toggle "Confirm sign up" to OFF (Disabled)
+- URL Configuration > Site URL: Set to "https://vercel.app"
+- URL Configuration > Redirect URLs: Add "https://vercel.app/dashboard"
+- Providers > GitHub: Toggle ON, Client ID & Secret verified from GitHub Developer apps.
+
+
+[4] DUAL-TRACK ARCHITECTURE LOGIC CODES
+--------------------------------------------------------------------------------
+- User Track Definition: Handled dynamically by the 'user_type' column string parameter.
+- 'programmer': Unlocks the Developer Portfolio Engine layouts panel views.
+- 'general': Unlocks the ATS-Optimized CV typography draft sheets views.
+- Grant Administrative Powers: Set the 'is_admin' boolean column flag parameter to TRUE 
+                               for your specific User ID string inside the SQL editor.
+
+
+================================================================================
+         PROACTION VERIFICATION COMPLETE. ENVIRONMENT SECURED AND STABLE.
+================================================================================
