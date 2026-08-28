@@ -64,9 +64,9 @@ export default function Dashboard() {
           </div>
 
           <nav className="space-y-1">
-            <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold">
-              <LayoutDashboard size={14} /> {"Overview Terminal"}
-            </div>
+            <Link href="/settings" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 text-xs font-medium transition-colors">
+              <Settings size={14} /> {"Account Configurations"}
+            </Link>
             <Link href="/settings" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 text-xs font-medium transition-colors">
               <Settings size={14} /> {"Account Configurations"}
             </Link>
