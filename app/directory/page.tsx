@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Search, Loader2, Code2, ArrowRight, Globe } from 'lucide-react';
+import { Search, Loader2, Code2, ArrowRight, Globe, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 export default function RecruiterDirectory() {
@@ -23,7 +23,7 @@ export default function RecruiterDirectory() {
     fetchAllPublicPortfolios();
   }, []);
 
-  // --- UPGRADE: Contextual Semantic Synonym Mapping Engine ---
+  // Contextual Semantic Synonym Mapping Engine
   const semanticSynonymsMap: Record<string, string[]> = {
     'backend': ['sql', 'postgres', 'python', 'node', 'api', 'docker', 'aws', 'database'],
     'frontend': ['react', 'typescript', 'javascript', 'tailwind', 'next.js', 'css', 'ui'],
@@ -38,11 +38,9 @@ export default function RecruiterDirectory() {
     const bio = p.bio?.toLowerCase() || '';
     const title = p.title?.toLowerCase() || '';
 
-    // Direct text verification match
     const hasDirectMatch = stack.includes(query) || bio.includes(query) || title.includes(query);
     if (hasDirectMatch) return true;
 
-    // Semantic proximity verification check loop
     let hasSemanticProximityMatch = false;
     Object.keys(semanticSynonymsMap).forEach(key => {
       if (query.includes(key) || key.includes(query)) {
@@ -71,9 +69,14 @@ export default function RecruiterDirectory() {
     <div className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-12 font-sans">
       <div className="max-w-6xl mx-auto space-y-8">
         <div className="border-b border-slate-900 pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-black text-white">Semantic Talent Discovery Deck</h1>
-            <p className="text-xs text-slate-500 mt-1">Algorithmic string proximity matrices active for high velocity matchmaking.</p>
+          <div className="flex items-center gap-4">
+            <Link href="/dashboard" className="p-2 rounded-lg bg-slate-900 text-slate-400 hover:text-white transition-all border border-slate-800">
+              <ArrowLeft size={16} />
+            </Link>
+            <div>
+              <h1 className="text-2xl font-black text-white">Candidate Marketplace</h1>
+              <p className="text-xs text-slate-500 mt-1">Browse verified active candidate profiles and live project code streams.</p>
+            </div>
           </div>
           <div className="relative w-full md:w-80">
             <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
@@ -82,7 +85,7 @@ export default function RecruiterDirectory() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search concepts (e.g. backend, cloud, frontend)..." 
-              className="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 log-2 pl-10 pr-4 text-xs text-white focus:outline-none focus:border-slate-700"
+              className="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 pl-10 pr-4 text-xs text-white focus:outline-none focus:border-slate-700"
             />
           </div>
         </div>
