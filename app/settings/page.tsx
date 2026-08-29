@@ -1,144 +1,219 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, ShieldAlert, KeyRound, Loader2 } from 'lucide-react';
+import { ArrowLeft, ShieldAlert, KeyRound, Loader2, Sparkles, CreditCard, ToggleLeft, ToggleRight, Eye, EyeOff } from 'lucide-react';
+import Link from 'next/link';
 
-export default function Settings() {
+export default function AccountSettings() {
   const router = useRouter();
-  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [statusMsg, setStatusMsg] = useState<string | null>(null);
 
-  // --- Update Password ---
+  const [userId, setUserId] = useState<string | null>(null);
+  const [password, setPassword] = useState('');
+  const [showDev, setShowDev] = useState(true);
+  const [showCV, setShowCV] = useState(true);
+  const [isPremium, setIsPremium] = useState(false);
+  const [premiumUntil, setPremiumUntil] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUserSettings = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+      setUserId(user.id);
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('show_dev_portfolio, show_cv_engine, is_premium, premium_until')
+        .eq('id', user.id)
+        .single();
+
+      if (profile) {
+        setShowDev(profile.show_dev_portfolio ?? true);
+        setShowCV(profile.show_cv_engine ?? true);
+        setIsPremium(profile.is_premium ?? false);
+        setPremiumUntil(profile.premium_until);
+      }
+      setLoading(false);
+    };
+
+    fetchUserSettings();
+  }, [router]);
+
+  const handleToggleView = async (field: 'show_dev_portfolio' | 'show_cv_engine', currentValue: boolean) => {
+    if (!userId) return;
+    const nextValue = !currentValue;
+
+    if (field === 'show_dev_portfolio') setShowDev(nextValue);
+    if (field === 'show_cv_engine') setShowCV(nextValue);
+
+    await supabase
+      .from('profiles')
+      .update({ [field]: nextValue })
+      .eq('id', userId);
+  };
+
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!password || password.length < 6) {
-      setMessage({ type: 'error', text: 'Password must be at least 6 characters.' });
+      alert('Password criteria must evaluate to at least 6 characters.');
       return;
     }
 
     setUpdating(true);
-    setMessage(null);
+    setStatusMsg(null);
 
-    try {
-      const { error } = await supabase.auth.updateUser({ password });
-      if (error) throw error;
-      setMessage({ type: 'success', text: 'Password updated successfully!' });
+    const { error } = await supabase.auth.updateUser({ password: password });
+
+    setUpdating(false);
+    if (!error) {
+      setStatusMsg('✅ Login access password modified securely.');
       setPassword('');
-    } catch (err: any) {
-      setMessage({ type: 'error', text: err.message || 'Failed to update password.' });
-    } finally {
-      setUpdating(false);
+    } else {
+      setStatusMsg('❌ Parameter modification failed: ' + error.message);
     }
   };
 
-  // --- Danger Zone: Purge Account ---
-  const handlePurgeAccount = async () => {
-    const confirmed = window.confirm(
-      '⚠️ Are you sure? This will permanently delete your profile and all associated data. This action cannot be undone.'
+  const handleDeleteAccount = async () => {
+    const confirmation = window.confirm('CRITICAL ACTION: Are you sure you want to permanently erase your profile and records from DevCraft cloud servers? This operation is irreversible.');
+    if (!confirmation) return;
+
+    if (userId) {
+      const { error } = await supabase.from('profiles').delete().eq('id', userId);
+      if (!error) {
+        await supabase.auth.signOut();
+        router.push('/');
+      }
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400 gap-2">
+        <Loader2 className="animate-spin text-indigo-500" size={20} />
+        <span>Synchronizing User Profile Controls...</span>
+      </div>
     );
-    if (!confirmed) return;
-
-    try {
-      // 1. Get current user
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-      if (userError || !user) throw new Error('Could not retrieve user session.');
-
-      // 2. Delete profile from public.profiles
-      const { error: deleteError } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', user.id);
-
-      if (deleteError) throw deleteError;
-
-      // 3. Sign out and redirect home
-      await supabase.auth.signOut();
-      router.push('/');
-    } catch (err: any) {
-      alert('Error during account deletion: ' + err.message);
-    }
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6">
-      <div className="w-full max-w-md bg-slate-900/60 border border-slate-800 p-8 rounded-2xl backdrop-blur-md shadow-2xl relative">
-        {/* Back Button */}
-        <div className="mb-6">
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center gap-2 text-xs font-medium text-slate-500 hover:text-slate-300 transition-colors"
-          >
-            <ArrowLeft size={14} /> Back to dashboard
-          </Link>
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-6 flex items-center justify-center font-sans">
+      <div className="w-full max-w-lg bg-slate-900/60 border border-slate-800 p-8 rounded-2xl backdrop-blur-md shadow-2xl space-y-6">
+        
+        <Link href="/dashboard" className="inline-flex items-center gap-2 text-xs text-slate-500 hover:text-slate-300 transition-colors">
+          <ArrowLeft size={14} /> Back to dashboard
+        </Link>
+
+        <div className="space-y-1">
+          <h2 className="text-xl font-bold text-white">System Configurations Terminal</h2>
+          <p className="text-xs text-slate-500">Regulate dashboard view visibility, subscriptions tiers, and login credential keys.</p>
         </div>
 
-        <h1 className="text-2xl font-bold tracking-tight text-white mb-2">Account Configurations</h1>
-        <p className="text-sm text-slate-400 mb-6">Manage your security and account settings.</p>
+        {statusMsg && (
+          <div className="p-3 text-xs font-medium rounded-xl border border-slate-800 bg-slate-950 text-slate-300">
+            {statusMsg}
+          </div>
+        )}
 
-        {/* Password Update Form */}
-        <form onSubmit={handleUpdatePassword} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-              New Password
-            </label>
+        {/* 💳 INTEGRATED PAYSTACK PREMIUM UPGRADE MODULE */}
+        <div className="p-5 rounded-xl border border-indigo-500/20 bg-indigo-500/5 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-400 uppercase tracking-wider">
+              <Sparkles size={14} /> AI Job Hunter Radar Ecosystem
+            </div>
+            <span className={`text-[9px] px-2.5 py-0.5 rounded-md font-mono font-bold uppercase tracking-wider border ${
+              isPremium ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-slate-950 border-slate-800 text-slate-500'
+            }`}>
+              {isPremium ? 'Premium Account Active' : 'Normal Free Tier'}
+            </span>
+          </div>
+          
+          <p className="text-xs text-slate-400 leading-relaxed">
+            {isPremium 
+              ? `Your premium features unlock is functional. Subscription remains valid until: ${new Date(premiumUntil!).toLocaleDateString()}. After 3 months, your account automatically reverts safely to normal tier.`
+              : 'Unlock automated background web-scrapping job hunters. The platform will automatically scrape the internet for positions matching your toolsets, auto-inject them into your Tracker board, and notify you instantly.'}
+          </p>
+
+          {!isPremium && (
+            <a 
+              href="https://paystack.shop" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 border border-transparent shadow-md shadow-indigo-600/10 mt-2"
+            >
+              <CreditCard size={14} /> Upgrade Account (📯 ₦1,500 / 3 Months)
+            </a>
+          )}
+        </div>
+
+        {/* INTERACTIVE VIEW SWITCH PANEL */}
+        <div className="p-5 rounded-xl border border-slate-800 bg-slate-950/40 space-y-4">
+          <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-900 pb-2">Custom Dashboard View Toggles</label>
+          
+          <div className="flex items-center justify-between text-xs">
+            <div className="space-y-0.5">
+              <div className="font-bold text-white flex items-center gap-1.5">
+                {showDev ? <Eye size={12} className="text-indigo-400" /> : <EyeOff size={12} className="text-slate-600" />} Programmer Portfolio Section
+              </div>
+              <p className="text-[11px] text-slate-500">Display the repository and README builder panels on your overview screen.</p>
+            </div>
+            <button type="button" onClick={() => handleToggleView('show_dev_portfolio', showDev)} className="text-slate-400 hover:text-white transition-colors">
+              {showDev ? <ToggleRight size={24} className="text-indigo-500" /> : <ToggleLeft size={24} className="text-slate-600" />}
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-900">
+            <div className="space-y-0.5">
+              <div className="font-bold text-white flex items-center gap-1.5">
+                {showCV ? <Eye size={12} className="text-purple-400" /> : <EyeOff size={12} className="text-slate-600" />} ATS-Optimized CV Engine
+              </div>
+              <p className="text-[11px] text-slate-500">Display your typographic curriculum entry utilities rows.</p>
+            </div>
+            <button type="button" onClick={() => handleToggleView('show_cv_engine', showCV)} className="text-slate-400 hover:text-white transition-colors">
+              {showCV ? <ToggleRight size={24} className="text-purple-500" /> : <ToggleLeft size={24} className="text-slate-600" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Password Modifier Form */}
+        <form onSubmit={handleUpdatePassword} className="space-y-4 pt-2">
+          <div className="space-y-1.5">
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Modify Account Password</label>
             <div className="relative">
-              <KeyRound size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
-              <input
-                type="password"
+              <KeyRound size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+              <input 
+                type="password" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter new password (min. 6 chars)"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-slate-700"
-                disabled={updating}
-                minLength={6}
+                placeholder="Type new secure configuration lock..." 
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-xs text-white focus:outline-none focus:border-slate-700"
                 required
               />
             </div>
           </div>
-
-          <button
-            type="submit"
-            disabled={updating}
-            className="w-full font-medium text-sm text-white py-3.5 rounded-xl shadow-lg bg-indigo-600 hover:bg-indigo-500 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-          >
-            {updating ? <Loader2 size={16} className="animate-spin" /> : null}
-            {updating ? 'Updating...' : 'Update Password'}
+          <button type="submit" disabled={updating} className="w-full bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold py-2.5 rounded-xl border border-slate-700 transition-all">
+            {updating ? <Loader2 size={12} className="animate-spin inline mr-1" /> : null} Update Access Keys
           </button>
-
-          {message && (
-            <div
-              className={`p-3 rounded-xl border text-xs ${
-                message.type === 'success'
-                  ? 'border-green-500/20 bg-green-500/5 text-green-400'
-                  : 'border-red-500/20 bg-red-500/5 text-red-400'
-              }`}
-            >
-              {message.text}
-            </div>
-          )}
         </form>
 
-        {/* Danger Zone */}
-        <div className="mt-8 pt-6 border-t border-slate-800">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-red-400 flex items-center gap-2 mb-3">
+        {/* DANGER ZONE */}
+        <div className="pt-6 border-t border-slate-800 space-y-3">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-red-400 uppercase tracking-wider">
             <ShieldAlert size={14} /> Danger Zone
-          </h2>
-          <button
-            onClick={handlePurgeAccount}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 hover:border-red-500/40 transition-all text-xs font-medium"
+          </div>
+          <button 
+            onClick={handleDeleteAccount}
+            className="w-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 font-semibold text-xs py-2.5 rounded-xl transition-all flex items-center justify-center gap-2"
           >
             Purge My Cloud Presence
           </button>
-          <p className="text-[10px] text-slate-500 mt-2">
-            This will permanently delete your profile and all associated data. This action cannot be undone.
-          </p>
+          <p className="text-[10px] text-slate-500">This action permanently deletes your profile and all associated data. It cannot be undone.</p>
         </div>
       </div>
     </div>

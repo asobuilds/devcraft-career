@@ -5,19 +5,12 @@ import { supabase } from '@/lib/supabase';
 import { Search, Loader2, Code2, ArrowRight, Globe, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
-// Helper to normalize tech_stack into an array of strings
+// Helper to normalize tech_stack into a clean array of strings
 const getTechArray = (tech: any): string[] => {
   if (!tech) return [];
   if (Array.isArray(tech)) return tech.map(t => t.trim()).filter(Boolean);
   if (typeof tech === 'string') return tech.split(',').map(t => t.trim()).filter(Boolean);
   return [];
-};
-
-// Semantic synonym mapping
-const semanticSynonymsMap: Record<string, string[]> = {
-  backend: ['sql', 'postgres', 'python', 'node', 'api', 'docker', 'aws', 'database', 'postgresql', 'mongodb'],
-  frontend: ['react', 'typescript', 'javascript', 'tailwind', 'next.js', 'css', 'ui', 'vue', 'angular'],
-  cloud: ['aws', 'docker', 'kubernetes', 'ci/cd', 'deployment', 'security', 'azure', 'gcp'],
 };
 
 export default function RecruiterDirectory() {
@@ -38,23 +31,29 @@ export default function RecruiterDirectory() {
     fetchAllPublicPortfolios();
   }, []);
 
-  // Filter with semantic synonyms
+  // Semantic synonym mapping (unchanged)
+  const semanticSynonymsMap: Record<string, string[]> = {
+    'backend': ['sql', 'postgres', 'python', 'node', 'api', 'docker', 'aws', 'database'],
+    'frontend': ['react', 'typescript', 'javascript', 'tailwind', 'next.js', 'css', 'ui'],
+    'cloud': ['aws', 'docker', 'kubernetes', 'ci/cd', 'deployment', 'security']
+  };
+
+  // Filter with safe tech_stack handling
   const filteredPortfolios = portfolios.filter(p => {
     const query = searchTerm.toLowerCase().trim();
     if (!query) return true;
 
-    // Get tech array and combine with bio and title
     const techArray = getTechArray(p.tech_stack);
     const techString = techArray.join(' ').toLowerCase();
     const bio = (p.bio || '').toLowerCase();
     const title = (p.title || '').toLowerCase();
 
-    // Direct match in tech, bio, or title
+    // Direct match
     if (techString.includes(query) || bio.includes(query) || title.includes(query)) {
       return true;
     }
 
-    // Semantic proximity: check if query matches a synonym category and any synonym appears
+    // Semantic proximity
     let hasSemanticMatch = false;
     Object.keys(semanticSynonymsMap).forEach(key => {
       if (query.includes(key) || key.includes(query)) {
@@ -82,14 +81,15 @@ export default function RecruiterDirectory() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-12 font-sans">
       <div className="max-w-6xl mx-auto space-y-8">
+        {/* Header */}
         <div className="border-b border-slate-900 pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="p-2 rounded-lg bg-slate-900 text-slate-400 hover:text-white transition-all border border-slate-800">
+            <Link href="/dashboard" className="p-2 rounded-lg bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800 transition-all border border-slate-800">
               <ArrowLeft size={16} />
             </Link>
             <div>
               <h1 className="text-2xl font-black text-white">Candidate Marketplace</h1>
-              <p className="text-xs text-slate-500 mt-1">Browse verified active candidate profiles and live project code streams.</p>
+              <p className="text-xs text-slate-500 mt-1">Browse verified candidate profiles and live project code streams.</p>
             </div>
           </div>
           <div className="relative w-full md:w-80">
@@ -98,12 +98,13 @@ export default function RecruiterDirectory() {
               type="text" 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search concepts (e.g. backend, cloud, frontend)..." 
+              placeholder="Search concepts (e.g. backend, cloud)..." 
               className="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 pl-10 pr-4 text-xs text-white focus:outline-none focus:border-slate-700 placeholder-slate-600"
             />
           </div>
         </div>
 
+        {/* Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredPortfolios.map((p) => {
             const techArray = getTechArray(p.tech_stack);
@@ -129,6 +130,7 @@ export default function RecruiterDirectory() {
                 </div>
 
                 <div className="space-y-4 mt-6 pt-4 border-t border-slate-900">
+                  {/* Tech stack tags */}
                   {techArray.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                       {techArray.slice(0, 4).map((tech, idx) => (
@@ -141,6 +143,7 @@ export default function RecruiterDirectory() {
                       )}
                     </div>
                   )}
+                  {/* Link to profile */}
                   <Link
                     href={`/p/${p.custom_subdomain}`}
                     className="w-full bg-slate-800 group-hover:bg-indigo-600 text-white font-medium text-xs py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 border border-slate-700/60 group-hover:border-transparent"
@@ -153,6 +156,7 @@ export default function RecruiterDirectory() {
           })}
         </div>
 
+        {/* No results */}
         {filteredPortfolios.length === 0 && (
           <p className="text-center text-xs text-slate-700 italic py-20">
             No portfolios matched the semantic threshold query.
