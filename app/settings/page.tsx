@@ -152,6 +152,30 @@ export default function AccountSettings() {
           )}
         </div>
 
+        {/* 🚀 REAL-TIME TEST TRIGGER RADAR FOR PREMIUM SUBSCRIBERS */}
+        {isPremium && (
+          <div className="p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-xl space-y-2 mt-4 animate-fade-in">
+            <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Manual Radar Overide Scan</div>
+            <p className="text-[11px] text-slate-500">Force trigger the web-scrapper algorithm to scan the internet for matching contract vacancies right now.</p>
+            <button 
+              type="button" 
+              onClick={async () => {
+                const res = await fetch('/api/cron-scraper', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ userId })
+                });
+                const data = await res.json();
+                alert(data.message || 'Scraper sweep executed.');
+              }} 
+              className="text-[11px] font-mono text-emerald-400 hover:underline font-bold mt-1 block"
+            >
+              {"Execute Live Scraper Loop Sweep →"}
+            </button>
+          </div>
+        )}
+
+
         {/* INTERACTIVE VIEW SWITCH PANEL */}
         <div className="p-5 rounded-xl border border-slate-800 bg-slate-950/40 space-y-4">
           <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-900 pb-2">Custom Dashboard View Toggles</label>
