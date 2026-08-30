@@ -13,7 +13,6 @@ export default function Dashboard() {
   const [loadPercentage, setLoadPercentage] = useState(0);
   const [userProfile, setUserProfile] = useState<any>(null);
 
-  // Preference visibility layout hooks
   const [showDev, setShowDev] = useState(true);
   const [showCV, setShowCV] = useState(true);
 
@@ -69,7 +68,7 @@ export default function Dashboard() {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-400 gap-4">
         <Loader2 className="animate-spin text-indigo-500 h-8 w-8" />
-        <div className="text-sm font-semibold tracking-wide text-white">Synchronizing System Cockpit Modules...</div>
+        <div className="text-sm font-semibold tracking-wide text-white">Synchronizing System Cockpit...</div>
         <div className="w-48 bg-slate-900 h-1.5 rounded-full overflow-hidden border border-slate-800">
           <div className="bg-purple-600 h-full transition-all duration-75" style={{ width: `${loadPercentage}%` }} />
         </div>
@@ -81,7 +80,6 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row">
       
-      {/* Sidebar Navigation Panel */}
       <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r border-slate-900 bg-slate-900/20 p-6 flex flex-col justify-between">
         <div className="space-y-8">
           <div className="flex items-center gap-2">
@@ -94,7 +92,8 @@ export default function Dashboard() {
               <LayoutDashboard size={14} /> {"Overview Terminal"}
             </div>
             
-            <Link href="/settings" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900/40 text-xs font-medium transition-all">
+            {/* NO NESTED BUTTONS - PURE HYBRID ANCHOR ROUTING */}
+            <Link href="/settings" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900/40 text-xs font-medium transition-colors border border-transparent">
               <Settings size={14} /> {"Account Configurations"}
             </Link>
           </nav>
@@ -105,7 +104,6 @@ export default function Dashboard() {
         </button>
       </aside>
 
-      {/* Main Switchboard Content Switchboard Area */}
       <main className="flex-1 p-6 md:p-10 max-w-5xl">
         <div className="mb-8 flex justify-between items-start border-b border-slate-900 pb-6">
           <div>
@@ -119,7 +117,6 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Global Analytics Usage Row indicators metrics */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
           <div className="p-4 bg-slate-900/40 border border-slate-800 rounded-xl">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Dossier Access Count</span>
@@ -132,25 +129,22 @@ export default function Dashboard() {
           <div className="p-4 bg-slate-900/40 border border-slate-800 rounded-xl col-span-2 md:col-span-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Subscription Tier</span>
             <span className="text-sm font-bold font-mono text-green-400 mt-1.5 flex items-center gap-1">
-              <Sparkles size={12} /> {userProfile?.is_premium ? 'PREMIUM ACCESS UNLOCKED' : 'STANDARD FREE TIER'}
+              <Sparkles size={12} /> {userProfile?.is_premium ? 'PREMIUM UNLOCKED' : 'STANDARD FREE TIER'}
             </span>
           </div>
         </div>
 
         <div className="space-y-8">
-          {/* SECTION A: PROGRAMMER PORTFOLIO WORKSPACE */}
           {showDev && (
             <div className="p-6 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 relative overflow-hidden">
-              <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-bold tracking-wider uppercase">
-                    <Code size={10} /> {"Developer Portfolio Engine Active"}
-                  </div>
-                  <h2 className="text-lg font-bold text-white">{"Your Engineering Profile"}</h2>
-                  <p className="text-xs text-slate-400 max-w-xl">
-                    {"Connect project data nodes, map technical language badges, and auto-compile copyable profile README files for your GitHub repositories."}
-                  </p>
+              <div className="space-y-2">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-bold tracking-wider uppercase">
+                  <Code size={10} /> {"Developer Portfolio Engine Active"}
                 </div>
+                <h2 className="text-lg font-bold text-white">{"Your Engineering Profile"}</h2>
+                <p className="text-xs text-slate-400 max-w-xl">
+                  {"Connect project data nodes, map technical language badges, and auto-compile copyable profile README files for your GitHub repositories."}
+                </p>
               </div>
               
               <div className="mt-6 flex flex-wrap gap-3">
@@ -164,19 +158,16 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* SECTION B: GENERAL APPLICANT CV WORKSPACE */}
           {showCV && (
             <div className="p-6 rounded-2xl border border-purple-500/20 bg-purple-500/5 relative overflow-hidden">
-              <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] font-bold tracking-wider uppercase">
-                    <FileText size={10} /> {"ATS-Optimized CV Engine Active"}
-                  </div>
-                  <h2 className="text-lg font-bold text-white">{"Your Professional Resume Blueprint"}</h2>
-                  <p className="text-xs text-slate-400 max-w-xl">
-                    {"Structure standard, bot-friendly layout sheets. Uses built-in vocabulary advisors to optimize points for recruitment parsed tracking filters."}
-                  </p>
+              <div className="space-y-2">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] font-bold tracking-wider uppercase">
+                  <FileText size={10} /> {"ATS-Optimized CV Engine Active"}
                 </div>
+                <h2 className="text-lg font-bold text-white">{"Your Professional Resume Blueprint"}</h2>
+                <p className="text-xs text-slate-400 max-w-xl">
+                  {"Structure standard, bot-friendly layout sheets. Uses built-in vocabulary advisors to optimize points for recruitment parsed tracking filters."}
+                </p>
               </div>
 
               <div className="mt-6 flex flex-wrap gap-3">
