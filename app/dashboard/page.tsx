@@ -13,14 +13,14 @@ export default function Dashboard() {
   const [loadPercentage, setLoadPercentage] = useState(0);
   const [userProfile, setUserProfile] = useState<any>(null);
 
-  // Preference visibility hooks
+  // Preference visibility layout hooks
   const [showDev, setShowDev] = useState(true);
   const [showCV, setShowCV] = useState(true);
 
   useEffect(() => {
     let progressTimer = 0;
     const speedInterval = setInterval(() => {
-      progressTimer += Math.floor(Math.random() * 20) + 10;
+      progressTimer += Math.floor(Math.random() * 25) + 10;
       if (progressTimer >= 100) {
         progressTimer = 100;
         clearInterval(speedInterval);
@@ -42,7 +42,7 @@ export default function Dashboard() {
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (profile) {
         setUserProfile(profile);
@@ -94,7 +94,7 @@ export default function Dashboard() {
               <LayoutDashboard size={14} /> {"Overview Terminal"}
             </div>
             
-            <Link href="/settings" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900/40 text-xs font-medium transition-colors border border-transparent">
+            <Link href="/settings" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900/40 text-xs font-medium transition-all">
               <Settings size={14} /> {"Account Configurations"}
             </Link>
           </nav>
@@ -105,7 +105,7 @@ export default function Dashboard() {
         </button>
       </aside>
 
-      {/* Main Switchboard Content Sheet Panel */}
+      {/* Main Switchboard Content Switchboard Area */}
       <main className="flex-1 p-6 md:p-10 max-w-5xl">
         <div className="mb-8 flex justify-between items-start border-b border-slate-900 pb-6">
           <div>
@@ -132,7 +132,7 @@ export default function Dashboard() {
           <div className="p-4 bg-slate-900/40 border border-slate-800 rounded-xl col-span-2 md:col-span-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Subscription Tier</span>
             <span className="text-sm font-bold font-mono text-green-400 mt-1.5 flex items-center gap-1">
-              <Sparkles size={12} /> {userProfile?.is_premium ? 'PREMIUM USER' : 'STANDARD FREE'}
+              <Sparkles size={12} /> {userProfile?.is_premium ? 'PREMIUM ACCESS UNLOCKED' : 'STANDARD FREE TIER'}
             </span>
           </div>
         </div>
@@ -154,15 +154,11 @@ export default function Dashboard() {
               </div>
               
               <div className="mt-6 flex flex-wrap gap-3">
-                <Link href="/portfolio-builder" className="inline-block">
-                  <span className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition-all cursor-pointer inline-block">
-                    {"🛠️ Open Programmer Portfolio Builder"}
-                  </span>
+                <Link href="/portfolio-builder" className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition-all">
+                  {"🛠️ Open Programmer Portfolio Builder"}
                 </Link>
-                <Link href="/directory" className="inline-block">
-                  <span className="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-300 rounded-lg text-xs font-medium hover:border-slate-700 transition-all cursor-pointer inline-block">
-                    {"🔍 Browse Candidate Marketplace"}
-                  </span>
+                <Link href="/directory" className="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-300 rounded-lg text-xs font-medium hover:border-slate-700 transition-all">
+                  {"🔍 Browse Candidate Marketplace"}
                 </Link>
               </div>
             </div>
@@ -184,26 +180,21 @@ export default function Dashboard() {
               </div>
 
               <div className="mt-6 flex flex-wrap gap-3">
-                <Link href="/cv-builder" className="inline-block">
-                  <span className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-semibold transition-all cursor-pointer inline-block">
-                    {"+ Edit CV Document"}
-                  </span>
+                <Link href="/cv-builder" className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-semibold transition-all">
+                  {"+ Edit CV Document"}
                 </Link>
-                <Link href="/tracker" className="inline-block">
-                  <span className="px-4 py-2 bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 rounded-lg text-xs font-medium transition-all cursor-pointer inline-block">
-                    {"📋 Track Sent Applications"}
-                  </span>
+                <Link href="/tracker" className="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-300 rounded-lg text-xs font-medium hover:border-slate-700 transition-all">
+                  {"📋 Track Sent Applications"}
                 </Link>
-                <Link href="/analyzer" className="inline-block">
-                  <span className="px-4 py-2 bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 rounded-lg text-xs font-medium transition-all cursor-pointer inline-block">
-                    {"🔍 Scan Job Keyword Match"}
-                  </span>
+                <Link href="/analyzer" className="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-300 rounded-lg text-xs font-medium hover:border-slate-700 transition-all">
+                  {"🔍 Scan Job Keyword Match"}
                 </Link>
               </div>
             </div>
           )}
         </div>
       </main>
+
     </div>
   );
 }

@@ -32,7 +32,7 @@ export default function AccountSettings() {
         .from('profiles')
         .select('show_dev_portfolio, show_cv_engine, is_premium, premium_until')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (profile) {
         setShowDev(profile.show_dev_portfolio ?? true);
@@ -121,7 +121,7 @@ export default function AccountSettings() {
           </div>
         )}
 
-        {/* 💳 INTEGRATED PAYSTACK PREMIUM UPGRADE MODULE */}
+        {/* 💳 NIGERIAN PAYSTACK PREMIUM MODULE */}
         <div className="p-5 rounded-xl border border-indigo-500/20 bg-indigo-500/5 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-400 uppercase tracking-wider">
@@ -151,30 +151,6 @@ export default function AccountSettings() {
             </a>
           )}
         </div>
-
-        {/* 🚀 REAL-TIME TEST TRIGGER RADAR FOR PREMIUM SUBSCRIBERS */}
-        {isPremium && (
-          <div className="p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-xl space-y-2 mt-4 animate-fade-in">
-            <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Manual Radar Overide Scan</div>
-            <p className="text-[11px] text-slate-500">Force trigger the web-scrapper algorithm to scan the internet for matching contract vacancies right now.</p>
-            <button 
-              type="button" 
-              onClick={async () => {
-                const res = await fetch('/api/cron-scraper', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ userId })
-                });
-                const data = await res.json();
-                alert(data.message || 'Scraper sweep executed.');
-              }} 
-              className="text-[11px] font-mono text-emerald-400 hover:underline font-bold mt-1 block"
-            >
-              {"Execute Live Scraper Loop Sweep →"}
-            </button>
-          </div>
-        )}
-
 
         {/* INTERACTIVE VIEW SWITCH PANEL */}
         <div className="p-5 rounded-xl border border-slate-800 bg-slate-950/40 space-y-4">
@@ -226,19 +202,12 @@ export default function AccountSettings() {
           </button>
         </form>
 
-        {/* DANGER ZONE */}
-        <div className="pt-6 border-t border-slate-800 space-y-3">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-red-400 uppercase tracking-wider">
-            <ShieldAlert size={14} /> Danger Zone
-          </div>
-          <button 
-            onClick={handleDeleteAccount}
-            className="w-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 font-semibold text-xs py-2.5 rounded-xl transition-all flex items-center justify-center gap-2"
-          >
+        <div className="pt-4 border-t border-slate-900 space-y-2">
+          <button onClick={handleDeleteAccount} className="w-full bg-red-950/20 hover:bg-red-950/50 text-red-400 text-xs font-semibold py-2.5 rounded-xl border border-red-900/30 transition-all">
             Purge My Cloud Presence
           </button>
-          <p className="text-[10px] text-slate-500">This action permanently deletes your profile and all associated data. It cannot be undone.</p>
         </div>
+
       </div>
     </div>
   );
