@@ -16,7 +16,8 @@ export default function TemplateMinimalist({ fullName, email, phone, website, su
   return (
     <div className="w-full max-w-[816px] bg-white text-slate-950 p-12 min-h-[1056px] font-serif flex flex-col justify-between print:p-0 print:shadow-none">
       <div className="space-y-6">
-        {/* Government Grade High Density Centered Header Alignment */}
+        
+        {/* Government Centered High Density Typography Header layout */}
         <div className="text-center space-y-1.5 border-b-2 border-slate-950 pb-4">
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 uppercase">{fullName || "YOUR FULL NAME"}</h1>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-slate-700 font-sans tracking-wide">
@@ -42,7 +43,7 @@ export default function TemplateMinimalist({ fullName, email, phone, website, su
                   <span>{exp.role}{exp.company ? ` | ${exp.company}` : ""}</span>
                   <span className="text-[11px] text-slate-600 font-normal">{exp.dates}</span>
                 </div>
-                <p className="text-slate-800 leading-relaxed text-justify pl-3 border-l-2 border-slate-900">{exp.bullets}</p>
+                <p className="text-slate-800 leading-relaxed text-justify pl-3 border-l-2 border-slate-900 whitespace-pre-wrap">{exp.bullets}</p>
               </div>
             ) : null)}
           </div>
