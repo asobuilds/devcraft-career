@@ -9,6 +9,7 @@ import Link from 'next/link';
 // Import our isolated sub-component styling template modules cleanly
 import TemplateMinimalist from './components/TemplateMinimalist';
 import TemplateModernIndigo from './components/TemplateModernIndigo';
+import TemplateExecutiveSlate from './components/TemplateExecutiveSlate';
 
 interface ExperienceItem {
   id: string;
@@ -100,7 +101,7 @@ export default function CVBuilder() {
       await supabase.from('profiles').upsert({ id: userId, full_name: fullName, email, phone, website, updated_at: new Date().toISOString() });
       const skillsArray = skills.split(',').map((s) => s.trim()).filter(Boolean);
       await supabase.from('resumes').upsert({ user_id: userId, resume_title: resumeTitle, summary, skills: skillsArray, experience, active_template: theme, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
-      alert('✅ Document tracking coordinates matching matrix saved successfully!');
+      alert('✅ Document template configurations matching matrix saved successfully!');
     } catch (error: any) {
       alert('❌ Server database error: ' + error.message);
     } finally {
@@ -112,12 +113,11 @@ export default function CVBuilder() {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400 gap-2">
         <Loader2 className="animate-spin text-purple-500" size={20} />
-        <span>Syncing Document Fragment Matrices...</span>
+        <span>Syncing Multi-Template Framework...</span>
       </div>
     );
   }
-
-    return (
+  return (
     <div className="min-h-screen bg-slate-950 text-slate-100 print:bg-white print:text-black">
       
       {/* Structural Header Control Toolbar Block */}
@@ -135,6 +135,7 @@ export default function CVBuilder() {
             <select value={theme} onChange={(e) => setTheme(e.target.value)} className="bg-transparent text-slate-300 font-medium focus:outline-none cursor-pointer">
               <option value="modern-indigo">Template: Silicon Tech Indigo</option>
               <option value="minimalist">Template: Civil Service Minimalist</option>
+              <option value="executive-slate">Template: Executive Slate Grid</option>
             </select>
           </div>
 
@@ -187,14 +188,11 @@ export default function CVBuilder() {
             {experience.map((exp) => (
               <div key={exp.id} className="p-4 bg-slate-900/40 border border-slate-800 rounded-xl space-y-3 relative group">
                 <button onClick={() => handleRemoveExperience(exp.id)} className="absolute top-4 right-4 text-slate-600 hover:text-red-400"><Trash2 size={12} /></button>
-                <input 
-                  type="text" 
-                  placeholder="Official Role Position" 
-                  value={exp.role} 
-                  onChange={(e) => handleExperienceChange(exp.id, 'role', e.target.value)} 
-                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white" 
-                />
-
+                <div className="grid sm:grid-cols-3 gap-3">
+                  <input type="text" placeholder="Institution/Company" value={exp.company} onChange={(e) => handleExperienceChange(exp.id, 'company', e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white" />
+                  <input type="text" placeholder="Official Role Position" value={exp.role} onChange={(e) => handleExperienceChange(exp.id, 'role', e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white" />
+                  <input type="text" placeholder="Dates Frame" value={exp.dates} onChange={(e) => handleExperienceChange(exp.id, 'dates', e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white" />
+                </div>
                 <textarea rows={2} placeholder="Key accomplishments and data volume variables metrics optimized..." value={exp.bullets} onChange={(e) => handleExperienceChange(exp.id, 'bullets', e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white resize-none" />
                 
                 {exp.bullets.length > 2 && (
@@ -222,6 +220,8 @@ export default function CVBuilder() {
         <div className="p-6 md:p-12 bg-slate-900/10 flex items-start justify-center overflow-y-auto max-h-[calc(100vh-70px)] print:max-h-none print:p-0 print:bg-white">
           {theme === 'minimalist' ? (
             <TemplateMinimalist fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} />
+          ) : theme === 'executive-slate' ? (
+            <TemplateExecutiveSlate fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} />
           ) : (
             <TemplateModernIndigo fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} />
           )}
