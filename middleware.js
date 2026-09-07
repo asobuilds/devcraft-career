@@ -18,7 +18,9 @@ export function middleware(request) {
     path.startsWith('/analyzer') ||
     path.startsWith('/portfolio-builder') ||
     path.startsWith('/settings') ||   // Open traffic channels cleanly
-    path.startsWith('/directory')     // Open traffic channels cleanly
+    path.startsWith('/directory') ||     // Open traffic channels cleanly
+    path.startsWith('/fix-database') 
+
   ) {
     return NextResponse.next();
   }
