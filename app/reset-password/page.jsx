@@ -9,9 +9,9 @@ export default function ResetPassword() {
   const router = useRouter();
   const [newPassword, setNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [statusMsg, setStatusMsg] = useState<string | null>(null);
+  const [statusMsg, setStatusMsg] = useState(null); // FIXED: Removed strict TypeScript types
 
-  const handlePasswordUpdate = async (e: React.FormEvent) => {
+  const handlePasswordUpdate = async (e) => { // FIXED: Removed React.FormEvent type parameter
     e.preventDefault();
     if (newPassword.length < 6) {
       alert('Password criteria must evaluate to at least 6 characters.');
@@ -33,9 +33,9 @@ export default function ResetPassword() {
       setTimeout(() => {
         router.push('/dashboard');
       }, 2500);
-    } catch (err: any) {
+    } catch (err) { // FIXED: Removed strict typed err: any
       setStatusMsg('❌ Update failure: ' + (err.message || 'Verification token expired.'));
-    } {
+    } finally { // FIXED: Corrected catch statement block wrapper to standard finally syntax
       setLoading(false);
     }
   };

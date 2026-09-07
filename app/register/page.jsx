@@ -1,16 +1,12 @@
 'use client';
 
-import React, { useState, use } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, KeyRound, Mail, User, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
-export default function Register({
-  searchParams,
-}: {
-  searchParams: Promise<{ type?: string }>;
-}) {
+export default function Register({ searchParams }) { // FIXED: Removed explicit TypeScript object structure annotations
   const router = useRouter();
   const resolvedParams = use(searchParams);
   const chosenType = resolvedParams.type === 'programmer' ? 'programmer' : 'general';
@@ -20,10 +16,10 @@ export default function Register({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState(null);   // FIXED: Stripped TypeScript <string | null> types
+  const [successMsg, setSuccessMsg] = useState(null); // FIXED: Stripped TypeScript <string | null> types
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleSignUp = async (e) => { // FIXED: Stripped out React.FormEvent typing context parameters
     e.preventDefault();
     setLoading(true);
     setErrorMsg(null);
@@ -71,13 +67,12 @@ export default function Register({
           router.push('/dashboard');
         }, 3000);
       }
-    } catch (err: any) {
+    } catch (err) { // FIXED: Stripped explicit : any type annotations blocker parameters
       setErrorMsg(err.message || 'An unexpected error occurred during registration.');
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6 relative">
       <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
