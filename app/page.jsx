@@ -16,19 +16,14 @@ import {
   Globe
 } from 'lucide-react';
 
-interface FAQItem {
-  question: string;
-  answer: string;
-}
-
 export default function Home() {
-  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
+  const [openFaqIndex, setOpenFaqIndex] = useState(null); // FIXED: Stripped TypeScript type annotations <number | null>
 
-  const toggleFaq = (index: number) => {
+  const toggleFaq = (index) => { // FIXED: Stripped out strict types mapping parameter
     setOpenFaqIndex(openFaqIndex === index ? null : index);
   };
 
-  const faqData: FAQItem[] = [
+  const faqData = [ // FIXED: Stripped TypeScript object arrays interface definition tag
     {
       question: "Can I download my outputs for real-world physical submissions?",
       answer: "Absolutely. Both the CV layouts and developer portfolio dashboards utilize custom print CSS media engines. When you trigger standard browser printing (Ctrl + P), all navigation dashboards, buttons, and backgrounds strip away instantly, generating a beautifully structured, recruiter-compliant physical document."
@@ -114,7 +109,6 @@ export default function Home() {
               </Link>
             </div>
           </section>
-
           {/* Features */}
           <section id="features" className="max-w-6xl mx-auto px-6 sm:px-12 py-20 border-t border-slate-900/60 scroll-mt-20">
             <div className="text-center max-w-xl mx-auto mb-16 space-y-2">
@@ -238,17 +232,14 @@ $ devcraft share --linkedin
             <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-sm">{"DC"}</div>
-                <span className="text-xs font-medium text-slate-500">{"© 2025 DevCraft — The Career Engineering Platform"}</span>
+                <span className="font-bold text-base tracking-tight text-white">{"DevCraft"}</span>
               </div>
-              <div className="flex items-center gap-4 text-slate-500">
-                <a href="#" className="hover:text-white transition-colors"><Globe size={16} /></a>
-                <a href="#" className="hover:text-white transition-colors"><Globe size={16} /></a>
-                <a href="#" className="hover:text-white transition-colors"><Globe size={16} /></a>
-                <Link href="/privacy" className="text-xs hover:text-white transition-colors">Privacy</Link>
-                <Link href="/terms" className="text-xs hover:text-white transition-colors">Terms</Link>
+              <div className="text-xs text-slate-500">
+                {"© 2026 DevCraft Career Infrastructure Platform. Commercial Deployment Engine."}
               </div>
             </div>
           </footer>
+
         </div>
       </div>
     </div>
