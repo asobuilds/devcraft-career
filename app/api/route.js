@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
-export async function POST(request: Request) {
+export async function POST(request) {
   try {
     const { userId } = await request.json();
 
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Profile lookup execution error' }, { status: 404 });
     }
 
-    // 2. Strict monetisation gate check barrier rule
+    // 2. Strict monetization gate check barrier rule
     if (!profile.is_premium) {
       return NextResponse.json({ 
         success: false, 
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
         user_id: userId,
         company_name: matchedOpportunity.company,
         job_title: matchedOpportunity.title,
-        status: 'offered' as const,
+        status: 'offered',
         salary_range: matchedOpportunity.salary,
         notes: `🤖 AUTO-SOURCED RADAR LEAD MATCH [95% Match Index Score]. Matched via keyword: "${matchedOpportunity.stackKeyword}". Real-time email and SMS telemetry alert dispatched.`
       };
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
       message: 'Scraper sweep completed. No fresh keyword variance matches caught inside this hour segment frame.' 
     }, { status: 200 });
 
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json({ error: 'Scraper worker exception error execution failure: ' + error.message }, { status: 500 });
   }
 }
