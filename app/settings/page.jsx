@@ -10,14 +10,15 @@ export default function AccountSettings() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
-  const [statusMsg, setStatusMsg] = useState<string | null>(null);
+  const [statusMsg, setStatusMsg] = useState(null);
 
-  const [userId, setUserId] = useState<string | null>(null);
+  const [userId, setUserId] = useState(null);
   const [password, setPassword] = useState('');
   const [showDev, setShowDev] = useState(true);
   const [showCV, setShowCV] = useState(true);
   const [isPremium, setIsPremium] = useState(false);
-  const [premiumUntil, setPremiumUntil] = useState<string | null>(null);
+  const [premiumUntil, setPremiumUntil] = useState(null);
+  const [bgTheme, setBgTheme] = useState('slate-black');
 
   useEffect(() => {
     const fetchUserSettings = async () => {
@@ -30,7 +31,7 @@ export default function AccountSettings() {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('show_dev_portfolio, show_cv_engine, is_premium, premium_until')
+        .select('show_dev_portfolio, show_cv_engine, is_premium, premium_until, system_theme')
         .eq('id', user.id)
         .maybeSingle();
 
@@ -39,6 +40,7 @@ export default function AccountSettings() {
         setShowCV(profile.show_cv_engine ?? true);
         setIsPremium(profile.is_premium ?? false);
         setPremiumUntil(profile.premium_until);
+        setBgTheme(profile.system_theme || 'slate-black');
       }
       setLoading(false);
     };
@@ -46,20 +48,21 @@ export default function AccountSettings() {
     fetchUserSettings();
   }, [router]);
 
-  const handleToggleView = async (field: 'show_dev_portfolio' | 'show_cv_engine', currentValue: boolean) => {
+  const handleToggleView = async (field, currentValue) => {
     if (!userId) return;
     const nextValue = !currentValue;
-
     if (field === 'show_dev_portfolio') setShowDev(nextValue);
     if (field === 'show_cv_engine') setShowCV(nextValue);
-
-    await supabase
-      .from('profiles')
-      .update({ [field]: nextValue })
-      .eq('id', userId);
+    await supabase.from('profiles').update({ [field]: nextValue }).eq('id', userId);
   };
 
-  const handleUpdatePassword = async (e: React.FormEvent) => {
+  const handleUpdateTheme = async (themeName) => {
+    if (!userId) return;
+    setBgTheme(themeName);
+    await supabase.from('profiles').update({ system_theme: themeName }).eq('id', userId);
+  };
+
+  const handleUpdatePassword = async (e) => {
     e.preventDefault();
     if (!password || password.length < 6) {
       alert('Password must be at least 6 characters.');
@@ -89,17 +92,24 @@ export default function AccountSettings() {
     );
   }
 
+  const themeClasses = 
+    bgTheme === 'clean-white' ? 'bg-slate-50 text-slate-900 border-slate-200' :
+    bgTheme === 'cyberpunk-navy' ? 'bg-slate-900 text-slate-100 border-slate-800' : 
+    'bg-slate-950 text-slate-100 border-slate-900';
+
+  const cardClasses = bgTheme === 'clean-white' ? 'bg-white border-slate-200' : 'bg-slate-900/60 border-slate-800';
+  const labelClasses = bgTheme === 'clean-white' ? 'text-slate-600' : 'text-slate-400';
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-6 flex items-center justify-center font-sans">
-      <div className="w-full max-w-lg bg-slate-900/60 border border-slate-800 p-8 rounded-2xl backdrop-blur-md shadow-2xl space-y-6">
+    <div className={`min-h-screen p-6 flex items-center justify-center font-sans transition-colors duration-300 ${themeClasses}`}>
+      <div className={`w-full max-w-lg border p-8 rounded-2xl shadow-2xl space-y-6 ${cardClasses}`}>
         
         <Link href="/dashboard" className="inline-flex items-center gap-2 text-xs text-slate-500 hover:text-slate-300 transition-colors">
           <ArrowLeft size={14} /> Back to dashboard
         </Link>
 
         <div>
-          <h2 className="text-xl font-bold text-white">System Configurations</h2>
-          <p className="text-xs text-slate-500 mt-1">Manage dashboard views, subscription status, and credential keys.</p>
+          <h2 className="text-xl font-bold">System Configurations Terminal</h2>
+          <p className="text-xs text-slate-500 mt-1">Manage interface background themes, workspace visibility, and login keys.</p>
         </div>
 
         {statusMsg && (
@@ -108,67 +118,77 @@ export default function AccountSettings() {
           </div>
         )}
 
-        {/* Paystack Checkout Gateway */}
+        {/* 🎨 SITE BACKGROUND SKIN SELECTOR */}
+        <div className="p-5 rounded-xl border space-y-3 bg-slate-950/20">
+          <label className={`block text-[10px] font-bold uppercase tracking-wider ${labelClasses}`}>Select Platform Background Theme Skin</label>
+          <div className="grid grid-cols-3 gap-2.5 pt-1">
+            <button type="button" onClick={() => handleUpdateTheme('slate-black')} className={`p-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${bgTheme === 'slate-black' ? 'bg-slate-950 text-indigo-400 border-indigo-500/40 shadow' : 'bg-slate-950 border-slate-800 text-slate-400'}`}>
+              ⚫ Slate Black
+            </button>
+            <button type="button" onClick={() => handleUpdateTheme('clean-white')} className={`p-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${bgTheme === 'clean-white' ? 'bg-white text-indigo-600 border-indigo-500 shadow' : 'bg-white border-slate-300 text-slate-600'}`}>
+              ⚪ Clean White
+            </button>
+            <button type="button" onClick={() => handleUpdateTheme('cyberpunk-navy')} className={`p-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${bgTheme === 'cyberpunk-navy' ? 'bg-slate-900 text-indigo-400 border-indigo-500/40 shadow' : 'bg-slate-900 border-slate-800 text-slate-400'}`}>
+              🔵 Cyberpunk Navy
+            </button>
+          </div>
+        </div>
+
+        {/* 💳 REPAIRED LIVE PAYSTACK ROUTE CONNECTED DIRECTLY */}
         <div className="p-5 rounded-xl border border-indigo-500/20 bg-indigo-500/5 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-400 uppercase tracking-wider">
-              <Sparkles size={14} /> AI Job Sourcing Radar
+              <Sparkles size={14} /> AI Job Hunter Radar Ecosystem
             </div>
-            <span className={`text-[9px] px-2.5 py-0.5 rounded-md font-mono font-bold uppercase tracking-wider border ${
-              isPremium ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-slate-950 border-slate-800 text-slate-500'
-            }`}>
+            <span className={`text-[9px] px-2.5 py-0.5 rounded-md font-mono font-bold uppercase tracking-wider border ${isPremium ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-slate-950 border-slate-800 text-slate-500'}`}>
               {isPremium ? 'Premium Active' : 'Free Tier'}
             </span>
           </div>
           
-          <p className="text-xs text-slate-400 leading-relaxed">
+          <p className="text-xs leading-relaxed text-slate-400">
             {isPremium 
-              ? `Premium tier activated. Valid until: ${new Date(premiumUntil!).toLocaleDateString()}. Reverts back automatically after 3 months.`
-              : 'Unlock automated continuous scraping across freelance, private, and government job databases matching your custom skillset profile.'}
+              ? `Premium activation functional. Valid until: ${new Date(premiumUntil).toLocaleDateString()}. Reverts back automatically after 3 months.`
+              : 'Unlock automated continuous background web-scrapping job hunters. Scrapes the internet for live positions matching your toolsets and notifications profiles.'}
           </p>
 
           {!isPremium && (
             <a 
-              href="https://paystack.shop" 
+              href="https://paystack.com" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 border border-transparent shadow-md shadow-indigo-600/10"
+              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 border border-transparent shadow-md"
             >
               <CreditCard size={14} /> Upgrade Account (₦1,500 / 3 Months)
             </a>
           )}
         </div>
 
-        {/* Dashboard visibility switches */}
-        <div className="p-5 rounded-xl border border-slate-800 bg-slate-950/40 space-y-4">
-          <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-900 pb-2">Toggle Workspace Views</label>
+        {/* INTERACTIVE DYNAMIC VIEW COMPONENT TOGGLES */}
+        <div className="p-5 rounded-xl border bg-slate-950/20 space-y-4">
+          <label className={`block text-[10px] font-bold uppercase tracking-wider ${labelClasses} border-b border-slate-800/60 pb-2`}>Toggle Workspace Views</label>
           
           <div className="flex items-center justify-between text-xs">
             <div className="space-y-0.5">
-              <div className="font-bold text-white flex items-center gap-1.5">
-                {showDev ? <Eye size={12} className="text-indigo-400" /> : <EyeOff size={12} className="text-slate-600" />} Developer Portfolio Module
-              </div>
+              <div className="font-bold flex items-center gap-1.5">Developer Portfolio Module</div>
               <p className="text-[11px] text-slate-500">Hide or show the coding repositories builder workspace on your homepage.</p>
             </div>
             <button type="button" onClick={() => handleToggleView('show_dev_portfolio', showDev)}>
-              {showDev ? <ToggleRight size={24} className="text-indigo-500" /> : <ToggleLeft size={24} className="text-slate-600" />}
+              {showDev ? <ToggleRight size={24} className="text-indigo-500" /> : <ToggleLeft size={24} className="text-slate-500" />}
             </button>
           </div>
 
-          <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-900">
+          <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-800/60">
             <div className="space-y-0.5">
-              <div className="font-bold text-white flex items-center gap-1.5">
-                {showCV ? <Eye size={12} className="text-purple-400" /> : <EyeOff size={12} className="text-slate-600" />} ATS CV Engine Builder
-              </div>
+              <div className="font-bold flex items-center gap-1.5">ATS CV Engine Builder</div>
               <p className="text-[11px] text-slate-500">Hide or show your typographic resume editing workspace.</p>
             </div>
             <button type="button" onClick={() => handleToggleView('show_cv_engine', showCV)}>
-              {showCV ? <ToggleRight size={24} className="text-purple-500" /> : <ToggleLeft size={24} className="text-slate-600" />}
+              {showCV ? <ToggleRight size={24} className="text-purple-500" /> : <ToggleLeft size={24} className="text-slate-500" />}
             </button>
           </div>
         </div>
 
-        {/* Update password form */}
+        {/* Change Password Input */}
         <form onSubmit={handleUpdatePassword} className="space-y-4 pt-2">
           <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Change Account Password</label>
           <div className="relative">

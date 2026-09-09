@@ -15,7 +15,7 @@ export default function Login() {
   const [progress, setProgress] = useState(0);
 
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState(null); // FIXED: Cleared TypeScript type union marking
 
   // Progressive loading animation
   useEffect(() => {
@@ -33,7 +33,7 @@ export default function Login() {
     return () => clearInterval(interval); // cleanup on unmount
   }, []);
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleSignIn = async (e) => { // FIXED: Stripped out React.FormEvent type parameter
     e.preventDefault();
     setLoading(true);
     setErrorMsg(null);
@@ -48,21 +48,21 @@ export default function Login() {
         localStorage.setItem('devcraft_session_active', 'true');
         router.push('/dashboard');
       }
-    } catch (err: any) {
+    } catch (err) { // FIXED: Stripped out explicit : any type parameter annotation
       setErrorMsg(err.message || 'Invalid login credentials.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSocialSignIn = async (provider: 'github' | 'google') => {
+  const handleSocialSignIn = async (provider) => { // FIXED: Stripped out strict literal type annotation
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: { redirectTo: `${window.location.origin}/dashboard` }
       });
       if (error) throw error;
-    } catch (err: any) {
+    } catch (err) { // FIXED: Stripped out explicit : any type parameter annotation
       alert('OAuth integration error: ' + err.message);
     }
   };
@@ -79,7 +79,6 @@ export default function Login() {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6 relative">
       <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />

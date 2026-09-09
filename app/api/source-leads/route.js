@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-export async function POST(request: Request) {
+export async function POST(request) {
   try {
     const { techStack } = await request.json();
     const stackClean = techStack ? techStack.toLowerCase() : '';
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ success: true, leads: filteredLeads }, { status: 200 });
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json({ error: 'Lead sourcing sequence dropped: ' + error.message }, { status: 500 });
   }
 }

@@ -5,21 +5,12 @@ import { useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Loader2, Code2, Globe, ExternalLink } from 'lucide-react'; // <-- removed Github, using Code2 instead
 
-interface ProjectItem {
-  id: string;
-  title: string;
-  description: string;
-  liveUrl: string;
-  repoUrl: string;
-  languages: string;
-}
-
 export default function PublicPortfolioView() {
   const params = useParams();
   const subdomainSlug = (params?.subdomain ? String(params.subdomain) : '').toLowerCase().trim();
 
   const [loading, setLoading] = useState(true);
-  const [portfolio, setPortfolio] = useState<any>(null);
+  const [portfolio, setPortfolio] = useState(null); // FIXED: Removed strict type <any>
   const [developerName, setDeveloperName] = useState('');
 
   useEffect(() => {
@@ -73,7 +64,6 @@ export default function PublicPortfolioView() {
     : [];
 
   const projectArray = Array.isArray(portfolio.projects) ? portfolio.projects : [];
-
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-12 flex justify-center font-sans">
       <div className="w-full max-w-3xl bg-slate-900/40 border border-slate-800 rounded-2xl p-8 md:p-12 space-y-8 backdrop-blur-md shadow-xl relative overflow-hidden">
@@ -100,7 +90,7 @@ export default function PublicPortfolioView() {
           <div className="space-y-2">
             <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Engine Core Stack Matrix</h4>
             <div className="flex flex-wrap gap-1.5">
-              {techStackItems.map((tech: string, i: number) => (
+              {techStackItems.map((tech, i) => ( // FIXED: Stripped explicit type annotation values
                 <span
                   key={i}
                   className="bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] px-2.5 py-0.5 rounded-md font-mono"
@@ -116,7 +106,7 @@ export default function PublicPortfolioView() {
           <div className="space-y-4 pt-4 border-t border-slate-800/60">
             <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400">Verified Production Cards</h3>
             <div className="space-y-4">
-              {projectArray.map((p: ProjectItem, i: number) => {
+              {projectArray.map((p, i) => { // FIXED: Stripped ProjectItem strict compiler types mapping parameters
                 if (!p.title) return null;
                 return (
                   <div

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-export async function POST(request: Request) {
+export async function POST(request) {
   try {
     // 1. Parse and validate the request body
     const body = await request.json().catch(() => null);
@@ -27,13 +27,11 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. Simulate a telemetry / notification dispatch (e.g., to Resend, SendGrid, or a queue)
+    // 3. Simulate a telemetry / notification dispatch
     console.log(
       `📡 TELEMETRY ENGINE TRIGGERED: Recruiter accessed vanity node address link card: "${subdomain}" belonging to: "${profileName}"`
     );
 
-    // Here you would integrate with your actual email or webhook service.
-    // For now, we just log and prepare a success response.
     const telemetryReportPayload = {
       alertDispatched: true,
       timestamp: new Date().toISOString(),
@@ -43,7 +41,7 @@ export async function POST(request: Request) {
     };
 
     return NextResponse.json(telemetryReportPayload, { status: 200 });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Telemetry API error:', error);
     return NextResponse.json(
       { error: 'Internal server error – notification pipeline fault' },
