@@ -6,17 +6,14 @@ import {
   Code2, 
   FileText, 
   ArrowRight, 
-  CheckCircle2, 
-  HelpCircle, 
+  ChevronDown, 
   Layers, 
   Zap, 
   Terminal,
   User,
-  ChevronDown,
-  Palette,
+  HelpCircle,
   Briefcase,
   MessagesSquare,
-  Lock,
   Sparkles,
   CreditCard
 } from 'lucide-react';
@@ -74,7 +71,7 @@ export default function HomeLandingPage() {
       )}
 
       {/* FLOATING FIXED INTERACTIVE SHORTBAR NAVIGATION & THEME SKIN SWITCHER WIDGET */}
-      <aside className={`hidden lg:flex flex-col items-center justify-between py-8 px-4 border-r backdrop-blur-md static top-0 h-screen w-20 z-50 ${asideThemeClasses}`}>
+      <aside className={`hidden lg:flex flex-col items-center justify-between py-8 px-4 border-r backdrop-blur-md sticky top-0 h-screen w-20 z-50 ${asideThemeClasses}`}>
         <div className="h-10 w-10 rounded-xl bg-indigo-600 flex items-center justify-center font-black text-white shadow-md shadow-indigo-600/20">DC</div>
         
         <nav className="flex flex-col gap-6 items-center">
@@ -92,10 +89,10 @@ export default function HomeLandingPage() {
         </div>
       </aside>
 
-      {/* Main Structural Content Window Area */}
+      {/* Main Content Area */}
       <div className="flex-1 flex flex-col justify-between min-w-0">
         
-        {/* Universal Sticky Header Toolbar */}
+        {/* Sticky Header Bar */}
         <header className="border-b border-slate-900/40 bg-transparent backdrop-blur-md sticky top-0 z-40 px-6 sm:px-12 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3 lg:hidden">
             <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-sm">DC</div>
@@ -112,7 +109,7 @@ export default function HomeLandingPage() {
 
         <div className="flex-1">
           
-          {/* HERO CALL TO ACTION HOOK INTRO */}
+          {/* HERO HOOK INTRO */}
           <section id="hero" className="max-w-4xl mx-auto px-6 sm:px-12 pt-20 pb-16 text-center space-y-6 scroll-mt-28">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-500/20 bg-indigo-500/5 text-indigo-400 text-xs font-mono font-bold uppercase tracking-wider">
               <Sparkles size={12} className="animate-pulse" /> Unified Placement Engineering Infrastructure
@@ -132,7 +129,7 @@ export default function HomeLandingPage() {
             </div>
           </section>
 
-          {/* THE STEP-BY-STEP PLATFORM LOGIC & EXPERIENCE BLUEPRINT EXPLANATION */}
+          {/* THE STEP-BY-STEP PLATFORM LOGIC & WORKFLOW EXPLANATION */}
           <section id="workflow" className="max-w-6xl mx-auto px-6 sm:px-12 py-16 border-t border-slate-900/40 scroll-mt-20">
             <div className="text-center max-w-xl mx-auto mb-16 space-y-2">
               <h2 className={`text-2xl sm:text-3xl font-black uppercase tracking-tight ${headingTextClasses}`}>How the System Works</h2>
@@ -140,8 +137,6 @@ export default function HomeLandingPage() {
             </div>
 
             <div className="grid md:grid-cols-3 gap-6 relative">
-              
-              {/* COMPREHENSIVE WORKFLOW STEP 1 */}
               <div className={`p-6 rounded-2xl border transition-all ${cardBackgroundClasses}`}>
                 <span className="text-2xl font-black text-indigo-500/20 font-mono block mb-3">01 //</span>
                 <div className="h-9 w-9 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center mb-4"><MessagesSquare size={16} /></div>
@@ -151,7 +146,6 @@ export default function HomeLandingPage() {
                 </p>
               </div>
 
-              {/* COMPREHENSIVE WORKFLOW STEP 2 */}
               <div className={`p-6 rounded-2xl border transition-all ${cardBackgroundClasses}`}>
                 <span className="text-2xl font-black text-purple-500/20 font-mono block mb-3">02 //</span>
                 <div className="h-9 w-9 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center justify-center mb-4"><Layers size={16} /></div>
@@ -161,7 +155,6 @@ export default function HomeLandingPage() {
                 </p>
               </div>
 
-              {/* COMPREHENSIVE WORKFLOW STEP 3 */}
               <div className={`p-6 rounded-2xl border transition-all ${cardBackgroundClasses}`}>
                 <span className="text-2xl font-black text-emerald-500/20 font-mono block mb-3">03 //</span>
                 <div className="h-9 w-9 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center mb-4"><Briefcase size={16} /></div>
@@ -170,11 +163,10 @@ export default function HomeLandingPage() {
                   Our core automated scraper crawls Google search indices, private, and government databases. When a technical stack match hits, you get notified to auto-apply instantly.
                 </p>
               </div>
-
             </div>
           </section>
 
-          {/* DUAL EXECUTION CAPABILITIES & FREEMIUM MONETIZATION SPECIFICATION */}
+          {/* DUAL EXECUTION CAPABILITIES & FREEMIUM MONETIZATION RULES */}
           <section id="capabilities" className="max-w-6xl mx-auto px-6 sm:px-12 py-16 border-t border-slate-900/40 scroll-mt-20">
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div className="space-y-4">
@@ -190,7 +182,6 @@ export default function HomeLandingPage() {
                 </div>
               </div>
               
-              {/* Technical Sandbox Display Code Mock Container Terminal Panel */}
               <div className="bg-slate-900/30 border border-slate-900 rounded-2xl p-6 backdrop-blur-sm relative overflow-hidden">
                 <Terminal size={18} className="text-indigo-400 mb-3" />
                 <pre className="text-xs text-slate-400 font-mono whitespace-pre-wrap leading-relaxed">
@@ -206,7 +197,7 @@ $ devcraft subscription --pricing
             </div>
           </section>
 
-          {/* FAQ ACCORDION INTERACTIVE ENGINE COMPONENT LOOP */}
+          {/* FAQ ACCORDION PANEL */}
           <section id="faq" className="max-w-4xl mx-auto px-6 sm:px-12 py-16 border-t border-slate-900/40 scroll-mt-20">
             <div className="text-center max-w-xl mx-auto mb-12 space-y-2">
               <h2 className={`text-2xl sm:text-3xl font-black uppercase tracking-tight ${headingTextClasses}`}>System Inquiries Manual</h2>
@@ -222,10 +213,7 @@ $ devcraft subscription --pricing
                     className="w-full flex items-center justify-between p-5 text-left hover:bg-slate-900/40 transition-colors focus:outline-none"
                   >
                     <span className="text-xs font-bold uppercase text-white tracking-wide">{item.question}</span>
-                    <ChevronDown
-                      size={16}
-                      className={`text-indigo-400 transition-transform duration-200 ${openFaqIndex === index ? 'rotate-180' : ''}`}
-                    />
+                    <span className="text-indigo-400 transition-transform duration-200">{openFaqIndex === index ? '▲' : '▼'}</span>
                   </button>
                   <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openFaqIndex === index ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
                     <div className="p-5 pt-0 text-xs text-slate-400 leading-relaxed text-justify border-t border-slate-900/40 mt-1">
@@ -237,7 +225,7 @@ $ devcraft subscription --pricing
             </div>
           </section>
 
-          {/* Master Operational Architecture Footer Section */}
+          {/* Operational Footer */}
           <footer className="border-t border-slate-900/40 bg-transparent px-6 sm:px-12 py-8 text-center md:text-left">
             <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-[10px] font-mono text-slate-600">
               <div className="flex items-center gap-2">
