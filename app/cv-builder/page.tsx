@@ -219,7 +219,7 @@ export default function CVBuilder() {
         {/* RIGHT COLUMN: Real-Time Dynamic Template Canvas Selection */}
         <div className="p-6 md:p-12 bg-slate-900/10 flex items-start justify-center overflow-y-auto max-h-[calc(100vh-70px)] print:max-h-none print:p-0 print:bg-white">
           {theme === 'minimalist' ? (
-            <TemplateMinimalist fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} />
+            <TemplateMinimalist fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={'avatarUr1'} />
           ) : theme === 'executive-slate' ? (
             <TemplateExecutiveSlate fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} />
           ) : (
