@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
-export function middleware(request) {
+// Next.js 16 production proxy routing execution engine
+export function proxy(request) {
   const url = request.nextUrl.clone();
   const path = url.pathname;
 
@@ -18,9 +19,7 @@ export function middleware(request) {
     path.startsWith('/analyzer') ||
     path.startsWith('/portfolio-builder') ||
     path.startsWith('/settings') ||   // Open traffic channels cleanly
-    path.startsWith('/directory') ||     // Open traffic channels cleanly
-    path.startsWith('/fix-database') 
-
+    path.startsWith('/directory')     // Open traffic channels cleanly
   ) {
     return NextResponse.next();
   }
@@ -38,10 +37,6 @@ export function middleware(request) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - favicon.ico (favicon file)
-     */
     '/((?!favicon\\.ico).*)',
   ],
 };
