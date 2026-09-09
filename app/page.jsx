@@ -15,16 +15,26 @@ import {
   Briefcase,
   MessagesSquare,
   Sparkles,
-  CreditCard
+  CreditCard,
+  Star,
+  Send
 } from 'lucide-react';
 
 export default function HomeLandingPage() {
-  // Floating Dynamic Background Skin Switches State Management
   const [bgTheme, setBgTheme] = useState('slate-black');
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
+  const [rating, setRating] = useState(5);
+  const [feedbackText, setFeedbackText] = useState('');
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
 
   const toggleFaq = (index) => {
     setOpenFaqIndex(openFaqIndex === index ? null : index);
+  };
+
+  const handleFeedbackSubmit = (e) => {
+    e.preventDefault();
+    setFeedbackSubmitted(true);
+    setFeedbackText('');
   };
 
   const faqData = [
@@ -42,7 +52,12 @@ export default function HomeLandingPage() {
     }
   ];
 
-  // Dynamic Tailwind Layout Color Mappings Matrix
+  const testimonials = [
+    { name: 'Amaka O.', role: 'Frontend Developer', text: 'I built my CV in ten minutes and got matched to a remote job within a week.' },
+    { name: 'Tunde A.', role: 'Data Analyst', text: 'The job alerts actually match my skills. I no longer scroll through jobs that do not fit me.' },
+    { name: 'Chiamaka N.', role: 'Recent Graduate', text: 'Being able to attach my certificates made my CV feel complete and professional.' },
+  ];
+
   const wrapperThemeClasses = 
     bgTheme === 'clean-white' ? 'bg-slate-50 text-slate-900 border-slate-200' :
     bgTheme === 'cyberpunk-navy' ? 'bg-slate-900 text-slate-100 border-slate-800' : 
@@ -62,7 +77,6 @@ export default function HomeLandingPage() {
   return (
     <div className={`min-h-screen flex selection:bg-indigo-500 selection:text-white scroll-smooth relative font-sans transition-colors duration-300 ${wrapperThemeClasses}`}>
       
-      {/* Visual Tech Ambient Glow Orbs */}
       {bgTheme !== 'clean-white' && (
         <>
           <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[120px] pointer-events-none" />
@@ -70,7 +84,6 @@ export default function HomeLandingPage() {
         </>
       )}
 
-      {/* FLOATING FIXED INTERACTIVE SHORTBAR NAVIGATION & THEME SKIN SWITCHER WIDGET */}
       <aside className={`hidden lg:flex flex-col items-center justify-between py-8 px-4 border-r backdrop-blur-md sticky top-0 h-screen w-20 z-50 ${asideThemeClasses}`}>
         <div className="h-10 w-10 rounded-xl bg-indigo-600 flex items-center justify-center font-black text-white shadow-md shadow-indigo-600/20">DC</div>
         
@@ -79,9 +92,10 @@ export default function HomeLandingPage() {
           <a href="#workflow" className="p-2 rounded-lg text-slate-500 hover:text-indigo-400 hover:bg-slate-900/40 transition-all" title="System Workflow"><Layers size={18} /></a>
           <a href="#capabilities" className="p-2 rounded-lg text-slate-500 hover:text-indigo-400 hover:bg-slate-900/40 transition-all" title="Dual Capabilities"><Briefcase size={18} /></a>
           <a href="#faq" className="p-2 rounded-lg text-slate-500 hover:text-indigo-400 hover:bg-slate-900/40 transition-all" title="System FAQ"><HelpCircle size={18} /></a>
+          <a href="#reviews" className="p-2 rounded-lg text-slate-500 hover:text-indigo-400 hover:bg-slate-900/40 transition-all" title="Reviews"><MessagesSquare size={18} /></a>
+          <a href="#about" className="p-2 rounded-lg text-slate-500 hover:text-indigo-400 hover:bg-slate-900/40 transition-all" title="About"><User size={18} /></a>
         </nav>
 
-        {/* Floating Toggle Color Circle Buttons Row */}
         <div className="flex flex-col gap-3 items-center bg-slate-950/40 p-2 rounded-2xl border border-slate-800/40">
           <button onClick={() => setBgTheme('slate-black')} className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] transition-all transform active:scale-95 ${bgTheme === 'slate-black' ? 'border border-indigo-500 scale-105' : 'opacity-60'}`} title="Slate Black">⚫</button>
           <button onClick={() => setBgTheme('clean-white')} className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] transition-all transform active:scale-95 ${bgTheme === 'clean-white' ? 'border border-indigo-600 scale-105' : 'opacity-60'}`} title="Clean White">⚪</button>
@@ -89,10 +103,8 @@ export default function HomeLandingPage() {
         </div>
       </aside>
 
-      {/* Main Content Area */}
       <div className="flex-1 flex flex-col justify-between min-w-0">
         
-        {/* Sticky Header Bar */}
         <header className="border-b border-slate-900/40 bg-transparent backdrop-blur-md sticky top-0 z-40 px-6 sm:px-12 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3 lg:hidden">
             <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-sm">DC</div>
@@ -109,7 +121,6 @@ export default function HomeLandingPage() {
 
         <div className="flex-1">
           
-          {/* HERO HOOK INTRO */}
           <section id="hero" className="max-w-4xl mx-auto px-6 sm:px-12 pt-20 pb-16 text-center space-y-6 scroll-mt-28">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-500/20 bg-indigo-500/5 text-indigo-400 text-xs font-mono font-bold uppercase tracking-wider">
               <Sparkles size={12} className="animate-pulse" /> Unified Placement Engineering Infrastructure
@@ -129,7 +140,6 @@ export default function HomeLandingPage() {
             </div>
           </section>
 
-          {/* THE STEP-BY-STEP PLATFORM LOGIC & WORKFLOW EXPLANATION */}
           <section id="workflow" className="max-w-6xl mx-auto px-6 sm:px-12 py-16 border-t border-slate-900/40 scroll-mt-20">
             <div className="text-center max-w-xl mx-auto mb-16 space-y-2">
               <h2 className={`text-2xl sm:text-3xl font-black uppercase tracking-tight ${headingTextClasses}`}>How the System Works</h2>
@@ -166,7 +176,6 @@ export default function HomeLandingPage() {
             </div>
           </section>
 
-          {/* DUAL EXECUTION CAPABILITIES & FREEMIUM MONETIZATION RULES */}
           <section id="capabilities" className="max-w-6xl mx-auto px-6 sm:px-12 py-16 border-t border-slate-900/40 scroll-mt-20">
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div className="space-y-4">
@@ -197,7 +206,6 @@ $ devcraft subscription --pricing
             </div>
           </section>
 
-          {/* FAQ ACCORDION PANEL */}
           <section id="faq" className="max-w-4xl mx-auto px-6 sm:px-12 py-16 border-t border-slate-900/40 scroll-mt-20">
             <div className="text-center max-w-xl mx-auto mb-12 space-y-2">
               <h2 className={`text-2xl sm:text-3xl font-black uppercase tracking-tight ${headingTextClasses}`}>System Inquiries Manual</h2>
@@ -225,7 +233,69 @@ $ devcraft subscription --pricing
             </div>
           </section>
 
-          {/* Operational Footer */}
+          <section id="reviews" className="max-w-6xl mx-auto px-6 sm:px-12 py-16 border-t border-slate-900/40 scroll-mt-20">
+            <div className="text-center max-w-xl mx-auto mb-12 space-y-2">
+              <h2 className={`text-2xl sm:text-3xl font-black uppercase tracking-tight ${headingTextClasses}`}>What Users Are Saying</h2>
+              <p className={`text-xs sm:text-sm ${descriptiveTextClasses}`}>Real feedback from people using the platform.</p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6 mb-12">
+              {testimonials.map((t) => (
+                <div key={t.name} className={`p-5 rounded-2xl border transition-all ${cardBackgroundClasses}`}>
+                  <div className="flex gap-0.5 mb-3 text-amber-400">
+                    {[0, 1, 2, 3, 4].map((i) => (
+                      <Star key={i} size={14} fill="currentColor" />
+                    ))}
+                  </div>
+                  <p className="text-xs leading-relaxed mb-4">"{t.text}"</p>
+                  <p className="text-xs font-bold">{t.name}</p>
+                  <p className="text-[11px] text-slate-500">{t.role}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className={`max-w-lg mx-auto p-6 rounded-2xl border ${cardBackgroundClasses}`}>
+              <h3 className="text-sm font-bold uppercase tracking-tight mb-4">Leave Your Feedback</h3>
+              {feedbackSubmitted ? (
+                <p className="text-sm text-emerald-400">Thank you for your feedback!</p>
+              ) : (
+                <form onSubmit={handleFeedbackSubmit} className="space-y-3">
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <button type="button" key={n} onClick={() => setRating(n)}>
+                        <Star
+                          size={20}
+                          className={n <= rating ? 'text-amber-400' : 'text-slate-600'}
+                          fill={n <= rating ? 'currentColor' : 'none'}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                  <textarea
+                    value={feedbackText}
+                    onChange={(e) => setFeedbackText(e.target.value)}
+                    required
+                    placeholder="Tell us what you think..."
+                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs resize-none h-24 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                  <button
+                    type="submit"
+                    className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors"
+                  >
+                    <Send size={14} /> Submit
+                  </button>
+                </form>
+              )}
+            </div>
+          </section>
+
+          <section id="about" className="max-w-3xl mx-auto px-6 sm:px-12 py-16 border-t border-slate-900/40 scroll-mt-20 text-center">
+            <h2 className={`text-2xl sm:text-3xl font-black uppercase tracking-tight mb-4 ${headingTextClasses}`}>About This Project</h2>
+            <p className={`text-xs sm:text-sm leading-relaxed ${descriptiveTextClasses}`}>
+              DevCraft Career was built by Aso, a programmer and solution builder from Abuja, Nigeria, with a simple goal: make it easier for anyone to build a professional CV and find real job opportunities, without needing expensive tools or connections.
+            </p>
+          </section>
+
           <footer className="border-t border-slate-900/40 bg-transparent px-6 sm:px-12 py-8 text-center md:text-left">
             <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-[10px] font-mono text-slate-600">
               <div className="flex items-center gap-2">
