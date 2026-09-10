@@ -1,15 +1,34 @@
 import { NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabase';
 import { findMatchingJobs } from '@/lib/jobSources';
 
 export async function POST(request) {
   try {
-    const { techStack, country } = await request.json();
+    const { userId, country } = await request.json();
 
-    if (!techStack) {
-      return NextResponse.json({ error: 'Missing techStack in request body' }, { status: 400 });
+    if (!userId) {
+      return NextResponse.json({ error: 'Missing user id' }, { status: 400 });
     }
 
-    const jobs = await findMatchingJobs(techStack, { country: country || 'ng', minScore: 10 });
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('tech_stack, is_premium')
+      .eq('id', userId)
+      .single();
+
+    if (profileError || !profile) {
+      return NextResponse.json({ error: 'Profile lookup failed' }, { status: 404 });
+    }
+
+    if (!profile.is_premium) {
+      return NextResponse.json({
+        success: false,
+        leads: [],
+        message: 'Job leads are a Premium feature. Upgrade to see matching opportunities.',
+      }, { status: 200 });
+    }
+
+    const jobs = await findMatchingJobs(profile.tech_stack || '', { country: country || 'ng', minScore: 10 });
 
     return NextResponse.json({ success: true, leads: jobs }, { status: 200 });
   } catch (error) {

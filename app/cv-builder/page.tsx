@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, Save, Printer, Plus, Trash2, Loader2, Download, Layers } from 'lucide-react';
+import { ArrowLeft, Save, Printer, Plus, Trash2, Loader2, Download, Layers, Lock } from 'lucide-react';
 import Link from 'next/link';
 
 // Import our isolated sub-component styling template modules cleanly
@@ -24,6 +24,8 @@ export default function CVBuilder() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [isPremium, setIsPremium] = useState<boolean>(false);
+  const [avatarUrl, setAvatarUrl] = useState<string>('');
 
   // Form states
   const [resumeTitle, setResumeTitle] = useState('My Professional CV');
@@ -49,12 +51,13 @@ export default function CVBuilder() {
       }
       setUserId(user.id);
 
-      const { data: profile } = await supabase.from('profiles').select('full_name, email, phone, website').eq('id', user.id).single();
+      const { data: profile } = await supabase.from('profiles').select('full_name, email, phone, website, is_premium').eq('id', user.id).single();
       if (profile) {
         setFullName(profile.full_name || '');
         setEmail(profile.email || '');
         setPhone(profile.phone || '');
         setWebsite(profile.website || '');
+        setIsPremium(profile.is_premium === true);
       }
 
       const { data: cv } = await supabase.from('resumes').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
@@ -84,6 +87,10 @@ export default function CVBuilder() {
   };
 
   const exportJSONBackup = () => {
+    if (!isPremium) {
+      alert('📄 Exporting your CV is a Premium feature. Upgrade to download and share your documents.');
+      return;
+    }
     const backupPayload = { profile: { fullName, email, phone, website }, resume: { summary, skills, experience, theme } };
     const blob = new Blob([JSON.stringify(backupPayload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -140,10 +147,19 @@ export default function CVBuilder() {
           </div>
 
           <button onClick={exportJSONBackup} className="inline-flex items-center gap-2 px-3.5 py-2 border border-slate-800 bg-slate-900 text-slate-300 rounded-xl text-xs font-semibold hover:border-slate-700">
-            <Download size={14} /> {"Export Data"}
+            {isPremium ? <Download size={14} /> : <Lock size={14} />} {"Export Data"}
           </button>
-          <button onClick={() => window.print()} className="inline-flex items-center gap-2 px-4 py-2 border border-slate-800 bg-slate-900 text-slate-300 rounded-xl text-xs font-semibold hover:border-slate-700">
-            <Printer size={14} /> Print / PDF
+          <button
+            onClick={() => {
+              if (!isPremium) {
+                alert('🖨️ Printing and PDF export is a Premium feature. Upgrade to unlock printing and downloads.');
+                return;
+              }
+              window.print();
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2 border border-slate-800 bg-slate-900 text-slate-300 rounded-xl text-xs font-semibold hover:border-slate-700"
+          >
+            {isPremium ? <Printer size={14} /> : <Lock size={14} />} Print / PDF
           </button>
           <button onClick={handleSave} disabled={saving} className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl text-xs font-semibold hover:bg-purple-500 disabled:opacity-50">
             {saving ? <Loader2 size={14} className="animate-spin" /> : 'Save Matrix'}
@@ -219,7 +235,7 @@ export default function CVBuilder() {
         {/* RIGHT COLUMN: Real-Time Dynamic Template Canvas Selection */}
         <div className="p-6 md:p-12 bg-slate-900/10 flex items-start justify-center overflow-y-auto max-h-[calc(100vh-70px)] print:max-h-none print:p-0 print:bg-white">
           {theme === 'minimalist' ? (
-            <TemplateMinimalist fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={'avatarUr1'} />
+            <TemplateMinimalist fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} />
           ) : theme === 'executive-slate' ? (
             <TemplateExecutiveSlate fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} />
           ) : (

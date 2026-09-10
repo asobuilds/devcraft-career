@@ -12,7 +12,7 @@ export async function POST(request) {
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('full_name, tech_stack')
+      .select('full_name, tech_stack, is_premium')
       .eq('id', userId)
       .single();
 
@@ -20,8 +20,15 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Profile lookup failed' }, { status: 404 });
     }
 
-    const techStack = profile.tech_stack || '';
+    if (!profile.is_premium) {
+      return NextResponse.json({
+        success: false,
+        opportunityFound: false,
+        message: 'Job lead sourcing and notifications are a Premium feature. Upgrade to activate automatic job matching.',
+      }, { status: 200 });
+    }
 
+    const techStack = profile.tech_stack || '';
     const matchedJobs = await findMatchingJobs(techStack, { country: 'ng', minScore: 15 });
 
     if (matchedJobs.length === 0) {
