@@ -6,12 +6,12 @@ import { supabase } from '@/lib/supabase';
 import { ArrowLeft, Save, Printer, Plus, Trash2, Loader2, Download, Layers, Lock } from 'lucide-react';
 import Link from 'next/link';
 
-// Import our isolated sub-component styling template modules cleanly
 import TemplateMinimalist from './components/TemplateMinimalist';
 import TemplateModernIndigo from './components/TemplateModernIndigo';
 import TemplateExecutiveSlate from './components/TemplateExecutiveSlate';
 import TemplateCreativeTeal from './components/TemplateCreativeTeal';
 import TemplateCompactEuro from './components/TemplateCompactEuro';
+import AIInterviewGuide from './components/AIInterviewGuide';
 
 interface ExperienceItem {
   id: string;
@@ -21,6 +21,16 @@ interface ExperienceItem {
   bullets: string;
 }
 
+interface GuideResult {
+  fullName: string;
+  email: string;
+  phone: string;
+  website: string;
+  skills: string;
+  summary: string;
+  experience: ExperienceItem[];
+}
+
 export default function CVBuilder() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -28,6 +38,7 @@ export default function CVBuilder() {
   const [userId, setUserId] = useState<string | null>(null);
   const [isPremium, setIsPremium] = useState<boolean>(false);
   const [avatarUrl, setAvatarUrl] = useState<string>('');
+  const [showGuide, setShowGuide] = useState<boolean>(false);
 
   const [resumeTitle, setResumeTitle] = useState('My Professional CV');
   const [summary, setSummary] = useState('');
@@ -88,7 +99,7 @@ export default function CVBuilder() {
 
   const exportJSONBackup = () => {
     if (!isPremium) {
-      alert('ðŸ“„ Exporting your CV is a Premium feature. Upgrade to download and share your documents.');
+      alert('📄 Exporting your CV is a Premium feature. Upgrade to download and share your documents.');
       return;
     }
     const backupPayload = { profile: { fullName, email, phone, website }, resume: { summary, skills, experience, theme } };
@@ -103,7 +114,7 @@ export default function CVBuilder() {
 
   const handlePrint = () => {
     if (!isPremium) {
-      alert('ðŸ–¨ï¸ Printing and PDF export is a Premium feature. Upgrade to unlock printing and downloads.');
+      alert('🖨️ Printing and PDF export is a Premium feature. Upgrade to unlock printing and downloads.');
       return;
     }
     window.print();
@@ -112,10 +123,21 @@ export default function CVBuilder() {
   const handleThemeChange = (selected: string) => {
     const premiumThemes = ['creative-teal', 'compact-euro'];
     if (premiumThemes.includes(selected) && !isPremium) {
-      alert('ðŸŽ¨ That template is reserved for Premium accounts. Upgrade to unlock more designs.');
+      alert('🎨 That template is reserved for Premium accounts. Upgrade to unlock more designs.');
       return;
     }
     setTheme(selected);
+  };
+
+  const handleGuideComplete = (data: GuideResult) => {
+    setFullName(data.fullName);
+    setEmail(data.email);
+    setPhone(data.phone);
+    setWebsite(data.website);
+    setSkills(data.skills);
+    setSummary(data.summary);
+    setExperience(data.experience);
+    setShowGuide(false);
   };
 
   const handleSave = async () => {
@@ -125,9 +147,9 @@ export default function CVBuilder() {
       await supabase.from('profiles').upsert({ id: userId, full_name: fullName, email, phone, website, updated_at: new Date().toISOString() });
       const skillsArray = skills.split(',').map((s) => s.trim()).filter(Boolean);
       await supabase.from('resumes').upsert({ user_id: userId, resume_title: resumeTitle, summary, skills: skillsArray, experience, active_template: theme, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
-      alert('âœ… Document template configurations matching matrix saved successfully!');
+      alert('✅ Document template configurations matching matrix saved successfully!');
     } catch (error: any) {
-      alert('âŒ Server database error: ' + error.message);
+      alert('❌ Server database error: ' + error.message);
     } finally {
       setSaving(false);
     }
@@ -141,8 +163,13 @@ export default function CVBuilder() {
       </div>
     );
   }
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 print:bg-white print:text-black">
+
+      {showGuide ? (
+        <AIInterviewGuide onClose={() => setShowGuide(false)} onComplete={handleGuideComplete} />
+      ) : null}
 
       <header className="border-b border-slate-900 bg-slate-900/40 backdrop-blur-md sticky top-0 z-40 px-6 py-4 flex items-center justify-between print:hidden">
         <div className="flex items-center gap-4">
@@ -163,8 +190,8 @@ export default function CVBuilder() {
               <option value="modern-indigo">Template: Silicon Tech Indigo</option>
               <option value="minimalist">Template: Civil Service Minimalist</option>
               <option value="executive-slate">Template: Executive Slate Grid</option>
-              <option value="creative-teal">{isPremium ? '' : 'ðŸ”’ '}Template: Creative Teal (Premium)</option>
-              <option value="compact-euro">{isPremium ? '' : 'ðŸ”’ '}Template: Compact Euro (Premium)</option>
+              <option value="creative-teal">{isPremium ? '' : '🔒 '}Template: Creative Teal (Premium)</option>
+              <option value="compact-euro">{isPremium ? '' : '🔒 '}Template: Compact Euro (Premium)</option>
             </select>
           </div>
 
@@ -183,6 +210,14 @@ export default function CVBuilder() {
       <div className="max-w-[1600px] mx-auto grid lg:grid-cols-2 min-h-[calc(100vh-65px)] print:block">
 
         <div className="p-6 md:p-10 border-r border-slate-900 space-y-8 overflow-y-auto max-h-[calc(100vh-70px)] print:hidden">
+
+          <button
+            onClick={() => setShowGuide(true)}
+            className="w-full inline-flex items-center justify-center gap-2 bg-indigo-600/10 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-600/20 text-xs font-semibold py-3 rounded-xl transition-colors"
+          >
+            ✨ Start Guided Interview
+          </button>
+
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Full Placement Name</label>
@@ -228,9 +263,9 @@ export default function CVBuilder() {
                     exp.bullets.toLowerCase().includes('managed') || exp.bullets.toLowerCase().includes('led') ? 'bg-yellow-500/5 border-yellow-500/20 text-yellow-400' :
                     !/\d/.test(exp.bullets) ? 'bg-blue-500/5 border-blue-500/20 text-blue-400' : 'bg-green-500/5 border-green-500/20 text-green-400'
                   }`}>
-                    {exp.bullets.toLowerCase().includes('responsible for') || exp.bullets.toLowerCase().includes('helped with') ? 'âš ï¸ ATS Alert: Replace passive terms with high-velocity action verbs (e.g. Engineered, Architected).' :
-                     exp.bullets.toLowerCase().includes('managed') || exp.bullets.toLowerCase().includes('led') ? 'ðŸš€ Tip: Maximize your score by explicitly detailing the volume metrics of the squads or resources led.' :
-                     !/\d/.test(exp.bullets) ? 'ðŸ’¡ Metrics Missing: Government and private selectors look for exact numeric parameters values.' : 'âœ¨ Compliance Check: Bullet format satisfies high-impact performance scanning screening metrics rules perfectly!'}
+                    {exp.bullets.toLowerCase().includes('responsible for') || exp.bullets.toLowerCase().includes('helped with') ? '⚠️ ATS Alert: Replace passive terms with high-velocity action verbs (e.g. Engineered, Architected).' :
+                     exp.bullets.toLowerCase().includes('managed') || exp.bullets.toLowerCase().includes('led') ? '🚀 Tip: Maximize your score by explicitly detailing the volume metrics of the squads or resources led.' :
+                     !/\d/.test(exp.bullets) ? '💡 Metrics Missing: Government and private selectors look for exact numeric parameters values.' : '✨ Compliance Check: Bullet format satisfies high-impact performance scanning screening metrics rules perfectly!'}
                   </div>
                 )}
               </div>
@@ -261,4 +296,3 @@ export default function CVBuilder() {
     </div>
   );
 }
-
