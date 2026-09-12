@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, Save, Printer, Plus, Trash2, Loader2, Download, Layers, Lock } from 'lucide-react';
+import { ArrowLeft, Save, Printer, Plus, Trash2, Loader2, Download, Layers, Lock, Sparkles, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 
 import TemplateMinimalist from './components/TemplateMinimalist';
@@ -158,6 +158,8 @@ export default function CVBuilder() {
     }
   };
 
+  const upgradeLink = 'https://paystack.shop/pay/kqrkkfueyh?email=' + encodeURIComponent(email);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400 gap-2">
@@ -209,6 +211,18 @@ export default function CVBuilder() {
           </button>
         </div>
       </header>
+
+      {!isPremium ? (
+        <div className="bg-gradient-to-r from-purple-950 to-slate-900 border-b border-purple-500/20 px-6 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs print:hidden">
+          <div className="flex items-center gap-2 text-purple-300">
+            <Sparkles size={14} className="animate-pulse" />
+            <span><strong>DevCraft Premium Upgrade:</strong> Unlock printing, PDF export, more templates, and job lead alerts.</span>
+          </div>
+          <a href={upgradeLink} target="_blank" rel="noopener noreferrer" className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-1.5 rounded-lg flex items-center gap-1.5 shrink-0 self-start sm:self-auto transition-all">
+            <CreditCard size={12} /> Upgrade to Premium
+          </a>
+        </div>
+      ) : null}
 
       <div className="max-w-[1600px] mx-auto grid lg:grid-cols-2 min-h-[calc(100vh-65px)] print:block">
 

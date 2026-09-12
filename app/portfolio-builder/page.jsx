@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { ArrowLeft, Save, Plus, Trash2, Loader2, Code2, Copy, Check, Sparkles, CreditCard, Lock } from 'lucide-react';
 import Link from 'next/link';
+import PortfolioInterviewGuide from './components/PortfolioInterviewGuide';
 
 export default function PortfolioBuilder() {
   const router = useRouter();
@@ -12,6 +13,7 @@ export default function PortfolioBuilder() {
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const [userId, setUserId] = useState(null);
+  const [showGuide, setShowGuide] = useState(false);
 
   const [fullName, setFullName] = useState('');
   const [profileEmail, setProfileEmail] = useState('');
@@ -69,6 +71,13 @@ export default function PortfolioBuilder() {
     setProjects(projects.map(p => p.id === id ? { ...p, [field]: value } : p));
   };
 
+  const handleGuideComplete = (data) => {
+    setTechStack(data.techStack);
+    setBio(data.bio);
+    setProjects(data.projects);
+    setShowGuide(false);
+  };
+
   const handleSavePortfolio = async () => {
     if (!userId) return;
 
@@ -105,6 +114,11 @@ export default function PortfolioBuilder() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">
+
+      {showGuide ? (
+        <PortfolioInterviewGuide onClose={() => setShowGuide(false)} onComplete={handleGuideComplete} />
+      ) : null}
+
       <header className="border-b border-slate-900 bg-slate-900/40 backdrop-blur-md sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/dashboard" className="p-2 rounded-lg bg-slate-900 text-slate-400 hover:text-white border border-slate-800">
@@ -134,6 +148,14 @@ export default function PortfolioBuilder() {
 
       <div className="max-w-[1600px] mx-auto grid lg:grid-cols-2 min-h-[calc(100vh-65px)]">
         <div className="p-6 md:p-10 border-r border-slate-900 space-y-6 overflow-y-auto h-[calc(100vh-70px)]">
+
+          <button
+            onClick={() => setShowGuide(true)}
+            className="w-full inline-flex items-center justify-center gap-2 bg-indigo-600/10 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-600/20 text-xs font-semibold py-3 rounded-xl transition-colors"
+          >
+            ✨ Start Guided Interview
+          </button>
+
           <div>
             <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
               Custom Vanity Subdomain Address
