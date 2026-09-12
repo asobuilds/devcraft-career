@@ -12,6 +12,7 @@ import TemplateExecutiveSlate from './components/TemplateExecutiveSlate';
 import TemplateCreativeTeal from './components/TemplateCreativeTeal';
 import TemplateCompactEuro from './components/TemplateCompactEuro';
 import AIInterviewGuide from './components/AIInterviewGuide';
+import CertificateUploader from './components/CertificateUploader';
 
 interface ExperienceItem {
   id: string;
@@ -39,6 +40,7 @@ export default function CVBuilder() {
   const [isPremium, setIsPremium] = useState<boolean>(false);
   const [avatarUrl, setAvatarUrl] = useState<string>('');
   const [showGuide, setShowGuide] = useState<boolean>(false);
+  const [attachments, setAttachments] = useState<any[]>([]);
 
   const [resumeTitle, setResumeTitle] = useState('My Professional CV');
   const [summary, setSummary] = useState('');
@@ -78,6 +80,7 @@ export default function CVBuilder() {
         setSkills(cv.skills ? cv.skills.join(', ') : '');
         setTheme(cv.active_template || 'modern-indigo');
         setExperience(Array.isArray(cv.experience) && cv.experience.length > 0 ? (cv.experience as ExperienceItem[]) : [{ id: '1', company: '', role: '', dates: '', bullets: '' }]);
+        setAttachments(Array.isArray(cv.attachments) ? cv.attachments : []);
       }
       setLoading(false);
     };
@@ -146,7 +149,7 @@ export default function CVBuilder() {
     try {
       await supabase.from('profiles').upsert({ id: userId, full_name: fullName, email, phone, website, updated_at: new Date().toISOString() });
       const skillsArray = skills.split(',').map((s) => s.trim()).filter(Boolean);
-      await supabase.from('resumes').upsert({ user_id: userId, resume_title: resumeTitle, summary, skills: skillsArray, experience, active_template: theme, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+      await supabase.from('resumes').upsert({ user_id: userId, resume_title: resumeTitle, summary, skills: skillsArray, experience, active_template: theme, attachments, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
       alert('✅ Document template configurations matching matrix saved successfully!');
     } catch (error: any) {
       alert('❌ Server database error: ' + error.message);
@@ -276,6 +279,13 @@ export default function CVBuilder() {
             <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Technical Skill Keywords Matrix (Comma-Separated)</label>
             <input type="text" value={skills} onChange={(e) => setSkills(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white" placeholder="React, TypeScript, SQL, PostgreSQL, Linux, Docker, AWS" />
           </div>
+
+          <CertificateUploader
+            supabase={supabase}
+            userId={userId}
+            attachments={attachments}
+            onAttachmentsChange={setAttachments}
+          />
         </div>
 
         <div className="p-6 md:p-12 bg-slate-900/10 flex items-start justify-center overflow-y-auto max-h-[calc(100vh-70px)] print:max-h-none print:p-0 print:bg-white">

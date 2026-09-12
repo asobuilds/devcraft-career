@@ -19,6 +19,7 @@ export default function PortfolioBuilder() {
   const [techStack, setTechStack] = useState('');
   const [subdomain, setSubdomain] = useState('');
   const [isPremium, setIsPremium] = useState(false);
+  const [profileEmail, setProfileEmail] = useState('');
   const [projects, setProjects] = useState([
     { id: '1', title: '', description: '', liveUrl: '', repoUrl: '', languages: '' }
   ]);
@@ -32,9 +33,10 @@ export default function PortfolioBuilder() {
       }
       setUserId(user.id);
 
-      const { data: profile } = await supabase.from('profiles').select('full_name, is_premium').eq('id', user.id).single();
+      const { data: profile } = await supabase.from('profiles').select('full_name, email, is_premium').eq('id', user.id).single();
       if (profile) {
         setFullName(profile.full_name || '');
+        setProfileEmail(profile.email || '');
         setIsPremium(profile.is_premium ?? false);
       }
 
@@ -114,7 +116,7 @@ export default function PortfolioBuilder() {
             <Sparkles size={14} className="animate-pulse" />
             <span><strong>DevCraft Premium Upgrade:</strong> Activate your web-scraping lead finder radar to auto-populate cards directly onto your tracking boards!</span>
           </div>
-          <a href="https://paystack.com" target="_blank" rel="noopener noreferrer" className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-1.5 rounded-lg flex items-center gap-1.5 shrink-0 self-start sm:self-auto transition-all">
+          <a href={"https://paystack.shop/pay/kqrkkfueyh?email=" + encodeURIComponent(profileEmail)} target="_blank" rel="noopener noreferrer" className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-1.5 rounded-lg flex items-center gap-1.5 shrink-0 self-start sm:self-auto transition-all">
             <CreditCard size={12} /> Unlock AI Radar (₦1,500)
           </a>
         </div>
