@@ -72,8 +72,10 @@ export default function PortfolioBuilder() {
   };
 
   const handleGuideComplete = (data) => {
+    setPortfolioTitle(data.portfolioTitle);
     setTechStack(data.techStack);
     setBio(data.bio);
+    setSubdomain(data.subdomain);
     setProjects(data.projects);
     setShowGuide(false);
   };

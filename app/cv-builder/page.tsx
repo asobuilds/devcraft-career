@@ -13,6 +13,8 @@ import TemplateCreativeTeal from './components/TemplateCreativeTeal';
 import TemplateCompactEuro from './components/TemplateCompactEuro';
 import AIInterviewGuide from './components/AIInterviewGuide';
 import CertificateUploader from './components/CertificateUploader';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import CVPdfDocument from './components/CVPdfDocument';
 
 interface ExperienceItem {
   id: string;
@@ -203,9 +205,27 @@ export default function CVBuilder() {
           <button onClick={exportJSONBackup} className="inline-flex items-center gap-2 px-3.5 py-2 border border-slate-800 bg-slate-900 text-slate-300 rounded-xl text-xs font-semibold hover:border-slate-700">
             {isPremium ? <Download size={14} /> : <Lock size={14} />} {"Export Data"}
           </button>
-          <button onClick={handlePrint} className="inline-flex items-center gap-2 px-4 py-2 border border-slate-800 bg-slate-900 text-slate-300 rounded-xl text-xs font-semibold hover:border-slate-700">
-            {isPremium ? <Printer size={14} /> : <Lock size={14} />} Print / PDF
-          </button>
+          {isPremium ? (
+            <PDFDownloadLink
+              document={
+                <CVPdfDocument fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} />
+              }
+              fileName={resumeTitle.toLowerCase().replace(/\s+/g, '-') + '.pdf'}
+              className="inline-flex items-center gap-2 px-4 py-2 border border-slate-800 bg-slate-900 text-slate-300 rounded-xl text-xs font-semibold hover:border-slate-700"
+            >
+              {({ loading }: { loading: boolean }) =>
+                loading ? (
+                  <React.Fragment><Loader2 size={14} className="animate-spin" /> Preparing...</React.Fragment>
+                ) : (
+                  <React.Fragment><Printer size={14} /> Download PDF</React.Fragment>
+                )
+              }
+            </PDFDownloadLink>
+          ) : (
+            <button onClick={handlePrint} className="inline-flex items-center gap-2 px-4 py-2 border border-slate-800 bg-slate-900 text-slate-300 rounded-xl text-xs font-semibold hover:border-slate-700">
+              <Lock size={14} /> Print / PDF
+            </button>
+          )}
           <button onClick={handleSave} disabled={saving} className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl text-xs font-semibold hover:bg-purple-500 disabled:opacity-50">
             {saving ? <Loader2 size={14} className="animate-spin" /> : 'Save Matrix'}
           </button>

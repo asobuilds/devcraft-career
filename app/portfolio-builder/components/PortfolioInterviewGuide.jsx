@@ -4,12 +4,15 @@ import React, { useState } from 'react';
 import { Sparkles, ArrowRight, ArrowLeftCircle, X, Loader2, CheckCircle2, Wand2 } from 'lucide-react';
 
 const QUESTIONS = [
-  { key: 'techStack', prompt: 'What technologies or tools do you work with?', hint: 'List them separated by commas. e.g. React, Node.js, PostgreSQL.', type: 'text', placeholder: 'React, Node.js, PostgreSQL' },
-  { key: 'bio', prompt: 'How would you describe yourself as a developer?', hint: 'Mention your focus area, experience level, and what kind of work excites you.', type: 'textarea', placeholder: 'e.g. A backend-focused developer who enjoys building fast, reliable APIs.', aiAssist: true },
-  { key: 'projectTitle', prompt: 'Tell me about a project you want to show off. What is it called?', hint: 'This can be a personal project, a school project, or paid work.', type: 'text', placeholder: 'e.g. DevCraft Career Platform' },
-  { key: 'projectDescription', prompt: 'What does this project do, and what did you use to build it?', hint: 'Mention the problem it solves and the tools or languages used. Numbers help, e.g. "used by 50+ testers."', type: 'textarea', placeholder: 'Describe the project...', aiAssist: true },
-  { key: 'liveUrl', prompt: 'Do you have a live link to this project?', hint: 'Optional — leave blank if it is not deployed anywhere yet.', type: 'text', placeholder: 'https://your-project.vercel.app (optional)' },
-  { key: 'repoUrl', prompt: 'Do you have a GitHub link for this project?', hint: 'Optional — leave blank if the code is not public.', type: 'text', placeholder: 'https://github.com/you/project (optional)' },
+  { key: 'portfolioTitle', prompt: 'What would you like to call your portfolio?', hint: 'e.g. "Jane Doe - Full Stack Developer" or simply your name.', type: 'text', placeholder: 'e.g. Agene Okoh - Developer' },
+  { key: 'techStack', prompt: 'What are your main tools and technologies?', hint: 'List what you work with, separated by commas.', type: 'text', placeholder: 'React, TypeScript, Node.js, PostgreSQL' },
+  { key: 'bio', prompt: 'In a few sentences, who are you as a developer?', hint: 'Mention what you build, what you enjoy, and what makes you stand out.', type: 'textarea', placeholder: 'e.g. A frontend-focused developer who loves building clean, fast interfaces.', aiAssist: true },
+  { key: 'subdomain', prompt: 'What handle would you like for your portfolio link?', hint: 'Letters and numbers only, no spaces. e.g. "agene-dev".', type: 'text', placeholder: 'your-handle' },
+  { key: 'projTitle', prompt: 'What is one project you are proud of?', hint: 'This can be a personal project, a freelance job, or schoolwork.', type: 'text', placeholder: 'e.g. DevCraft Career Platform' },
+  { key: 'projDescription', prompt: 'What does this project do, and what did you build?', hint: 'Describe the problem it solves and your role in building it.', type: 'textarea', placeholder: 'Describe the project...', aiAssist: true },
+  { key: 'projLiveUrl', prompt: 'Is there a live link to see it?', hint: 'Optional — leave blank if it is not deployed anywhere.', type: 'text', placeholder: 'https://yourproject.com (optional)' },
+  { key: 'projRepoUrl', prompt: 'Is there a code repository link?', hint: 'Optional — a GitHub link, for example.', type: 'text', placeholder: 'https://github.com/you/project (optional)' },
+  { key: 'projLanguages', prompt: 'What languages or tools did this project use?', hint: 'Separate with commas.', type: 'text', placeholder: 'React, Supabase, Tailwind' },
 ];
 
 function callAIAssist(fieldType, text) {
@@ -66,19 +69,21 @@ export default function PortfolioInterviewGuide(props) {
   };
 
   const finishInterview = function () {
-    const project = {
+    const projectEntry = {
       id: Date.now().toString(),
-      title: answers.projectTitle || '',
-      description: answers.projectDescription || '',
-      liveUrl: answers.liveUrl || '',
-      repoUrl: answers.repoUrl || '',
-      languages: '',
+      title: answers.projTitle || '',
+      description: answers.projDescription || '',
+      liveUrl: answers.projLiveUrl || '',
+      repoUrl: answers.projRepoUrl || '',
+      languages: answers.projLanguages || '',
     };
 
     const result = {
+      portfolioTitle: answers.portfolioTitle || 'My Developer Portfolio',
       techStack: answers.techStack || '',
       bio: answers.bio || '',
-      projects: [project],
+      subdomain: answers.subdomain || '',
+      projects: [projectEntry],
     };
 
     props.onComplete(result);

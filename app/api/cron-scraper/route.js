@@ -4,7 +4,7 @@ import { findMatchingJobs } from '@/lib/jobSources';
 
 export async function POST(request) {
   try {
-    const { userId } = await request.json();
+    const { userId, location } = await request.json();
 
     if (!userId) {
       return NextResponse.json({ error: 'Missing user id' }, { status: 400 });
@@ -29,7 +29,7 @@ export async function POST(request) {
     }
 
     const techStack = profile.tech_stack || '';
-    const matchedJobs = await findMatchingJobs(techStack, { country: 'ng', minScore: 15 });
+    const matchedJobs = await findMatchingJobs(techStack, { country: 'ng', location: location || 'Nigeria', minScore: 15 });
 
     if (matchedJobs.length === 0) {
       return NextResponse.json({
