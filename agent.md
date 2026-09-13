@@ -1,91 +1,104 @@
-# 🌍 agent.md: Comprehensive Architectural Blueprint & Product Specification
+﻿# AGENT.md — Project Blueprint
 
-## 1. Executive Summary & Problem Space Definition
-DevCraft Career was conceived out of a fundamental mismatch in the modern global hiring ecosystem. Job applicants confront two vastly different barriers depending on their discipline:
-- **The Software Engineering Disconnect:** Developers are evaluated based on their portfolio of work, open-source repositories, and technical stack ratios. However, traditional presentation mediums (like static LinkedIn profiles or text documents) fail to show live, mined data.
-- **The Applicant Tracking System (ATS) Wall:** General candidates find their resumes rejected by automated scanning bots because of multi-column templates, complex tables, and passive phrasing that algorithms cannot index.
+## 1. Problem Space
 
-### 🔬 Real-Life Research & Competitive Landscape
-Platforms like **Canva** or **FlowCV** prioritize visual aesthetics over code standards, producing documents that break when passed through an ATS. Recruitment boards like **Indeed** or **LinkedIn Jobs** place the burden of data entry on the applicant, requiring them to type out data points repeatedly, which introduces massive drop-off rates. DevCraft Career changes this paradigm through structural layout formatting, multi-variant high-density templates, and local processing algorithms.
+Job seekers face two separate barriers:
+- Developers need to prove real skill (projects, stack, work) but static resumes and LinkedIn profiles don't show that well.
+- General applicants get filtered out by Applicant Tracking Systems (ATS) because of multi-column templates, tables, and weak wording that scanning software can't parse.
 
----
+DevCraft Career addresses both: a real CV/portfolio builder plus a job-matching engine that finds relevant openings automatically, all free at the core, with paid features layered on top rather than gating basic access.
 
-## 2. Platform Novelty & Unique Value Propositions (UVP)
+## 2. What Makes This Different
 
-DevCraft Career is an automated, conversion-driven placement pipeline featuring four unique core upgrades:
-1. **The Single-Source Data Architecture:** Instead of managing separate text layers, a single user dataset dynamically feeds their public portfolios, print layout views, and text documentation exports simultaneously.
-2. **Local Token Proximity Filtering (No-Cost AI Matchmaking):** Uses localized synonym mapping models (e.g., matching "backend" with "SQL, Python, Docker") inside the recruiter directory to calculate talent scores without incurring expensive cloud processing fees.
-3. **Optimistic Real-Time CRM Synchronization:** Shifting task cards inside the Kanban tracking panel updates the screen layout instantly, executing database write requests silently in the background to bypass network latency.
-4. **The Fixed-Interval Monetization Engine:** Integrates a native quarterly payment structure (₦1,500 for 3 months via Paystack) that stops automatically upon expiry, preventing recurring credit card billing traps while unlocking premium automated job-scout radars.
+1. **One data source, multiple outputs.** Fill in your info once (or use the guided interview); it feeds the CV, the portfolio, and the PDF export.
+2. **A real job-matching engine, not a static "browse jobs" list.** Aggregates 11 legitimate sources plus unlimited custom APIs, filtered by skill match score and location.
+3. **AI assist available to every tier**, not paywalled — only the *output* features (print, PDF, sharing, and job leads) are Premium.
+4. **Honest scraping policy.** Google, LinkedIn, and Indeed are deliberately excluded because scraping them violates their Terms of Service and gets IPs blocked. Instead, the platform uses providers built for this (Adzuna, Jooble, RapidAPI's JSearch, etc.) and a robots.txt-respecting checker (`lib/robotsCheck.js`) is in place for any future site-specific crawling — though robots.txt permission is necessary, not sufficient; each new target site still needs a human to confirm its actual Terms of Service allow it before it's added.
 
----
+## 3. Feature Breakdown
 
-## 3. Comprehensive Feature Ecosystem Breakdown
+### CV Builder (`app/cv-builder`)
+- Guided AI interview (`components/AIInterviewGuide.jsx`) — step-by-step Q&A with hints, ends by auto-filling the CV form.
+- AI writing assist (`app/api/ai-assist`) — improves summary/bullet text. Uses Claude (`claude-sonnet-4-6`) if `ANTHROPIC_API_KEY` is set; otherwise a rule-based fallback (fixes weak phrasing like "responsible for", capitalizes, punctuates).
+- Certificate/document uploads (`components/CertificateUploader.jsx`) — stores files in the Supabase `certificates` bucket, metadata saved in `resumes.attachments` (jsonb).
+- 5 templates — 3 free (Modern Indigo, Minimalist, Executive Slate), 2 Premium (Creative Teal, Compact Euro).
+- Real PDF export (`components/CVPdfDocument.jsx`, via `@react-pdf/renderer`) — single-column, standard Helvetica font, real selectable text (ATS-safe). Premium only.
+- Browser print — Premium only.
 
-### 💻 Track A: Developer Portfolio Automation Engine
-- **Vanity Handle Subdomains:** Grants programmers un-locked public landing screens mapped to customizable web addresses (`/p/username`).
-- **GitHub Repository Stack Miner:** Hits backend REST endpoints to fetch language structures and repository variables, auto-populating production proof-of-work cards without manual inputs.
-- **Dynamic README Auto-Exporter:** Compiles typed developer profile summaries into clean markdown code blocks ready to copy into GitHub profile repositories.
-- **Automated Lead Sourcing Radar:** Scans typed technical stack keywords to calculate matching scores and display active contract openings on screen.
+### Portfolio Builder (`app/portfolio-builder`)
+- Same guided interview pattern (`components/PortfolioInterviewGuide.jsx`) and AI assist.
+- Custom subdomain — Premium only; enforced both in the UI and at save time.
 
-### 📄 Track B: ATS Typography Curriculum Engine
-- **Zety-Inspired & High-Density Layout Templates:** Switch seamlessly between:
-  1. *Silicon Tech Indigo Accent:* A modern, high-conversion asymmetric two-column layout with a dark sidebar column (Zety standard) preferred by startup hubs.
-  2. *Civil Service Minimalist:* A clean, high-density, centralized single-column structure explicitly required by Government Ministries and Civil Service screening algorithms.
-  3. *Executive Slate Grid:* A bold, top-heavy executive layout with structural border anchors favored by enterprise consulting agencies.
-- **Real-Time Phrasing Scanner:** Parses achievements as the user types, throwing live alerts when passive words like "responsible for" are used and recommending active expressions (e.g., *Engineered*, *Spearheaded*).
+### Job Matching (`lib/jobSources.js`)
+`findMatchingJobs(techStack, { country, location, minScore })` queries all sources in parallel, dedupes by title+company, scores by keyword overlap against the user's stack, filters by location (remote jobs always pass through), and returns sorted results.
 
-### 🔍 Automated Job-Scouting Radar & Monetization
-- **Premium Radar System:** Available exclusively to Premium members. It scans available vacancies based on user skills, automatically places matching opportunity tracking cards into their Kanban board, and dispatches real-time alerts.
-- **Paystack Subscription Gateway:** An embedded gateway pointing to a live custom subscription page link (`https://paystack.shop`) configured to handle ₦1,500 for a fixed 3-month cycle.
+Sources: Adzuna, Jooble, RemoteOK, Arbeitnow, ReliefWeb, Jobicy, Himalayas, Findwork, Remotive, The Muse, JSearch (RapidAPI), plus up to 3 custom sources defined entirely via `.env` (`CUSTOM_JOB_API_{1,2,3}_URL/NAME/RESULTS_PATH/FIELD_MAP/HEADERS`) — no code changes needed to add a new source.
 
----
+Consumed by:
+- `app/api/cron-scraper` — background sweep, inserts top 5 matches into `job_applications` for Premium users.
+- `app/api/source-leads` — on-demand lead lookup for Premium users.
 
-## 4. End-to-End System Infrastructure Architecture
+### Payments (`app/api/paystack-webhook`)
+Verifies Paystack's HMAC-SHA512 signature on `charge.success` events, then sets `profiles.is_premium = true` by matching the paying customer's email. The upgrade buttons across the app link to `https://paystack.shop/pay/kqrkkfueyh` with the user's email pre-filled so the webhook can match it.
 
-┌───────────────────────────────┐│      DEVCRAFT MAIN CORE       │└───────────────┬───────────────┘│┌─────────────────────────────┴─────────────────────────────┐▼                                                           ▼[ Next.js Front-End UI ]                                  [ Supabase Backend Cloud ]App Router Structure                                    - PostgreSQL Database SchemaClient-Side State Caching                               - JWT Session GuardDynamic Print Media CSS                                 - Object Storage Bucket Vault│                                                           │└─────────────────────────────┬─────────────────────────────┘▼┌───────────────────────────────┐│   THIRD-PARTY API GATEWAYS    │├───────────────────────────────┤│  - Paystack NGN Payments Link ││  - GitHub Developer OAuth App │└───────────────────────────────┘
-### 📂 Directory Architecture Specification
-```text
+### Landing Page (`app/page.tsx`)
+Sidebar nav, hero, "how it works," features, FAQ accordion, reviews + feedback form, about section.
+
+## 4. Directory Structure
 devcraft-career/
-├── app/
-│   ├── admin/                 # Restricted Control Panels Node
-│   │   └── logs/              # Live Telemetry Log Streaming UI
-│   ├── api/                   # Serverless Backend Route Channels
-│   │   ├── cron-scraper/      # Automated Job Sourcing Radar
-│   │   ├── github-sync/       # GitHub Repository Language Miner
-│   │   └── parse-resume/      # ATS Automated Resume Data Parser Engine
-│   ├── cv-builder/            # Typographic Resume Orchestrator
-│   │   └── components/        # Decentralized Design Templates Sheet
-│   │       ├── TemplateMinimalist.tsx     # Government Center Style
-│   │       ├── TemplateModernIndigo.tsx   # Zety Two-Column Style
-│   │       └── TemplateExecutiveSlate.tsx # Enterprise Slate Style
-│   ├── directory/             # Public Recruiter Search Marketplace (Candidate Directory)
-│   ├── forgot-password/       # Security Request Link Generation
-│   ├── reset-password/        # Token Recovery Form Receiver
-│   ├── settings/              # Configurations & View Toggle Station (Account Configurations)
-│   ├── dashboard/             # Central Workspace Switchboard Control
-│   └── page.tsx               # Interactive Landing Portal Core
-└── middleware.ts              # Traffic Interception Security Gate
-```
+â”œâ”€â”€ app/
+â”‚ â”œâ”€â”€ page.tsx # Landing page
+â”‚ â”œâ”€â”€ api/
+â”‚ â”‚ â”œâ”€â”€ ai-assist/ # AI writing assist (Claude + fallback)
+â”‚ â”‚ â”œâ”€â”€ cron-scraper/ # Background job-matching sweep (Premium)
+â”‚ â”‚ â”œâ”€â”€ source-leads/ # On-demand job lead lookup (Premium)
+â”‚ â”‚ â”œâ”€â”€ paystack-webhook/ # Signature-verified auto-upgrade
+â”‚ â”‚ â””â”€â”€ notify/ # Portfolio visit telemetry (simulated)
+â”‚ â”œâ”€â”€ cv-builder/
+â”‚ â”‚ â”œâ”€â”€ page.tsx
+â”‚ â”‚ â””â”€â”€ components/
+â”‚ â”‚ â”œâ”€â”€ AIInterviewGuide.jsx
+â”‚ â”‚ â”œâ”€â”€ CertificateUploader.jsx
+â”‚ â”‚ â”œâ”€â”€ CVPdfDocument.jsx
+â”‚ â”‚ â”œâ”€â”€ TemplateMinimalist.tsx
+â”‚ â”‚ â”œâ”€â”€ TemplateModernIndigo.tsx
+â”‚ â”‚ â”œâ”€â”€ TemplateExecutiveSlate.tsx
+â”‚ â”‚ â”œâ”€â”€ TemplateCreativeTeal.jsx # Premium
+â”‚ â”‚ â””â”€â”€ TemplateCompactEuro.jsx # Premium
+â”‚ â”œâ”€â”€ portfolio-builder/
+â”‚ â”‚ â”œâ”€â”€ page.jsx
+â”‚ â”‚ â””â”€â”€ components/
+â”‚ â”‚ â””â”€â”€ PortfolioInterviewGuide.jsx
+â”‚ â”œâ”€â”€ tracker/
+â”‚ â”œâ”€â”€ dashboard/
+â”‚ â”œâ”€â”€ directory/
+â”‚ â”œâ”€â”€ settings/
+â”‚ â””â”€â”€ p/[subdomain]/ # Public portfolio pages
+â”œâ”€â”€ lib/
+â”‚ â”œâ”€â”€ supabase.ts
+â”‚ â”œâ”€â”€ jobSources.js # 11-source aggregator + custom API connector
+â”‚ â””â”€â”€ robotsCheck.js # robots.txt gate for future site-specific scraping
+â””â”€â”€ middleware.ts
 
----
 
-## 5. Current Implementation Lifecycle Status
+## 5. Status
 
-### 🟢 Completed & Fully Coded
-1. **Core Workspace Authentication:** Local credential sign-ins and full **GitHub Social OAuth handshakes** fully configured and operating without 404 blockages.
-2. **Account Security Pathways:** Token-based recovery flows (`/forgot-password` and `/reset-password`) completely wired.
-3. **Database Security Framework:** PostgreSQL Row-Level Security (RLS) active on all schema tracks, along with the unique constraints fix on `portfolios(user_id)`.
-4. **Monetized Settings Engine (`/settings`):** Fully operational settings page containing user toggle views (hide/show sections) and the live **Paystack ₦1,500 billing portal link**.
-5. **Decoupled CV Template Engine (`/cv-builder`):** Fragmented into sub-components featuring **Zety-style asymmetric two-column structures**, Executive Slate styles, and the Government Minimalist style with the real-time passive wording scanner.
-6. **Automated API Integrations:** Back-end routers for public **Candidate Marketplace Filtering (`/directory`)** and background **GitHub Repository Language Miners**.
+### Done
+- Auth (email + GitHub OAuth), password recovery.
+- Landing page redesign (sidebar, FAQ, reviews, about).
+- CV builder: guided interview, AI assist, 5 templates, certificate uploads, real PDF export.
+- Portfolio builder: guided interview, AI assist, subdomain gating.
+- Premium tier gating: templates, print, PDF export, subdomain, job leads.
+- Job matching: 11 sources + unlimited custom APIs via `.env` + location filtering.
+- Paystack payment page + signature-verified auto-upgrade webhook.
+- `robotsCheck.js` utility, ready for future scraping work.
 
-### 🟡 In-Progress (Trapped in Caching)
-- **Dashboard UI Update Rendering:** The local code files are 100% written, error-free, and complete. However, due to an initial broken GitHub link configuration setup, the live production server on Vercel is currently frozen, continuing to serve the old cached build placeholder layout.
+### Paused (deliberately)
+- Puppeteer-based site-specific scraping — needs `puppeteer-core` + `@sparticuz/chromium`, which adds deploy size/cold-start cost on Vercel. Held until there's a specific site to target with a confirmed-compliant robots.txt + Terms of Service.
 
-### 🔴 Not Done Yet (Future Roadmap)
-- **Live SMS/Email Alert Hooks Integration:** Linking the background cron-scraper output triggers to a live notification API (like Twilio or Termii) to send text notifications directly to users' phones.
-- **True Multi-File Binary PDF Parsing:** Upgrading the simulated text classification endpoint to process real uploaded PDF byte arrays using deep semantic OCR text readers.
-
----
+### Not Done Yet
+- Email/SMS notifications when a new job lead is found (leads currently land silently in the tracker).
+- PDF export for the Premium visual templates (Teal, Euro) — currently one canonical ATS layout is used regardless of selected theme.
+- PDF/export for the portfolio builder.
+- GitHub repository auto-sync for portfolio project cards (mentioned in earlier docs, not yet built).
 

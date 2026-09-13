@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { findMatchingJobs } from '@/lib/jobSources';
+import { sendEmail, buildJobLeadEmailHtml } from '@/lib/sendEmail';
 
 export async function POST(request) {
   try {
@@ -12,7 +13,7 @@ export async function POST(request) {
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('full_name, tech_stack, is_premium')
+      .select('full_name, email, tech_stack, is_premium')
       .eq('id', userId)
       .single();
 
@@ -60,6 +61,11 @@ export async function POST(request) {
 
     if (insertError) {
       return NextResponse.json({ error: 'Failed to save leads: ' + insertError.message }, { status: 500 });
+    }
+
+    if (profile.email) {
+      const emailHtml = buildJobLeadEmailHtml(profile.full_name, topMatches);
+      await sendEmail(profile.email, topMatches.length + ' new job match' + (topMatches.length === 1 ? '' : 'es') + ' found — DevCraft Career', emailHtml);
     }
 
     return NextResponse.json({
