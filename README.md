@@ -1,4 +1,4 @@
-# DevCraft Career
+﻿# DevCraft Career
 
 DevCraft Career is a free platform that helps anyone build a professional CV and developer portfolio, then automatically searches the internet for jobs that match their skills — private, government, NGO, or remote — and delivers the leads straight to their dashboard.
 
