@@ -48,13 +48,13 @@ export async function POST(request) {
       job_title: job.title,
       status: 'lead',
       salary_range: job.salary || 'Not listed',
+      apply_url: job.url,
       notes:
         'Auto-sourced from ' +
         job.source +
         ' (' +
         job.matchScore +
-        '% match). Apply link: ' +
-        job.url,
+        '% match).',
     }));
 
     const { error: insertError } = await supabase.from('job_applications').insert(trackingCardRows);

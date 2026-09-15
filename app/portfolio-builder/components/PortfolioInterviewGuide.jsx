@@ -1,18 +1,83 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Sparkles, ArrowRight, ArrowLeftCircle, X, Loader2, CheckCircle2, Wand2 } from 'lucide-react';
+import { Sparkles, ArrowRight, ArrowLeftCircle, X, Loader2, CheckCircle2, Wand2, Lightbulb } from 'lucide-react';
 
 const QUESTIONS = [
-  { key: 'portfolioTitle', prompt: 'What would you like to call your portfolio?', hint: 'e.g. "Jane Doe - Full Stack Developer" or simply your name.', type: 'text', placeholder: 'e.g. Agene Okoh - Developer' },
-  { key: 'techStack', prompt: 'What are your main tools and technologies?', hint: 'List what you work with, separated by commas.', type: 'text', placeholder: 'React, TypeScript, Node.js, PostgreSQL' },
-  { key: 'bio', prompt: 'In a few sentences, who are you as a developer?', hint: 'Mention what you build, what you enjoy, and what makes you stand out.', type: 'textarea', placeholder: 'e.g. A frontend-focused developer who loves building clean, fast interfaces.', aiAssist: true },
-  { key: 'subdomain', prompt: 'What handle would you like for your portfolio link?', hint: 'Letters and numbers only, no spaces. e.g. "agene-dev".', type: 'text', placeholder: 'your-handle' },
-  { key: 'projTitle', prompt: 'What is one project you are proud of?', hint: 'This can be a personal project, a freelance job, or schoolwork.', type: 'text', placeholder: 'e.g. DevCraft Career Platform' },
-  { key: 'projDescription', prompt: 'What does this project do, and what did you build?', hint: 'Describe the problem it solves and your role in building it.', type: 'textarea', placeholder: 'Describe the project...', aiAssist: true },
-  { key: 'projLiveUrl', prompt: 'Is there a live link to see it?', hint: 'Optional — leave blank if it is not deployed anywhere.', type: 'text', placeholder: 'https://yourproject.com (optional)' },
-  { key: 'projRepoUrl', prompt: 'Is there a code repository link?', hint: 'Optional — a GitHub link, for example.', type: 'text', placeholder: 'https://github.com/you/project (optional)' },
-  { key: 'projLanguages', prompt: 'What languages or tools did this project use?', hint: 'Separate with commas.', type: 'text', placeholder: 'React, Supabase, Tailwind' },
+  {
+    key: 'portfolioTitle',
+    prompt: 'What would you like to call your portfolio?',
+    hint: 'e.g. "Jane Doe - Full Stack Developer" or simply your name.',
+    example: 'Agene Okoh - Frontend Developer',
+    type: 'text',
+    placeholder: 'e.g. Agene Okoh - Developer',
+  },
+  {
+    key: 'techStack',
+    prompt: 'What are your main tools and technologies?',
+    hint: 'List what you work with, separated by commas.',
+    example: 'React, TypeScript, Node.js, PostgreSQL',
+    type: 'text',
+    placeholder: 'React, TypeScript, Node.js, PostgreSQL',
+  },
+  {
+    key: 'bio',
+    prompt: 'In a few sentences, who are you as a developer?',
+    hint: 'Mention what you build, what you enjoy, and what makes you stand out. Avoid vague phrases like "passionate developer."',
+    example: 'I build fast, accessible web apps with React and Node. I care most about clean UI and code that is easy for the next person to read.',
+    type: 'textarea',
+    placeholder: 'e.g. A frontend-focused developer who loves building clean, fast interfaces.',
+    aiAssist: true,
+  },
+  {
+    key: 'subdomain',
+    prompt: 'What handle would you like for your portfolio link?',
+    hint: 'Letters and numbers only, no spaces. e.g. "agene-dev".',
+    example: 'agene-dev',
+    type: 'text',
+    placeholder: 'your-handle',
+  },
+  {
+    key: 'projTitle',
+    prompt: 'What is one project you are proud of?',
+    hint: 'This can be a personal project, a freelance job, or schoolwork.',
+    example: 'DevCraft Career Platform',
+    type: 'text',
+    placeholder: 'e.g. DevCraft Career Platform',
+  },
+  {
+    key: 'projDescription',
+    prompt: 'What does this project do, and what did you build?',
+    hint: 'Use the STAR method: what problem did it solve, what did you specifically build, and what was the outcome? A number helps.',
+    example: 'A job-matching platform that pulls listings from 10+ sources. I built the matching engine and CV builder, now used by 200+ fellows.',
+    type: 'textarea',
+    placeholder: 'Describe the project...',
+    aiAssist: true,
+  },
+  {
+    key: 'projLiveUrl',
+    prompt: 'Is there a live link to see it?',
+    hint: 'Optional — leave blank if it is not deployed anywhere.',
+    example: 'https://devcraft-career.vercel.app',
+    type: 'text',
+    placeholder: 'https://yourproject.com (optional)',
+  },
+  {
+    key: 'projRepoUrl',
+    prompt: 'Is there a code repository link?',
+    hint: 'Optional — a GitHub link, for example.',
+    example: 'https://github.com/you/project',
+    type: 'text',
+    placeholder: 'https://github.com/you/project (optional)',
+  },
+  {
+    key: 'projLanguages',
+    prompt: 'What languages or tools did this project use?',
+    hint: 'Separate with commas.',
+    example: 'React, Supabase, Tailwind',
+    type: 'text',
+    placeholder: 'React, Supabase, Tailwind',
+  },
 ];
 
 function callAIAssist(fieldType, text) {
@@ -31,6 +96,7 @@ export default function PortfolioInterviewGuide(props) {
   const [answers, setAnswers] = useState({});
   const [improving, setImproving] = useState(false);
   const [showHint, setShowHint] = useState(true);
+  const [showExample, setShowExample] = useState(false);
 
   const currentQuestion = QUESTIONS[stepIndex];
   const currentValue = answers[currentQuestion.key] || '';
@@ -49,6 +115,7 @@ export default function PortfolioInterviewGuide(props) {
     } else {
       setStepIndex(stepIndex + 1);
       setShowHint(true);
+      setShowExample(false);
     }
   };
 
@@ -56,6 +123,7 @@ export default function PortfolioInterviewGuide(props) {
     if (stepIndex > 0) {
       setStepIndex(stepIndex - 1);
       setShowHint(true);
+      setShowExample(false);
     }
   };
 
@@ -114,6 +182,24 @@ export default function PortfolioInterviewGuide(props) {
             <p className="text-xs text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 rounded-lg px-3 py-2">
               💡 {currentQuestion.hint}
             </p>
+          ) : null}
+
+          {currentQuestion.example ? (
+            <div>
+              <button
+                type="button"
+                onClick={function () { setShowExample(!showExample); }}
+                className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-amber-300 hover:text-amber-200"
+              >
+                <Lightbulb size={12} />
+                {showExample ? 'Hide example' : 'See an example answer'}
+              </button>
+              {showExample === true ? (
+                <p className="text-xs text-amber-200/90 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2 mt-2 italic">
+                  "{currentQuestion.example}"
+                </p>
+              ) : null}
+            </div>
           ) : null}
 
           {currentQuestion.type === 'textarea' ? (

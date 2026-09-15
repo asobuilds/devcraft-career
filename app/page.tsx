@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import ScraperDemoWidget from './components/ScraperDemoWidget';
 import {
   Home,
   Workflow,
@@ -190,6 +191,8 @@ export default function HomeLandingPage() {
             </div>
           </div>
         </section>
+
+        <ScraperDemoWidget />
 
         <section id="faq" className="max-w-3xl mx-auto px-6 py-16 border-t border-slate-900 scroll-mt-20">
           <div className="text-center max-w-xl mx-auto mb-10 space-y-2">
