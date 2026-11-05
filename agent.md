@@ -1,5 +1,15 @@
 ﻿# AGENT.md — Project Blueprint
 
+> **🤖 Multi-Agent Workspace**
+> Two AI agents (OpenCode, Gemini CLI) develop this repo in parallel.
+> All agents MUST read, in order:
+> 1. [`agreement.md`](./agreement.md) — ownership map & rules
+> 2. [`resolution.md`](./resolution.md) — shared work ledger
+> 3. Their own task brief: [`agents/opencode-task.md`](./agents/opencode-task.md) or [`agents/gemini-task.md`](./agents/gemini-task.md)
+>
+> Branch: `multi-agent-workspace`
+
+
 ## 1. Problem Space
 
 Job seekers face two separate barriers:
