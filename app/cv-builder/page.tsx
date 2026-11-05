@@ -1,10 +1,12 @@
 ﻿'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, Save, Printer, Plus, Trash2, Loader2, Download, Layers, Lock, Sparkles, CreditCard } from 'lucide-react';
+import { ArrowLeft, Save, Printer, Plus, Trash2, Loader2, Download, Layers, Lock, Sparkles, CreditCard, Briefcase, Eye } from 'lucide-react';
 import Link from 'next/link';
+
+import JobMatchesPanel from '@/app/components/jobs/JobMatchesPanel';
 
 import TemplateMinimalist from './components/TemplateMinimalist';
 import TemplateModernIndigo from './components/TemplateModernIndigo';
@@ -51,11 +53,17 @@ export default function CVBuilder() {
     { id: '1', company: '', role: '', dates: '', bullets: '' },
   ]);
   const [theme, setTheme] = useState<string>('modern-indigo');
+  const [activeView, setActiveView] = useState<'preview' | 'jobs'>('preview');
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [website, setWebsite] = useState('');
+
+  const techStack = useMemo(
+    () => skills.split(',').map((skill) => skill.trim()).filter(Boolean),
+    [skills],
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -322,18 +330,73 @@ export default function CVBuilder() {
           />
         </div>
 
-        <div className="p-6 md:p-12 bg-slate-900/10 flex items-start justify-center overflow-y-auto max-h-[calc(100vh-70px)] print:max-h-none print:p-0 print:bg-white">
-          {theme === 'minimalist' ? (
-            <TemplateMinimalist fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} />
-          ) : theme === 'executive-slate' ? (
-            <TemplateExecutiveSlate fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} />
-          ) : theme === 'creative-teal' && isPremium ? (
-            <TemplateCreativeTeal fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} />
-          ) : theme === 'compact-euro' && isPremium ? (
-            <TemplateCompactEuro fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} />
-          ) : (
-            <TemplateModernIndigo fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} />
-          )}
+        <div className="p-6 md:p-12 bg-slate-900/10 flex flex-col items-center overflow-y-auto max-h-[calc(100vh-70px)] print:max-h-none print:p-0 print:bg-white">
+          <div className="mb-4 flex w-full justify-center print:hidden">
+            <div className="inline-flex items-center gap-1 rounded-xl border border-slate-800 bg-slate-950 p-1" role="tablist" aria-label="CV builder view">
+              <button
+                type="button"
+                role="tab"
+                id="cv-preview-tab"
+                aria-selected={activeView === 'preview'}
+                aria-controls="cv-preview-panel"
+                onClick={() => setActiveView('preview')}
+                className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-colors sm:px-3.5 ${
+                  activeView === 'preview'
+                    ? 'bg-slate-800 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Eye size={13} />
+                Preview
+              </button>
+              <button
+                type="button"
+                role="tab"
+                id="cv-jobs-tab"
+                aria-selected={activeView === 'jobs'}
+                aria-controls="cv-jobs-panel"
+                onClick={() => setActiveView('jobs')}
+                className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-colors sm:px-3.5 ${
+                  activeView === 'jobs'
+                    ? 'bg-slate-800 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Briefcase size={13} />
+                Job Matches
+              </button>
+            </div>
+          </div>
+
+          <div
+            id="cv-preview-panel"
+            role="tabpanel"
+            aria-labelledby="cv-preview-tab"
+            className={`w-full justify-center ${activeView === 'preview' ? 'flex' : 'hidden print:flex'}`}
+          >
+            {theme === 'minimalist' ? (
+              <TemplateMinimalist fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} />
+            ) : theme === 'executive-slate' ? (
+              <TemplateExecutiveSlate fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} />
+            ) : theme === 'creative-teal' && isPremium ? (
+              <TemplateCreativeTeal fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} />
+            ) : theme === 'compact-euro' && isPremium ? (
+              <TemplateCompactEuro fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} />
+            ) : (
+              <TemplateModernIndigo fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} />
+            )}
+          </div>
+
+          {activeView === 'jobs' ? (
+            <div
+              id="cv-jobs-panel"
+              role="tabpanel"
+              aria-labelledby="cv-jobs-tab"
+              className="w-full max-w-4xl print:hidden"
+            >
+              <JobMatchesPanel techStack={techStack} />
+            </div>
+          ) : null}
         </div>
 
       </div>
