@@ -9,9 +9,10 @@ DevCraft Career features a robust backend job aggregation engine capable of fetc
 3. **In-Memory Cache (`lib/jobs-cache.ts`)**: Caches search results for 5 minutes with automatic TTL expiration to optimize performance and prevent rate-limiting on upstream job boards.
 4. **Database Schema (`supabase/migrations/0001_job_matches.sql`)**: Establishes the `job_applications` table with Row Level Security (RLS) policies and performance indexes for user application tracking and auto-sourced leads.
 
-## API Endpoints
+## API Endpoints & Edge Functions
 - **`POST /api/cron-scraper`**: Background sweep for Premium users, fetching top matches and automatically inserting leads into `job_applications` while triggering email notifications.
 - **`POST /api/source-leads`**: On-demand lead sourcing for users.
+- **`jooble-jobs` Edge Function (`supabase/functions/jooble-jobs/index.ts`)**: Proxies search requests (`?search=...&location=...` or JSON body) securely to Jooble API using secret `JOOBLE_API_KEY` with CORS headers and error handling.
 
 ## Security & RLS
 All job application records and leads are protected via Supabase RLS policies ensuring users can only read, insert, update, and delete their own records (`auth.uid() = user_id`).

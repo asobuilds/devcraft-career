@@ -30,5 +30,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
 , "proxy.js", "app/settings/page.jsx", "app/portfolio-builder/page.jsx", "app/cv-builder/page.tsx", "app/tracker/page.jsx", "app/layout.jsx", "app/page.jsx", "app/api/notify/route.js", "app/api/source-leads/route.js", "app/api/route.js", "app/p/[subdomain]/page.jsx", "app/register/page.jsx", "app/login/page.jsx", "app/reset-password/page.jsx", "app/cv-builder/components/TemplateModernIndigo.jsx", "app/cv-builder/components/TemplateMinimalist.jsx"  ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "supabase/functions/**"]
 }
