@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, Save, Printer, Plus, Trash2, Loader2, Download, Layers, Lock, Sparkles, CreditCard } from 'lucide-react';
+import { ArrowLeft, Save, Printer, Plus, Trash2, Loader2, Download, Layers, Lock, Sparkles, CreditCard, X, CheckCircle2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
 import TemplateMinimalist from './components/TemplateMinimalist';
@@ -43,6 +43,7 @@ export default function CVBuilder() {
   const [avatarUrl, setAvatarUrl] = useState<string>('');
   const [showGuide, setShowGuide] = useState<boolean>(false);
   const [attachments, setAttachments] = useState<any[]>([]);
+  const [toast, setToast] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
 
   const [resumeTitle, setResumeTitle] = useState('My Professional CV');
   const [summary, setSummary] = useState('');
@@ -66,25 +67,30 @@ export default function CVBuilder() {
       }
       setUserId(user.id);
 
-      const { data: profile } = await supabase.from('profiles').select('full_name, email, phone, website, is_premium').eq('id', user.id).single();
-      if (profile) {
-        setFullName(profile.full_name || '');
-        setEmail(profile.email || '');
-        setPhone(profile.phone || '');
-        setWebsite(profile.website || '');
-        setIsPremium(profile.is_premium === true);
-      }
+      try {
+        const { data: profile } = await supabase.from('profiles').select('full_name, email, phone, website, is_premium').eq('id', user.id).single();
+        if (profile) {
+          setFullName(profile.full_name || '');
+          setEmail(profile.email || '');
+          setPhone(profile.phone || '');
+          setWebsite(profile.website || '');
+          setIsPremium(profile.is_premium === true);
+        }
 
-      const { data: cv } = await supabase.from('resumes').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
-      if (cv) {
-        setResumeTitle(cv.resume_title || 'My Professional CV');
-        setSummary(cv.summary || '');
-        setSkills(cv.skills ? cv.skills.join(', ') : '');
-        setTheme(cv.active_template || 'modern-indigo');
-        setExperience(Array.isArray(cv.experience) && cv.experience.length > 0 ? (cv.experience as ExperienceItem[]) : [{ id: '1', company: '', role: '', dates: '', bullets: '' }]);
-        setAttachments(Array.isArray(cv.attachments) ? cv.attachments : []);
+        const { data: cv } = await supabase.from('resumes').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
+        if (cv) {
+          setResumeTitle(cv.resume_title || 'My Professional CV');
+          setSummary(cv.summary || '');
+          setSkills(cv.skills ? cv.skills.join(', ') : '');
+          setTheme(cv.active_template || 'modern-indigo');
+          setExperience(Array.isArray(cv.experience) && cv.experience.length > 0 ? (cv.experience as ExperienceItem[]) : [{ id: '1', company: '', role: '', dates: '', bullets: '' }]);
+          setAttachments(Array.isArray(cv.attachments) ? cv.attachments : []);
+        }
+      } catch {
+        setToast({ type: 'error', message: 'Failed to load your data. Please refresh the page.' });
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchData();
   }, [router]);
@@ -104,7 +110,7 @@ export default function CVBuilder() {
 
   const exportJSONBackup = () => {
     if (!isPremium) {
-      alert('📄 Exporting your CV is a Premium feature. Upgrade to download and share your documents.');
+      setToast({ type: 'info', message: '📄 Exporting your CV is a Premium feature. Upgrade to download and share your documents.' });
       return;
     }
     const backupPayload = { profile: { fullName, email, phone, website }, resume: { summary, skills, experience, theme } };
@@ -119,7 +125,7 @@ export default function CVBuilder() {
 
   const handlePrint = () => {
     if (!isPremium) {
-      alert('🖨️ Printing and PDF export is a Premium feature. Upgrade to unlock printing and downloads.');
+      setToast({ type: 'info', message: '🖨️ Printing and PDF export is a Premium feature. Upgrade to unlock printing and downloads.' });
       return;
     }
     window.print();
@@ -128,7 +134,7 @@ export default function CVBuilder() {
   const handleThemeChange = (selected: string) => {
     const premiumThemes = ['creative-teal', 'compact-euro'];
     if (premiumThemes.includes(selected) && !isPremium) {
-      alert('🎨 That template is reserved for Premium accounts. Upgrade to unlock more designs.');
+      setToast({ type: 'info', message: '🎨 That template is reserved for Premium accounts. Upgrade to unlock more designs.' });
       return;
     }
     setTheme(selected);
@@ -148,13 +154,14 @@ export default function CVBuilder() {
   const handleSave = async () => {
     if (!userId) return;
     setSaving(true);
+    setToast(null);
     try {
       await supabase.from('profiles').upsert({ id: userId, full_name: fullName, email, phone, website, updated_at: new Date().toISOString() });
       const skillsArray = skills.split(',').map((s) => s.trim()).filter(Boolean);
       await supabase.from('resumes').upsert({ user_id: userId, resume_title: resumeTitle, summary, skills: skillsArray, experience, active_template: theme, attachments, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
-      alert('✅ Document template configurations matching matrix saved successfully!');
+      setToast({ type: 'success', message: 'Document saved successfully!' });
     } catch (error: any) {
-      alert('❌ Server database error: ' + error.message);
+      setToast({ type: 'error', message: 'Server database error: ' + error.message });
     } finally {
       setSaving(false);
     }
@@ -164,15 +171,78 @@ export default function CVBuilder() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400 gap-2">
-        <Loader2 className="animate-spin text-purple-500" size={20} />
-        <span>Syncing Multi-Template Framework...</span>
+      <div className="min-h-screen bg-slate-950 text-slate-100">
+        <div className="border-b border-slate-900 bg-slate-900/40 backdrop-blur-md sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-8 h-8 rounded-lg bg-slate-900 animate-pulse" />
+            <div className="h-4 w-40 bg-slate-800 rounded animate-pulse" />
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-24 bg-slate-800 rounded-xl animate-pulse" />
+            <div className="h-8 w-24 bg-slate-800 rounded-xl animate-pulse" />
+            <div className="h-8 w-28 bg-purple-700/30 rounded-xl animate-pulse" />
+          </div>
+        </div>
+        <div className="max-w-[1600px] mx-auto grid lg:grid-cols-2 min-h-[calc(100vh-65px)]">
+          <div className="p-6 md:p-10 border-r border-slate-900 space-y-8 overflow-y-auto max-h-[calc(100vh-70px)]">
+            <div className="h-10 w-full bg-slate-800/60 rounded-xl animate-pulse" />
+            <div className="grid sm:grid-cols-2 gap-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <div className="h-3 w-24 bg-slate-800 rounded animate-pulse" />
+                  <div className="h-10 w-full bg-slate-800/60 rounded-xl animate-pulse" />
+                </div>
+              ))}
+            </div>
+            <div className="space-y-2">
+              <div className="h-3 w-48 bg-slate-800 rounded animate-pulse" />
+              <div className="h-20 w-full bg-slate-800/60 rounded-xl animate-pulse" />
+            </div>
+            <div className="space-y-3">
+              <div className="h-3 w-40 bg-slate-800 rounded animate-pulse" />
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="h-24 w-full bg-slate-800/40 rounded-xl animate-pulse" />
+              ))}
+            </div>
+            <div className="space-y-2">
+              <div className="h-3 w-56 bg-slate-800 rounded animate-pulse" />
+              <div className="h-10 w-full bg-slate-800/60 rounded-xl animate-pulse" />
+            </div>
+            <div className="h-20 w-full bg-slate-800/40 rounded-xl animate-pulse" />
+          </div>
+          <div className="p-6 md:p-12 bg-slate-900/10 flex items-start justify-center overflow-y-auto max-h-[calc(100vh-70px)]">
+            <div className="w-full max-w-sm bg-slate-800/30 border border-slate-800 rounded-2xl p-8 space-y-4 animate-pulse">
+              <div className="h-6 w-3/4 bg-slate-800 rounded animate-pulse" />
+              <div className="h-3 w-1/2 bg-slate-800 rounded animate-pulse" />
+              <div className="h-16 w-full bg-slate-800/60 rounded-xl animate-pulse" />
+              <div className="space-y-2 pt-2">
+                <div className="h-3 w-full bg-slate-800 rounded animate-pulse" />
+                <div className="h-3 w-5/6 bg-slate-800 rounded animate-pulse" />
+                <div className="h-3 w-4/6 bg-slate-800 rounded animate-pulse" />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 print:bg-white print:text-black">
+
+      {toast && (
+        <div className={`fixed top-4 right-4 z-[200] flex items-center gap-3 px-4 py-3 rounded-xl border shadow-2xl text-xs font-medium max-w-sm transition-all ${
+          toast.type === 'success' ? 'bg-green-950/90 border-green-500/30 text-green-300' :
+          toast.type === 'error' ? 'bg-red-950/90 border-red-500/30 text-red-300' :
+          'bg-indigo-950/90 border-indigo-500/30 text-indigo-300'
+        }`}>
+          {toast.type === 'success' ? <CheckCircle2 size={14} /> : toast.type === 'error' ? <AlertCircle size={14} /> : <Sparkles size={14} />}
+          <span className="flex-1">{toast.message}</span>
+          <button onClick={() => setToast(null)} className="opacity-60 hover:opacity-100 transition-opacity">
+            <X size={12} />
+          </button>
+        </div>
+      )}
 
       {showGuide ? (
         <AIInterviewGuide onClose={() => setShowGuide(false)} onComplete={handleGuideComplete} />
