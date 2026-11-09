@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, Plus, Trash2, Loader2, Briefcase, Zap, Terminal, ExternalLink, CheckCircle2, Radar } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Loader2, Briefcase, Zap, Terminal, ExternalLink, CheckCircle2, Radar, X, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
 interface ApplicationItem {
@@ -39,6 +39,7 @@ export default function JobTracker() {
   const [scanning, setScanning] = useState(false);
   const [scanLogIndex, setScanLogIndex] = useState(0);
   const [scanMessage, setScanMessage] = useState('');
+  const [toast, setToast] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -49,13 +50,18 @@ export default function JobTracker() {
       }
       setUserId(user.id);
 
-      const { data } = await supabase
-        .from('job_applications')
-        .select('*')
-        .eq('user_id', user.id);
+      try {
+        const { data } = await supabase
+          .from('job_applications')
+          .select('*')
+          .eq('user_id', user.id);
 
-      if (data) setApps(data as ApplicationItem[]);
-      setLoading(false);
+        if (data) setApps(data as ApplicationItem[]);
+      } catch {
+        setToast({ type: 'error', message: 'Failed to load applications. Please refresh.' });
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchApplications();
@@ -84,6 +90,9 @@ export default function JobTracker() {
       setCompany('');
       setTitle('');
       setSalary('');
+      setToast({ type: 'success', message: 'Application added successfully.' });
+    } else if (error) {
+      setToast({ type: 'error', message: 'Failed to add application. Please try again.' });
     }
   };
 
@@ -104,7 +113,7 @@ export default function JobTracker() {
     // 4. Rollback visual state if a server dropout error occurs
     if (error) {
       setApps(originalApps);
-      alert('⚠️ Cloud sync drop detected. Rolling back card state parameters.');
+      setToast({ type: 'error', message: 'Cloud sync drop detected. Rolling back card state parameters.' });
     }
   };
 
@@ -119,7 +128,7 @@ export default function JobTracker() {
 
     if (error) {
       setApps(originalApps);
-      alert('⚠️ Erase sequence failed. Card rolled back.');
+      setToast({ type: 'error', message: 'Erase sequence failed. Card rolled back.' });
     }
   };
 
@@ -198,9 +207,39 @@ export default function JobTracker() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400 gap-2">
-        <Loader2 className="animate-spin text-indigo-500" size={20} />
-        <span>Synchronizing Core CRM Engine...</span>
+      <div className="min-h-screen bg-slate-950 text-slate-100 p-6 font-sans">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-slate-900">
+          <div className="flex items-center gap-4">
+            <div className="w-8 h-8 rounded-lg bg-slate-800 animate-pulse" />
+            <div className="space-y-2">
+              <div className="h-5 w-48 bg-slate-800 rounded animate-pulse" />
+              <div className="h-3 w-36 bg-slate-900 rounded animate-pulse" />
+            </div>
+          </div>
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="h-9 w-28 bg-emerald-700/20 rounded-xl animate-pulse" />
+            <div className="h-9 flex-1 min-w-[200px] bg-slate-800/60 rounded-xl animate-pulse" />
+          </div>
+        </div>
+        <div className="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-5 gap-6 items-start">
+          {['Scraped Matches', 'Applied', 'Interviewing', 'Offered', 'Archived'].map((label, i) => (
+            <div key={i} className="bg-slate-900/20 border border-slate-900 rounded-2xl p-4 flex flex-col gap-4">
+              <div className="flex items-center justify-between border-b border-slate-900 pb-2">
+                <div className="h-3 w-24 bg-slate-800 rounded animate-pulse" />
+                <div className="h-4 w-6 bg-slate-800 rounded-full animate-pulse" />
+              </div>
+              <div className="space-y-3 min-h-[250px]">
+                {[...Array(3)].map((_, j) => (
+                  <div key={j} className="bg-slate-900/40 border border-slate-800/80 rounded-xl p-4 space-y-2 animate-pulse">
+                    <div className="h-3 w-3/4 bg-slate-800 rounded" />
+                    <div className="h-2.5 w-1/2 bg-slate-800/60 rounded" />
+                    <div className="h-5 w-full bg-slate-800/40 rounded mt-2" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -215,6 +254,20 @@ export default function JobTracker() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-6 font-sans">
+
+      {toast && (
+        <div className={`fixed top-4 right-4 z-[200] flex items-center gap-3 px-4 py-3 rounded-xl border shadow-2xl text-xs font-medium max-w-sm ${
+          toast.type === 'success' ? 'bg-green-950/90 border-green-500/30 text-green-300' :
+          toast.type === 'error' ? 'bg-red-950/90 border-red-500/30 text-red-300' :
+          'bg-indigo-950/90 border-indigo-500/30 text-indigo-300'
+        }`}>
+          {toast.type === 'success' ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
+          <span className="flex-1">{toast.message}</span>
+          <button onClick={() => setToast(null)} className="opacity-60 hover:opacity-100 transition-opacity">
+            <X size={12} />
+          </button>
+        </div>
+      )}
 
       {scanning ? (
         <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">

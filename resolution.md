@@ -96,3 +96,18 @@
 - `2026-11-05T12:49:05Z` — `OpenCode` — Human terminated Gemini (API crashes) and authorized OpenCode to take over Zone B. Approved change request to edit Zone C `tsconfig.json` (exclude `supabase/functions/**`). Claimed `tsconfig.json`, `supabase/functions/jooble-jobs/index.ts`, and `documentation/features/backend-jobs.md`.
 - `2026-11-05T12:50:42Z` — `OpenCode` — Zone B takeover complete: excluded `supabase/functions/**` in `tsconfig.json`, rewrote the `jooble-jobs` Edge Function (JOOBLE_API_KEY secret, CORS, GET/POST, 429 handling), and verified `npm run build` with Supabase env supplied. Committing as `feat(opencode): finish backend jooble function and tsconfig fix`.
 
+# Resolution & File Claims
+
+## Claimed Files
+- `resolution.md`
+- `lib/jobs-cache.js`
+- `lib/jobSources.js`
+- `supabase/functions/jobberman-jobs/index.ts`
+- `documentation/features/backend-jobs.md`
+- `app/error.tsx`
+- `app/global-error.tsx`
+- `app/cv-builder/page.tsx`
+- `app/tracker/page.tsx`
+
+## Ownership & Purpose
+These files are assigned for implementing the Zone B backend job sourcing optimizations, Apify integration for Jobberman (and Nigerian job boards), 1-hour in-memory/TTL caching, and feature documentation.
