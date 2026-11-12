@@ -1,10 +1,10 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, Save, Printer, Plus, Trash2, Loader2, Download, Layers, Lock, Sparkles, CreditCard, Briefcase, Eye } from 'lucide-react';
-import { ArrowLeft, Save, Printer, Plus, Trash2, Loader2, Download, Layers, Lock, Sparkles, CreditCard, X, CheckCircle2, AlertCircle } from 'lucide-react';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { ArrowLeft, Save, Printer, Plus, Trash2, Loader2, Download, Layers, Lock, Sparkles, CreditCard, Briefcase, Eye, X, CheckCircle2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
 import JobMatchesPanel from '@/app/components/jobs/JobMatchesPanel';
@@ -21,7 +21,7 @@ import ProfilePhotoUploader from './components/ProfilePhotoUploader';
 import AIInterviewGuide from './components/AIInterviewGuide';
 import CertificateUploader from './components/CertificateUploader';
 import PdfDocumentRouter from './components/PdfDocumentRouter';
-import CVPdfDocument from './components/CVPdfDocument';
+import CVPdfDocument from './components/CVPdfDocument'; // eslint-disable-line no-unused-vars
 
 interface ExperienceItem {
   id: string;
@@ -486,13 +486,13 @@ export default function CVBuilder() {
             className={`w-full justify-center ${activeView === 'preview' ? 'flex' : 'hidden print:flex'}`}
           >
             {theme === 'minimalist' ? (
-              <TemplateMinimalist fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} allowPhoto={allowPhoto} />
+              <TemplateMinimalist fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} {...({ allowPhoto } as any)} />
             ) : theme === 'executive-slate' ? (
-              <TemplateExecutiveSlate fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} allowPhoto={allowPhoto} />
+              <TemplateExecutiveSlate fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} {...({ allowPhoto } as any)} />
             ) : theme === 'creative-teal' && isPremium ? (
-              <TemplateCreativeTeal fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} allowPhoto={allowPhoto} />
+              <TemplateCreativeTeal fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} {...({ allowPhoto } as any)} />
             ) : theme === 'compact-euro' && isPremium ? (
-              <TemplateCompactEuro fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} allowPhoto={allowPhoto} />
+              <TemplateCompactEuro fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} {...({ allowPhoto } as any)} />
             ) : theme === 'lagos-corporate' ? (
               <TemplateLagosCorporate fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} allowPhoto={allowPhoto} />
             ) : theme === 'tech-stack' ? (

@@ -10,6 +10,7 @@ interface ProfilePhotoUploaderProps {
 
 export default function ProfilePhotoUploader({ avatarUrl, setAvatarUrl, allowPhoto }: ProfilePhotoUploaderProps) {
   const [photoUrlInput, setPhotoUrlInput] = useState(avatarUrl);
+  const [uploading] = useState(false);
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPhotoUrlInput(e.target.value);

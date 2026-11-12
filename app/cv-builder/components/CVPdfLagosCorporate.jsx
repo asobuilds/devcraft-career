@@ -97,7 +97,7 @@ export default function CVPdfLagosCorporate({ fullName, email, phone, website, s
         {experience.length > 0 && (
           <View>
             <Text style={styles.sectionTitle}>Work Experience</Text>
-            {experience.map((exp, index) => (
+            {experience.map((exp, index) => {
               if (!exp.company && !exp.role) return null;
               return (
                 <View key={index} style={styles.experienceBlock} wrap={false}>
@@ -107,8 +107,8 @@ export default function CVPdfLagosCorporate({ fullName, email, phone, website, s
                   </View>
                   {exp.bullets ? <Text style={styles.bulletText}>{exp.bullets}</Text> : null}
                 </View>
-              )
-            ))}
+              );
+            })}
           </View>
         )}
 
