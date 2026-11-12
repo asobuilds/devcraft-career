@@ -20,7 +20,7 @@ import TemplateGraduate from './components/TemplateGraduate';
 import ProfilePhotoUploader from './components/ProfilePhotoUploader';
 import AIInterviewGuide from './components/AIInterviewGuide';
 import CertificateUploader from './components/CertificateUploader';
-import { PDFDownloadLink } from '@react-pdf/renderer';
+import PdfDocumentRouter from './components/PdfDocumentRouter';
 import CVPdfDocument from './components/CVPdfDocument';
 
 interface ExperienceItem {
@@ -295,7 +295,16 @@ export default function CVBuilder() {
           {isPremium ? (
             <PDFDownloadLink
               document={
-                <CVPdfDocument fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} />
+                <PdfDocumentRouter
+                  theme={theme}
+                  fullName={fullName}
+                  email={email}
+                  phone={phone}
+                  website={website}
+                  summary={summary}
+                  skills={skills}
+                  experience={experience}
+                />
               }
               fileName={resumeTitle.toLowerCase().replace(/\s+/g, '-') + '.pdf'}
               className="inline-flex items-center gap-2 px-4 py-2 border border-slate-800 bg-slate-900 text-slate-300 rounded-xl text-xs font-semibold hover:border-slate-700"
