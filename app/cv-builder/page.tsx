@@ -14,6 +14,10 @@ import TemplateModernIndigo from './components/TemplateModernIndigo';
 import TemplateExecutiveSlate from './components/TemplateExecutiveSlate';
 import TemplateCreativeTeal from './components/TemplateCreativeTeal';
 import TemplateCompactEuro from './components/TemplateCompactEuro';
+import TemplateLagosCorporate from './components/TemplateLagosCorporate';
+import TemplateTechStack from './components/TemplateTechStack';
+import TemplateGraduate from './components/TemplateGraduate';
+import ProfilePhotoUploader from './components/ProfilePhotoUploader';
 import AIInterviewGuide from './components/AIInterviewGuide';
 import CertificateUploader from './components/CertificateUploader';
 import { PDFDownloadLink } from '@react-pdf/renderer';
@@ -44,6 +48,7 @@ export default function CVBuilder() {
   const [userId, setUserId] = useState<string | null>(null);
   const [isPremium, setIsPremium] = useState<boolean>(false);
   const [avatarUrl, setAvatarUrl] = useState<string>('');
+  const [allowPhoto, setAllowPhoto] = useState<boolean>(false);
   const [showGuide, setShowGuide] = useState<boolean>(false);
   const [attachments, setAttachments] = useState<any[]>([]);
   const [toast, setToast] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
@@ -141,7 +146,7 @@ export default function CVBuilder() {
   };
 
   const handleThemeChange = (selected: string) => {
-    const premiumThemes = ['creative-teal', 'compact-euro'];
+    const premiumThemes = ['creative-teal', 'compact-euro', 'tech-stack', 'graduate'];
     if (premiumThemes.includes(selected) && !isPremium) {
       setToast({ type: 'info', message: '🎨 That template is reserved for Premium accounts. Upgrade to unlock more designs.' });
       return;
@@ -266,20 +271,23 @@ export default function CVBuilder() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-2 py-1 text-xs">
-            <Layers size={12} className="text-slate-500 mr-2" />
-            <select
-              value={theme}
-              onChange={(e) => handleThemeChange(e.target.value)}
-              className="bg-transparent text-slate-300 font-medium focus:outline-none cursor-pointer"
-            >
-              <option value="modern-indigo">Template: Silicon Tech Indigo</option>
-              <option value="minimalist">Template: Civil Service Minimalist</option>
-              <option value="executive-slate">Template: Executive Slate Grid</option>
-              <option value="creative-teal">{isPremium ? '' : '🔒 '}Template: Creative Teal (Premium)</option>
-              <option value="compact-euro">{isPremium ? '' : '🔒 '}Template: Compact Euro (Premium)</option>
-            </select>
-          </div>
+            <div className="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-2 py-1 text-xs">
+              <Layers size={12} className="text-slate-500 mr-2" />
+              <select
+                value={theme}
+                onChange={(e) => handleThemeChange(e.target.value)}
+                className="bg-transparent text-slate-300 font-medium focus:outline-none cursor-pointer"
+              >
+                <option value="modern-indigo">Template: Silicon Tech Indigo</option>
+                <option value="minimalist">Template: Civil Service Minimalist</option>
+                <option value="executive-slate">Template: Executive Slate Grid</option>
+                <option value="creative-teal">{isPremium ? '' : '🔒 '}Template: Creative Teal (Premium)</option>
+                <option value="compact-euro">{isPremium ? '' : '🔒 '}Template: Compact Euro (Premium)</option>
+                <option value="lagos-corporate">{isPremium ? '' : '🔒 '}Template: Lagos Corporate</option>
+                <option value="tech-stack">{isPremium ? '' : '🔒 '}Template: Tech Stack</option>
+                <option value="graduate">{isPremium ? '' : '🔒 '}Template: Graduate</option>
+              </select>
+            </div>
 
           <button onClick={exportJSONBackup} className="inline-flex items-center gap-2 px-3.5 py-2 border border-slate-800 bg-slate-900 text-slate-300 rounded-xl text-xs font-semibold hover:border-slate-700">
             {isPremium ? <Download size={14} /> : <Lock size={14} />} {"Export Data"}
@@ -393,11 +401,34 @@ export default function CVBuilder() {
             <input type="text" value={skills} onChange={(e) => setSkills(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white" placeholder="React, TypeScript, SQL, PostgreSQL, Linux, Docker, AWS" />
           </div>
 
+          <div className="flex items-center justify-between border border-slate-800 bg-slate-900/40 rounded-xl p-4">
+            <div className="space-y-0.5">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Include Profile Photo (Creative roles only)</label>
+              <p className="text-[9px] text-slate-500">Enable for creative/portfolio-focused resumes. ATS-safe templates render without photos.</p>
+            </div>
+            <button
+              onClick={() => setAllowPhoto((prev) => !prev)}
+              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${allowPhoto ? 'bg-indigo-600' : 'bg-slate-700'}`}
+              role="switch"
+              aria-checked={allowPhoto}
+              aria-label="Include Profile Photo"
+              type="button"
+            >
+              <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white transform transition-transform ${allowPhoto ? 'translate-x-4' : 'translate-x-1'}`} />
+            </button>
+          </div>
+
           <CertificateUploader
             supabase={supabase}
             userId={userId}
             attachments={attachments}
             onAttachmentsChange={setAttachments}
+          />
+
+          <ProfilePhotoUploader
+            avatarUrl={avatarUrl}
+            setAvatarUrl={setAvatarUrl}
+            allowPhoto={allowPhoto}
           />
         </div>
 
@@ -446,13 +477,19 @@ export default function CVBuilder() {
             className={`w-full justify-center ${activeView === 'preview' ? 'flex' : 'hidden print:flex'}`}
           >
             {theme === 'minimalist' ? (
-              <TemplateMinimalist fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} />
+              <TemplateMinimalist fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} allowPhoto={allowPhoto} />
             ) : theme === 'executive-slate' ? (
-              <TemplateExecutiveSlate fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} />
+              <TemplateExecutiveSlate fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} allowPhoto={allowPhoto} />
             ) : theme === 'creative-teal' && isPremium ? (
-              <TemplateCreativeTeal fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} />
+              <TemplateCreativeTeal fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} allowPhoto={allowPhoto} />
             ) : theme === 'compact-euro' && isPremium ? (
-              <TemplateCompactEuro fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} />
+              <TemplateCompactEuro fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} allowPhoto={allowPhoto} />
+            ) : theme === 'lagos-corporate' ? (
+              <TemplateLagosCorporate fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} allowPhoto={allowPhoto} />
+            ) : theme === 'tech-stack' ? (
+              <TemplateTechStack fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} allowPhoto={allowPhoto} />
+            ) : theme === 'graduate' ? (
+              <TemplateGraduate fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} allowPhoto={allowPhoto} />
             ) : (
               <TemplateModernIndigo fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} />
             )}

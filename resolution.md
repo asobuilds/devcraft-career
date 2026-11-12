@@ -14,7 +14,11 @@
 
 | Agent | File | Branch | Claimed At | Status |
 |-------|------|--------|------------|--------|
-| _(none yet)_ | — | — | — | — |
+| OpenCode | app/cv-builder/components/TemplateLagosCorporate.tsx | opencode/templates | 2026-11-12T18:52:00Z | active |
+| OpenCode | app/cv-builder/components/TemplateTechStack.tsx | opencode/templates | 2026-11-12T18:52:00Z | active |
+| OpenCode | app/cv-builder/components/TemplateGraduate.tsx | opencode/templates | 2026-11-12T18:52:00Z | active |
+| OpenCode | app/cv-builder/components/ProfilePhotoUploader.tsx | opencode/templates | 2026-11-12T18:52:00Z | active |
+| OpenCode | app/cv-builder/page.tsx | opencode/templates | 2026-11-12T18:52:00Z | active |
 
 ---
 
