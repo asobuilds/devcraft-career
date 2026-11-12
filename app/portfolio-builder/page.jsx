@@ -3,15 +3,17 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, Save, Plus, Trash2, Loader2, Code2, Copy, Check, Sparkles, CreditCard, Lock } from 'lucide-react';
+import { ArrowLeft, Save, Trash2, Loader2, Sparkles, CreditCard, Lock } from 'lucide-react';
 import Link from 'next/link';
 import PortfolioInterviewGuide from './components/PortfolioInterviewGuide';
+import PortfolioMinimal from '@/app/p/components/PortfolioMinimal';
+import PortfolioDeveloper from '@/app/p/components/PortfolioDeveloper';
+import PortfolioCreative from '@/app/p/components/PortfolioCreative';
 
 export default function PortfolioBuilder() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [userId, setUserId] = useState(null);
   const [showGuide, setShowGuide] = useState(false);
 
@@ -21,6 +23,7 @@ export default function PortfolioBuilder() {
   const [bio, setBio] = useState('');
   const [techStack, setTechStack] = useState('');
   const [subdomain, setSubdomain] = useState('');
+  const [selectedTemplate, setSelectedTemplate] = useState('minimal');
   const [isPremium, setIsPremium] = useState(false);
   const [projects, setProjects] = useState([
     { id: '1', title: '', description: '', liveUrl: '', repoUrl: '', languages: '' }
@@ -48,6 +51,7 @@ export default function PortfolioBuilder() {
         setBio(portfolio.bio || '');
         setTechStack(portfolio.tech_stack || '');
         setSubdomain(portfolio.custom_subdomain || '');
+        setSelectedTemplate(portfolio.selected_template || 'minimal');
         if (portfolio.projects && Array.isArray(portfolio.projects)) {
           setProjects(portfolio.projects);
         }
@@ -97,6 +101,7 @@ export default function PortfolioBuilder() {
       bio: bio,
       tech_stack: techStack,
       custom_subdomain: trimmedSubdomain || null,
+      selected_template: selectedTemplate,
       projects: projects,
     }, { onConflict: 'user_id' });
     setSaving(false);
@@ -169,6 +174,19 @@ export default function PortfolioBuilder() {
             )}
           </div>
           <div>
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Portfolio Template Theme</label>
+            <select
+              value={selectedTemplate}
+              onChange={(e) => setSelectedTemplate(e.target.value)}
+              className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white"
+            >
+              <option value="minimal">Minimal — Clean, text-focused</option>
+              <option value="developer">Developer — Dark, code-inspired</option>
+              <option value="creative">Creative — Bold colors, big type</option>
+            </select>
+            <p className="text-[10px] text-slate-500 mt-1.5">This theme is used on your public portfolio page.</p>
+          </div>
+          <div>
             <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Primary Tech Stack Keywords Matrix</label>
             <input type="text" value={techStack} onChange={(e) => setTechStack(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white" placeholder="React, TypeScript..." />
           </div>
@@ -193,10 +211,35 @@ export default function PortfolioBuilder() {
         </div>
 
         <div className="p-6 md:p-10 bg-slate-900/10 flex items-start justify-center h-[calc(100vh-70px)] overflow-y-auto">
-          <div className="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-2xl p-8 space-y-6 shadow-xl relative">
-            <h1 className="text-2xl font-black tracking-tight text-white uppercase">{fullName || "YOUR NAME"}</h1>
-            <p className="text-xs text-slate-400 font-mono tracking-wide">{subdomain ? `${subdomain.toLowerCase()}.devcraft.com` : "://devcraft.com"}</p>
-            {bio && <p className="text-xs text-slate-300 bg-slate-950/40 border border-slate-800/60 p-3 rounded-xl">{bio}</p>}
+          <div className="w-full max-w-2xl h-[calc(100vh-170px)] min-h-[600px] overflow-y-auto rounded-2xl border border-slate-800 bg-white shadow-xl">
+            {selectedTemplate === 'developer' ? (
+              <PortfolioDeveloper
+                name={fullName}
+                title={portfolioTitle}
+                bio={bio}
+                techStack={techStack}
+                projects={projects}
+                subdomain={subdomain ? subdomain.toLowerCase().trim() : ''}
+              />
+            ) : selectedTemplate === 'creative' ? (
+              <PortfolioCreative
+                name={fullName}
+                title={portfolioTitle}
+                bio={bio}
+                techStack={techStack}
+                projects={projects}
+                subdomain={subdomain ? subdomain.toLowerCase().trim() : ''}
+              />
+            ) : (
+              <PortfolioMinimal
+                name={fullName}
+                title={portfolioTitle}
+                bio={bio}
+                techStack={techStack}
+                projects={projects}
+                subdomain={subdomain ? subdomain.toLowerCase().trim() : ''}
+              />
+            )}
           </div>
         </div>
       </div>
