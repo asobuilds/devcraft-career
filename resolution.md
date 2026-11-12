@@ -14,6 +14,12 @@
 
 | Agent | File | Branch | Claimed At | Status |
 |-------|------|--------|------------|--------|
+| Gemini | `supabase/migrations/0002_template_upgrades.sql` | main | 2026-11-09T12:00:00Z | active |
+| Gemini | `lib/jobSources.types.ts` | main | 2026-11-09T12:00:00Z | active |
+| Gemini | `lib/jobSources.js` | main | 2026-11-09T12:00:00Z | active |
+| Gemini | `app/api/jobs/search/route.ts` | main | 2026-11-09T12:00:00Z | active |
+| Gemini | `documentation/features/backend-jobs.md` | main | 2026-11-09T12:00:00Z | active |
+|-------|------|--------|------------|--------|
 | OpenCode | app/cv-builder/components/TemplateLagosCorporate.tsx | opencode/templates | 2026-11-12T18:52:00Z | active |
 | OpenCode | app/cv-builder/components/TemplateTechStack.tsx | opencode/templates | 2026-11-12T18:52:00Z | active |
 | OpenCode | app/cv-builder/components/TemplateGraduate.tsx | opencode/templates | 2026-11-12T18:52:00Z | active |

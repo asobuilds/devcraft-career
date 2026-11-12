@@ -36,6 +36,7 @@ interface SearchInput {
   location: string | null;
   country: string;
   minScore: number;
+  targetJobType?: string;
 }
 
 interface CacheEntry {
@@ -91,6 +92,7 @@ function buildCacheKey(input: SearchInput): string {
     location: input.location,
     country: input.country,
     minScore: input.minScore,
+    targetJobType: input.targetJobType,
   });
   return createHash('sha256').update(payload).digest('hex');
 }
@@ -171,6 +173,7 @@ async function runSearch(input: SearchInput): Promise<RawJob[]> {
         country: input.country,
         location: input.location || undefined,
         minScore: input.minScore,
+        targetJobType: input.targetJobType,
       }) as Promise<RawJob[]>,
       timeout,
     ]);
@@ -205,6 +208,7 @@ export async function POST(request: Request) {
     location: readString(payload.location, null),
     country: (readString(payload.country, 'ng') || 'ng').toLowerCase(),
     minScore: readMinScore(payload.minScore),
+    targetJobType: readString(payload.targetJobType, 'tech') || 'tech',
   };
 
   const bypassCache = payload.refresh === true;
