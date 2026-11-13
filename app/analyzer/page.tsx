@@ -111,37 +111,44 @@ export default function ATSAnalyzer() {
             ) : (
               <div className="space-y-5">
                 {/* Score Card */}
-                <div className="flex items-center gap-4 pb-5 border-b border-slate-800">
-                  <div className={`h-16 w-16 rounded-full border-2 flex items-center justify-center text-lg font-black ${
-                    score >= 75 ? 'border-green-500 text-green-400 bg-green-500/10' :
-                    score >= 50 ? 'border-yellow-500 text-yellow-400 bg-yellow-500/10' :
-                    'border-red-500 text-red-400 bg-red-500/10'
-                  }`}>
-                    {score}%
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-white uppercase tracking-wider">Match Score</p>
-                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">{feedback}</p>
-                  </div>
-                </div>
+                {(() => {
+                  const displayScore = score ?? 0;
+                  return (
+                    <>
+                      <div className="flex items-center gap-4 pb-5 border-b border-slate-800">
+                        <div className={`h-16 w-16 rounded-full border-2 flex items-center justify-center text-lg font-black ${
+                          displayScore >= 75 ? 'border-green-500 text-green-400 bg-green-500/10' :
+                          displayScore >= 50 ? 'border-yellow-500 text-yellow-400 bg-yellow-500/10' :
+                          'border-red-500 text-red-400 bg-red-500/10'
+                        }`}>
+                          {displayScore}%
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-white uppercase tracking-wider">Match Score</p>
+                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">{feedback}</p>
+                        </div>
+                      </div>
 
-                {/* Missing Keywords */}
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-3 flex items-center gap-1.5">
-                    <CheckCircle2 size={12} className="text-emerald-500" /> Missing Keywords ({missingKeywords.length})
-                  </span>
-                  {missingKeywords.length > 0 ? (
-                    <div className="flex flex-wrap gap-1.5">
-                      {missingKeywords.map((kw, i) => (
-                        <span key={i} className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-300 text-[10px] px-2.5 py-1 rounded-md font-mono">
-                          {kw}
+                      {/* Missing Keywords */}
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-3 flex items-center gap-1.5">
+                          <CheckCircle2 size={12} className="text-emerald-500" /> Missing Keywords ({missingKeywords.length})
                         </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-xs text-emerald-400">All relevant keywords present!</p>
-                  )}
-                </div>
+                        {missingKeywords.length > 0 ? (
+                          <div className="flex flex-wrap gap-1.5">
+                            {missingKeywords.map((kw, i) => (
+                              <span key={i} className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-300 text-[10px] px-2.5 py-1 rounded-md font-mono">
+                                {kw}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-xs text-emerald-400">All relevant keywords present!</p>
+                        )}
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             )}
           </div>
