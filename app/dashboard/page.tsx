@@ -3,13 +3,15 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { Loader2, Code, FileText, Folder, Briefcase } from 'lucide-react';
+import { Loader2, Code, FileText, Sparkles, Briefcase } from 'lucide-react';
 import Link from 'next/link';
 
 type Profile = {
   full_name?: string;
   is_admin?: boolean;
   is_premium?: boolean;
+  show_dev_portfolio?: boolean;
+  show_cv_engine?: boolean;
 };
 
 export default function Dashboard() {
@@ -18,6 +20,10 @@ export default function Dashboard() {
   const [syncing, setSyncing] = useState(true);
   const [loadPercentage, setLoadPercentage] = useState(0);
   const [userProfile, setUserProfile] = useState<Profile | null>(null);
+
+  // Preference visibility parameters layout
+  const [showDev, setShowDev] = useState(true);
+  const [showCV, setShowCV] = useState(true);
 
   useEffect(() => {
     let progressTimer = 0;
@@ -48,6 +54,8 @@ export default function Dashboard() {
 
       if (profile) {
         setUserProfile(profile);
+        setShowDev(profile.show_dev_portfolio ?? true);
+        setShowCV(profile.show_cv_engine ?? true);
       }
       
       setTimeout(() => {
@@ -77,101 +85,102 @@ export default function Dashboard() {
       {/* Sidebar is now rendered globally in layout.jsx */}
 
       {/* Offset container - shifts when sidebar expands on desktop, slides on mobile */}
-      <div className="md:pl-64 transition-all duration-300">
+      <div className="w-full">
         <main className="p-6 md:p-10 max-w-5xl">
-          {/* Welcome Section */}
-          <div className="mb-8 animate-in" style={{ transitionDelay: '0s' }}>
-            <div className="border-b border-slate-900 pb-6">
-              <h1 className="text-3xl font-bold text-slate-100">Welcome back, {userProfile?.full_name || 'User'}</h1>
+          <div className="mb-8 flex justify-between items-start border-b border-slate-900 pb-6">
+            <div>
+              <h1 className="text-xl font-bold text-white">Welcome back, {userProfile?.full_name || 'User'}</h1>
               <p className="text-xs text-slate-500 mt-1">Account Session Status: Verified. Active.</p>
             </div>
-            <p className="text-slate-400 text-lg mt-4 leading-relaxed">
-              Your personal career optimization dashboard. Track applications, analyze resumes,
-              build cover letters, and discover matching job opportunities all in one place.
-            </p>
+            {userProfile?.is_admin && (
+              <Link href="/admin" className="text-[10px] bg-red-950/20 border border-red-900/30 text-red-400 px-3 py-1 rounded-md uppercase font-mono font-bold tracking-wider hover:bg-red-950/40">
+                Open Admin Terminal
+              </Link>
+            )}
           </div>
 
-          {/* Feature Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12 animate-in" style={{ transitionDelay: '0.1s' }}>
-            {/* CV Builder Card */}
-            <div className="group rounded-2xl border border-indigo-500/20 bg-indigo-500/5 hover:bg-indigo-500/10 transition-colors cursor-pointer">
-              <div className="p-6 flex items-start gap-4">
-                <div className="w-12 h-12 flex items-center justify-center group-hover:bg-indigo-500/20 transition-colors">
-                  <Code size={24} className="text-indigo-400" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-medium text-slate-100 group-hover:text-indigo-300 transition-colors">CV Builder</h3>
-                  <p className="text-sm text-slate-400 mt-1">
-                    Create professional, ATS-optimized resumes with drag-and-drop sections, template themes, and real-time content analysis.
-                  </p>
-                </div>
-              </div>
-              <div className="mt-4">
-                <Link href="/cv-builder" className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition-all">
-                  Get Started
-                </Link>
-              </div>
+          {/* Global Analytics Usage Indicators Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+            <div className="p-4 bg-slate-900/40 border border-slate-800 rounded-xl">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Dossier Access Count</span>
+              <span className="text-xl font-bold font-mono text-indigo-400 mt-1 block">14 <span className="text-[10px] text-slate-600 font-normal">views</span></span>
             </div>
+            <div className="p-4 bg-slate-900/40 border border-slate-800 rounded-xl">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">ATS Keyword Index</span>
+              <span className="text-xl font-bold font-mono text-purple-400 mt-1 block">85% <span className="text-[10px] text-slate-600 font-normal">score</span></span>
+            </div>
+            <div className="p-4 bg-slate-900/40 border border-slate-800 rounded-xl col-span-2 md:col-span-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Subscription Tier</span>
+              <span className="text-sm font-bold font-mono text-green-400 mt-1 flex items-center gap-1.5 uppercase">
+                <Sparkles size={12} className="animate-pulse" /> {userProfile?.is_premium ? 'PREMIUM UNLOCKED' : 'STANDARD FREE'}
+              </span>
+            </div>
+          </div>
 
-            {/* ATS Analyzer Card */}
-            <div className="group rounded-2xl border border-purple-500/20 bg-purple-500/5 hover:bg-purple-500/10 transition-colors cursor-pointer">
-              <div className="p-6 flex items-start gap-4">
-                <div className="w-12 h-12 flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
-                  <FileText size={24} className="text-purple-400" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-medium text-slate-100 group-hover:text-purple-300 transition-colors">ATS Analyzer</h3>
-                  <p className="text-sm text-slate-400 mt-1">
-                    Run your resume through advanced ATS scoring to identify keyword gaps and optimization opportunities.
-                  </p>
-                </div>
-              </div>
-              <div className="mt-4">
-                <Link href="/analyzer" className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-semibold transition-all">
-                  Analyze Resume
-                </Link>
+          {/* PREMIUM SCARPER RADAR INTERFACE NOTIFICATION */}
+          {userProfile?.is_premium && (
+            <div className="mb-8 p-5 bg-gradient-to-r from-emerald-950/30 via-slate-900/40 to-slate-900/40 border border-emerald-500/20 rounded-2xl relative overflow-hidden shadow-xl">
+              <div className="space-y-1">
+                <span className="text-[9px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-mono font-bold tracking-wider uppercase border border-emerald-500/20">📡 Automated Scraper Radar Scan Active</span>
+                <h3 className="text-sm font-bold text-white mt-3 flex items-center gap-1.5"><Briefcase size={14} className="text-emerald-400" /> Sourced Lead Located: Remote Full-Stack Engineer</h3>
+                <p className="text-xs text-slate-400 max-w-2xl leading-relaxed text-justify">
+                  Our web scrapper has successfully located matching position criteria from local freelance arrays. A custom pipeline application card has been auto-placed into your Sent Tracking Board lanes matrix layout.
+                </p>
               </div>
             </div>
+          )}
 
-            {/* Cover Letter Card */}
-            <div className="group rounded-2xl border border-indigo-600/20 bg-indigo-600/5 hover:bg-indigo-600/10 transition-colors cursor-pointer">
-              <div className="p-6 flex items-start gap-4">
-                <div className="w-12 h-12 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors">
-                  <Folder size={24} className="text-indigo-400" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-medium text-slate-100 group-hover:text-indigo-300 transition-colors">Cover Letter Generator</h3>
-                  <p className="text-sm text-slate-400 mt-1">
-                    Generate personalized cover letters in seconds by pasting a job description and your skills.
+          <div className="space-y-8">
+            {/* TRACK A: PROGRAMMER PORTFOLIO WORKSPACE */}
+            {showDev && (
+              <div className="p-6 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 relative overflow-hidden">
+                <div className="space-y-2">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-bold tracking-wider uppercase">
+                    <Code size={10} /> Developer Portfolio Engine Active
+                  </div>
+                  <h2 className="text-lg font-bold text-white">Your Engineering Profile</h2>
+                  <p className="text-xs text-slate-400 max-w-xl">
+                    Connect project data nodes, map technical language badges, and auto-compile copyable profile README files for your GitHub repositories.
                   </p>
                 </div>
-              </div>
-              <div className="mt-4">
-                <Link href="/cover-letter" className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition-all">
-                  Write Cover Letter
-                </Link>
-              </div>
-            </div>
 
-            {/* Job Tracker Card */}
-            <div className="group rounded-2xl border border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 transition-colors cursor-pointer">
-              <div className="p-6 flex items-start gap-4">
-                <div className="w-12 h-12 flex items-center justify-center group-hover:bg-emerald-500/20 transition-colors">
-                  <Briefcase size={24} className="text-emerald-400" />
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <Link href="/portfolio-builder" className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition-all">
+                    🛠️ Open Programmer Portfolio Builder
+                  </Link>
+                  <Link href="/directory" className="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-300 rounded-lg text-xs font-medium hover:border-slate-700 transition-all">
+                    🔍 Browse Candidate Marketplace
+                  </Link>
                 </div>
-                <div>
-                  <h3 className="text-lg font-medium text-slate-100 group-hover:text-emerald-300 transition-colors">Job Tracker</h3>
-                  <p className="text-sm text-slate-400 mt-1">
-                    Track job applications, monitor status changes, and manage your job search pipeline.
+              </div>
+            )}
+
+            {/* TRACK B: GENERAL APPLICANT CV WORKSPACE */}
+            {showCV && (
+              <div className="p-6 rounded-2xl border border-purple-500/20 bg-purple-500/5 relative overflow-hidden">
+                <div className="space-y-2">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] font-bold tracking-wider uppercase">
+                    <FileText size={10} /> ATS-Optimized CV Engine Active
+                  </div>
+                  <h2 className="text-lg font-bold text-white">Your Professional Resume Blueprint</h2>
+                  <p className="text-xs text-slate-400 max-w-xl">
+                    Structure standard, bot-friendly layout sheets. Uses built-in vocabulary advisors to optimize points for recruitment parsed tracking filters.
                   </p>
                 </div>
+
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <Link href="/cv-builder" className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-semibold transition-all">
+                    + Edit CV Document
+                  </Link>
+                  <Link href="/tracker" className="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-300 rounded-lg text-xs font-medium hover:border-slate-700 transition-all">
+                    📋 Track Sent Applications
+                  </Link>
+                  <Link href="/analyzer" className="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-300 rounded-lg text-xs font-medium hover:border-slate-700 transition-all">
+                    🔍 Scan Job Keyword Match
+                  </Link>
+                </div>
               </div>
-              <div className="mt-4">
-                <Link href="/tracker" className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold transition-all">
-                  Track Applications
-                </Link>
-              </div>
-            </div>
+            )}
           </div>
         </main>
       </div>
