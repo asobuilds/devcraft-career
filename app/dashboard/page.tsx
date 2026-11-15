@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Loader2, Code, FileText, Sparkles, Briefcase } from 'lucide-react';
 import Link from 'next/link';
-import Sidebar from '@/app/components/Sidebar';
 
 type Profile = {
   full_name?: string;
@@ -83,10 +82,10 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
-      <Sidebar />
+      {/* Sidebar is now rendered globally in layout.jsx */}
 
-      {/* Offset container */}
-      <div className="pl-16 transition-[padding-left] duration-200 ease-in-out hover:[padding-left]:240px">
+      {/* Offset container - shifts when sidebar expands on desktop, slides on mobile */}
+      <div className="pl-6 transition-[padding-left] duration-200 ease-in-out hover:[padding-left]:64px">
         <main className="p-6 md:p-10 max-w-5xl">
           <div className="mb-8 flex justify-between items-start border-b border-slate-900 pb-6">
             <div>

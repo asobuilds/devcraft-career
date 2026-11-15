@@ -1,5 +1,6 @@
 import React from "react";
 import "./globals.css";
+import Sidebar from "@/app/components/Sidebar";
 
 export const metadata = {
   title: "DevCraft Career",
@@ -10,7 +11,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="antialiased bg-slate-950 text-slate-100">
-        {children}
+        <Sidebar />
+        <main className="pl-6 transition-[padding-left] duration-200 ease-in-out hover:[padding-left]:64px">
+          {children}
+        </main>
       </body>
     </html>
   );
