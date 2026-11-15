@@ -2,8 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import {
   LayoutDashboard,
@@ -39,10 +38,6 @@ const navItems: NavItem[] = [
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
-
-  // Expanded state based on screen width - no resize listener to avoid
-  // console-open toggle issues (innerWidth changes when DevTools opens)
-  const isExpanded = window.innerWidth > 768;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
@@ -54,83 +49,43 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Desktop Sidebar - fixed position */
-      <div className={`fixed inset-y-0 left-0 z-50 ${isExpanded ? 'w-64' : 'w-16'} bg-slate-900 border-r border-slate-800 transition-all duration-300 h-full`}
-        style={{ transition: isExpanded ? 'width 0.3s ease' : 'width 0.2s ease' }}
-      >
-        <div className="h-full w-full flex flex-col">
-          {/* Logo */}
-          <div className="flex items-center h-14 px-4 shrink-0">
-            <div className="flex items-center gap-3 w-full">
-              <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-xs shrink-0">
-                DC
-              </div>
-              <span className="text-sm font-semibold text-white whitespace-nowrap">
-                DevCraft Console
-              </span>
-            </div>
+      {/* Mobile Top Header & Hamburger Button */}
+      <div className="md:hidden flex items-center justify-between p-4 bg-slate-950/80 backdrop-blur-md border-b border-slate-900 sticky top-0 z-40">
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-xs">
+            DC
           </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 px-3 py-4 space-y-1">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
-                    isActive ? 'bg-indigo-600/15 text-indigo-400' : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'}
-                  }`}
-                >
-                  <item.icon size={20} strokeWidth={1.5} />
-                  <span className="block text-sm font-medium text-slate-200">
-                    {item.name}
-                  </span>
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* Footer */}
-          <div className="p-3 border-t border-slate-800">
-            <button
-              onClick={handleSignOut}
-              className="relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-            >
-              <LogOut size={20} strokeWidth={1.5} />
-              <span className="block text-xs font-medium text-red-400">
-                Sign Out
-              </span>
-            </button>
-          </div>
+          <span className="text-sm font-semibold text-white">DevCraft Console</span>
         </div>
+        <button
+          className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white transition-colors"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
       </div>
-      }
 
-      {/* Mobile Hamburger Menu (only on mobile: innerWidth <= 768) */}
-      {window.innerWidth <= 768 && (
-        <div className="fixed top-0 left-0 right-0 bottom-0 z-40 bg-slate-900/90 backdrop-blur-md transition-all duration-300 pointer-events-none opacity-0 {
-          isMenuOpen ? 'pointer-events-auto opacity-100' : ''
-        } transition-opacity">
-          <button
-            className="absolute top-4 left-4 z-50 p-2 rounded-lg hover:bg-slate-800 transition-colors"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Open menu"
-          >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-
-          {/* Mobile drawer content - visible when menu is open */}
-          <div className="pointer-events-auto">
-            <nav className="h-screen w-64 bg-slate-900 border-r border-slate-800 p-8 flex flex-col">
+      {/* Mobile Slide-out Drawer */}
+      {isMenuOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md md:hidden flex">
+          <div className="flex flex-col h-full w-72 bg-slate-900 border-r border-slate-800 p-6 shadow-2xl animate-in slide-in-from-left duration-200">
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-xs">
+                  DC
+                </div>
+                <span className="text-sm font-semibold text-white">DevCraft Console</span>
+              </div>
               <button
-                className="absolute top-4 right-4 p-2 rounded-lg hover:bg-slate-800 transition-colors"
+                className="p-2 rounded-lg hover:bg-slate-800 text-slate-300 transition-colors"
                 onClick={() => setIsMenuOpen(false)}
                 aria-label="Close menu"
               >
-                <X size={28} />
+                <X size={20} />
               </button>
+            </div>
+            <nav className="flex-1 space-y-1 overflow-y-auto">
               {navItems.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
                 return (
@@ -138,26 +93,73 @@ export default function Sidebar() {
                     key={item.name}
                     href={item.href}
                     onClick={() => setIsMenuOpen(false)}
-                    className={`block p-3 rounded-lg text-lg font-medium transition-colors ${
-                      isActive ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-slate-100'}
+                    className={`flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-colors ${
+                      isActive ? 'bg-indigo-600/15 text-indigo-400 border border-indigo-500/20' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                     }`}
                   >
-                    {item.name}
+                    <item.icon size={20} strokeWidth={1.5} />
+                    <span>{item.name}</span>
                   </Link>
                 );
               })}
-              <div className="mt-8 pt-8 border-t border-slate-800">
-                <button
-                  onClick={handleSignOut}
-                  className="w-full py-3 rounded-lg text-left text-slate-400 hover:text-red-400 transition-colors flex items-center"
-                >
-                  <LogOut size={16} className="mr-2 inline" /> Sign Out
-                </button>
-              </div>
             </nav>
+            <div className="pt-4 mt-4 border-t border-slate-800">
+              <button
+                onClick={handleSignOut}
+                className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors text-sm font-medium"
+              >
+                <LogOut size={20} strokeWidth={1.5} />
+                <span>Sign Out</span>
+              </button>
+            </div>
           </div>
+          <div className="flex-1" onClick={() => setIsMenuOpen(false)} />
         </div>
       )}
+
+      {/* Desktop Sidebar Rail */}
+      <aside className="hidden md:flex flex-col fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 border-r border-slate-800 shadow-xl">
+        <div className="flex items-center h-16 px-6 shrink-0 border-b border-slate-800/60">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-xs">
+              DC
+            </div>
+            <span className="text-sm font-semibold text-white tracking-wide">
+              DevCraft Console
+            </span>
+          </div>
+        </div>
+
+        <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                  isActive
+                    ? 'bg-indigo-600/15 text-indigo-400 border border-indigo-500/20 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
+                }`}
+              >
+                <item.icon size={20} strokeWidth={1.5} />
+                <span>{item.name}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="p-4 border-t border-slate-800/60">
+          <button
+            onClick={handleSignOut}
+            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors text-sm font-medium"
+          >
+            <LogOut size={20} strokeWidth={1.5} />
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </aside>
     </>
   );
 }
