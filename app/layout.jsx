@@ -1,6 +1,7 @@
+import dynamic from 'next/dynamic';
 import React from "react";
 import "./globals.css";
-import Sidebar from "@/app/components/Sidebar";
+const Sidebar = dynamic(() => import('./components/Sidebar'), { ssr: false });
 
 export const metadata = {
   title: "DevCraft Career",
