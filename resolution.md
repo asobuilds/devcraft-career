@@ -44,6 +44,7 @@
 | Gemini | `supabase/migrations/0010_final_rls_fix.sql` | main | 2026-11-15T21:30:00Z | active |
 | Gemini | `supabase/migrations/0011_comprehensive_profiles_recon_fix.sql` | main | 2026-11-15T21:45:00Z | active |
 | Gemini | `app/components/Sidebar.tsx` | main | 2026-11-15T19:45:00Z | active |
+| Gemini | `app/components/Sidebar.tsx` | main | 2026-11-15T22:00:00Z | active |
 
 ---
 
@@ -80,6 +81,7 @@
 | OpenCode | Local build vs. Zone B in-progress file | 2026-11-05T11:02:00Z | Untracked `supabase/functions/jooble-jobs/index.ts` (Gemini, Zone B) breaks `next build` type-checking with Deno import/typing errors. Verified the cv-builder wiring by temporarily isolating that untracked folder, then restored it unchanged. Do not commit or edit it. |
 | OpenCode | Push authentication | 2026-11-05T11:03:30Z | `git push origin multi-agent-workspace` failed: no HTTPS credentials, no credential helper, no `gh`, no SSH key, and no GitHub token in env. Commit `434bfe1` is ready locally; human needs to push or provide auth. |
 | OpenCode | Local build vs. Zone B file (resolved) | 2026-11-05T12:50:42Z | Resolved by the approved `tsconfig.json` change: `supabase/functions/**` is excluded from Next.js type-checking. Full build passed with Supabase env supplied. |
+| Gemini | Repo-wide `npm run lint` | 2026-11-15T22:00:00Z | Pre-existing lint errors in files outside this change (`app/page.tsx`, `app/admin/logs/page.tsx`, `app/api/generate-cover-letter/route.ts`, portfolio/unescaped entities, etc.). `app/components/Sidebar.tsx` is clean; lint command fails repo-wide as previously documented. |
 
 ---
 
@@ -126,6 +128,7 @@
 - `2026-11-05T11:02:25Z` — `OpenCode` — Committed `434bfe1` (`feat(opencode): wire job matches panel into cv-builder`). Zone A eslint + `tsc --noEmit` clean; `next build` passed with Supabase env supplied and the untracked Zone B `jooble-jobs` folder isolated. Pushing next.
 - `2026-11-05T12:49:05Z` — `OpenCode` — Human terminated Gemini (API crashes) and authorized OpenCode to take over Zone B. Approved change request to edit Zone C `tsconfig.json` (exclude `supabase/functions/**`). Claimed `tsconfig.json`, `supabase/functions/jooble-jobs/index.ts`, and `documentation/features/backend-jobs.md`.
 - `2026-11-05T12:50:42Z` — `OpenCode` — Zone B takeover complete: excluded `supabase/functions/**` in `tsconfig.json`, rewrote the `jooble-jobs` Edge Function (JOOBLE_API_KEY secret, CORS, GET/POST, 429 handling), and verified `npm run build` with Supabase env supplied. Committing as `feat(opencode): finish backend jooble function and tsconfig fix`.
+- `2026-11-15T22:00:00Z` — `Gemini` — Added NEW badges to Sidebar `ATS Analyzer` and `Cover Letter` links and switched active nav state to `bg-slate-800 text-white` in both mobile drawer and desktop rail.
 
 # Resolution & File Claims
 

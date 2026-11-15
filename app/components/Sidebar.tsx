@@ -23,14 +23,15 @@ interface NavItem {
   name: string;
   href: string;
   icon: React.ComponentType<{ size?: number; strokeWidth?: number }>;
+  isNew?: boolean;
 }
 
 const navItems: NavItem[] = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'CV Builder', href: '/cv-builder', icon: FileText },
   { name: 'Portfolio Builder', href: '/portfolio-builder', icon: Code2 },
-  { name: 'Cover Letter', href: '/cover-letter', icon: Folder },
-  { name: 'ATS Analyzer', href: '/analyzer', icon: FileSearch },
+  { name: 'Cover Letter', href: '/cover-letter', icon: Folder, isNew: true },
+  { name: 'ATS Analyzer', href: '/analyzer', icon: FileSearch, isNew: true },
   { name: 'Tracker', href: '/tracker', icon: ListChecks },
   { name: 'Directory', href: '/directory', icon: Users },
   { name: 'Settings', href: '/settings', icon: Settings },
@@ -100,11 +101,14 @@ export default function Sidebar() {
                     href={item.href}
                     onClick={() => setIsMenuOpen(false)}
                     className={`flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-colors ${
-                      isActive ? 'bg-indigo-600/15 text-indigo-400 border border-indigo-500/20' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}
+                      isActive ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                     }`}
                   >
                     <item.icon size={20} strokeWidth={1.5} />
                     <span>{item.name}</span>
+                    {item.isNew && (
+                      <span className="text-[9px] bg-indigo-500 text-white px-1.5 py-0.5 rounded-full">NEW</span>
+                    )}
                   </Link>
                 );
               })}
@@ -145,11 +149,16 @@ export default function Sidebar() {
                 key={item.name}
                 href={item.href}
                 className={`flex items-center gap-2 px-2.5 py-1.5 rounded-sm text-xs font-medium whitespace-nowrap transition-colors ${
-                  isActive ? 'bg-indigo-600/15 text-indigo-400' : 'text-slate-300 hover:text-slate-100 hover:bg-slate-800/60'}
-                `}
+                  isActive ? 'bg-slate-800 text-white' : 'text-slate-300 hover:text-slate-100 hover:bg-slate-800/60'
+                }`}
               >
                 <item.icon size={16} strokeWidth={1.5} />
-                <span className="hidden group-hover:inline whitespace-nowrap">{item.name}</span>
+                <span className="hidden group-hover:inline whitespace-nowrap">
+                  {item.name}
+                  {item.isNew && (
+                    <span className="ml-1.5 text-[9px] bg-indigo-500 text-white px-1.5 py-0.5 rounded-full align-middle">NEW</span>
+                  )}
+                </span>
               </Link>
             );
           })}
