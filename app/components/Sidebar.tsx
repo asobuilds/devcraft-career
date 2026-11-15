@@ -124,7 +124,7 @@ export default function Sidebar() {
 
       {/* Desktop Sidebar Rail: fixed w-20 icon rail, group-hover expands to w-64 */}
       <aside
-        className="group relative left-0 top-0 h-full w-20 bg-slate-900 border-r border-slate-800 shadow-xl transition-colors z-50"
+        className="group fixed inset-y-0 left-0 hidden md:flex md:flex-col w-20 bg-slate-900 border-r border-slate-800 shadow-xl transition-colors z-50"
       >
         <div className="group-hover:w-64 flex items-center h-16 px-3 shrink-0 border-b border-slate-800/60 transition-colors">
           <div className="flex items-center gap-3">
