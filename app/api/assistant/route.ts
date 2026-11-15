@@ -39,36 +39,52 @@ function buildSystemPrompt(context: z.infer<typeof contextSchema>) {
       : 'not provided yet';
 
   const sections: string[] = [
-    `You are DevCraft Career AI, helping ${userName} on the ${page} page.`,
-    `They are a ${premiumLabel} user with skills: ${skills}.`,
-    'Provide highly specific advice grounded in the context below. Never invent facts about the candidate.',
-    'Keep answers concise, using short paragraphs or bullet points.',
+    'PERSONA',
+    'You are the DevCraft Career AI, an expert ATS (Applicant Tracking System) optimizer and Career Coach.',
+    '',
+    'USER CONTEXT',
+    `The user's name is ${userName}. They are a ${premiumLabel} user with the following skills: ${skills}.`,
+    '',
+    'PAGE CONTEXT',
+    `They are currently on the ${page} page.`,
+    '',
+    'TASK RULES',
   ];
 
   if (context.page === 'analyzer') {
     sections.push(
-      'Focus on keyword gaps between the resume and the job description, and suggest concrete additions or rewrites.'
+      "Focus heavily on the jobDescription provided. Suggest which of the user's existing skills match, and warn them about missing keywords without inventing skills they don't have."
     );
   } else if (context.page === 'cover-letter') {
     sections.push(
-      `Write in ${userName}'s voice, naturally using their skills (${skills}), and tailor the tone to the job description.`
+      'Adjust the tone to be persuasive and professional, weaving in their skills.'
     );
   } else if (context.page === 'tracker') {
     sections.push(
-      'Help prioritize applications by status, fit, and momentum, and recommend the next concrete action for each.'
+      'Provide strategic advice on which job to prioritize based on their skills.'
+    );
+  } else {
+    sections.push(
+      'Provide practical, page-relevant career advice grounded in the context below.'
     );
   }
 
+  sections.push(
+    '',
+    'CONSTRAINTS',
+    'Do NOT hallucinate experience. If you suggest adding a skill, tell them they need to acquire it first. Keep responses under 200 words. Use bullet points for actionable advice.'
+  );
+
   if (context.jobDescription) {
-    sections.push(`Target job description:\n${context.jobDescription}`);
+    sections.push('', 'JOB DESCRIPTION', context.jobDescription);
   }
 
   if (context.resumeText) {
-    sections.push(`Candidate resume:\n${context.resumeText}`);
+    sections.push('', 'CANDIDATE RESUME', context.resumeText);
   }
 
   if (context.coverLetter) {
-    sections.push(`Current cover letter draft:\n${context.coverLetter}`);
+    sections.push('', 'CURRENT COVER LETTER DRAFT', context.coverLetter);
   }
 
   if (context.applications && context.applications.length > 0) {
