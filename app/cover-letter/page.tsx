@@ -23,6 +23,9 @@ interface CoverLetterState {
 
 export default function CoverLetterPage() {
   const [resumes, setResumes] = useState<Resume[]>([]);
+  const [userName, setUserName] = useState('');
+  const [userSkills, setUserSkills] = useState<string[]>([]);
+  const [isPremium, setIsPremium] = useState(false);
   const [state, setState] = useState<CoverLetterState>({
     resumeId: null,
     skillsInput: '',
@@ -45,6 +48,31 @@ export default function CoverLetterPage() {
       else setResumes(data || []);
     };
     fetchResumes();
+  }, []);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name, tech_stack, is_premium')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (profile) {
+        setUserName(profile.full_name || '');
+        setIsPremium(Boolean(profile.is_premium));
+        setUserSkills(
+          typeof profile.tech_stack === 'string'
+            ? profile.tech_stack.split(',').map((skill: string) => skill.trim()).filter(Boolean)
+            : []
+        );
+      }
+    };
+
+    loadProfile();
   }, []);
 
   const handleGenerate = useCallback(async () => {
@@ -233,6 +261,9 @@ export default function CoverLetterPage() {
           jobDescription: state.jobDescription,
           coverLetter: state.generatedCoverLetter ?? '',
         }}
+        userName={userName}
+        userSkills={userSkills}
+        isPremium={isPremium}
       />
     </div>
   );

@@ -15,6 +15,9 @@ const applicationSchema = z.object({
 
 const contextSchema = z.object({
   page: z.string().optional(),
+  userName: z.string().optional(),
+  userSkills: z.array(z.string()).optional(),
+  isPremium: z.boolean().optional(),
   jobDescription: z.string().optional(),
   resumeText: z.string().optional(),
   coverLetter: z.string().optional(),
@@ -27,13 +30,33 @@ const bodySchema = z.object({
 });
 
 function buildSystemPrompt(context: z.infer<typeof contextSchema>) {
+  const userName = context.userName?.trim() || 'the user';
+  const premiumLabel = context.isPremium ? 'Premium' : 'Free';
+  const page = context.page || 'career workspace';
+  const skills =
+    context.userSkills && context.userSkills.length > 0
+      ? context.userSkills.join(', ')
+      : 'not provided yet';
+
   const sections: string[] = [
-    'You are DevCraft AI, a concise career coach embedded inside a job-search application.',
-    'Give practical, specific advice in short paragraphs or bullet points. Never invent facts about the candidate.',
+    `You are DevCraft Career AI, helping ${userName} on the ${page} page.`,
+    `They are a ${premiumLabel} user with skills: ${skills}.`,
+    'Provide highly specific advice grounded in the context below. Never invent facts about the candidate.',
+    'Keep answers concise, using short paragraphs or bullet points.',
   ];
 
-  if (context.page) {
-    sections.push(`The user is currently on the "${context.page}" page.`);
+  if (context.page === 'analyzer') {
+    sections.push(
+      'Focus on keyword gaps between the resume and the job description, and suggest concrete additions or rewrites.'
+    );
+  } else if (context.page === 'cover-letter') {
+    sections.push(
+      `Write in ${userName}'s voice, naturally using their skills (${skills}), and tailor the tone to the job description.`
+    );
+  } else if (context.page === 'tracker') {
+    sections.push(
+      'Help prioritize applications by status, fit, and momentum, and recommend the next concrete action for each.'
+    );
   }
 
   if (context.jobDescription) {

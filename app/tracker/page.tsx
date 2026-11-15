@@ -41,6 +41,9 @@ export default function JobTracker() {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const [apps, setApps] = useState<ApplicationItem[]>([]);
+  const [userName, setUserName] = useState('');
+  const [userSkills, setUserSkills] = useState<string[]>([]);
+  const [isPremium, setIsPremium] = useState(false);
 
   const [company, setCompany] = useState('');
   const [title, setTitle] = useState('');
@@ -76,6 +79,31 @@ export default function JobTracker() {
 
     fetchApplications();
   }, [router]);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name, tech_stack, is_premium')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (profile) {
+        setUserName(profile.full_name || '');
+        setIsPremium(Boolean(profile.is_premium));
+        setUserSkills(
+          typeof profile.tech_stack === 'string'
+            ? profile.tech_stack.split(',').map((skill: string) => skill.trim()).filter(Boolean)
+            : []
+        );
+      }
+    };
+
+    loadProfile();
+  }, []);
 
   const handleAddApplication = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -393,6 +421,9 @@ export default function JobTracker() {
         triggerLabel="Which job should I prioritize?"
         prompt="Based on my tracked applications, which job should I prioritize and why?"
         context={{ page: 'tracker', applications: apps }}
+        userName={userName}
+        userSkills={userSkills}
+        isPremium={isPremium}
       />
     </div>
   );

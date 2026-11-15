@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Loader2, FileText, Briefcase, Sparkles, CheckCircle2 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 import AIAssistant from '@/app/components/AIAssistant';
 
 export default function ATSAnalyzer() {
@@ -12,6 +13,35 @@ export default function ATSAnalyzer() {
   const [missingKeywords, setMissingKeywords] = useState<string[]>([]);
   const [feedback, setFeedback] = useState('');
   const [error, setError] = useState('');
+
+  const [userName, setUserName] = useState('');
+  const [userSkills, setUserSkills] = useState<string[]>([]);
+  const [isPremium, setIsPremium] = useState(false);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name, tech_stack, is_premium')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (profile) {
+        setUserName(profile.full_name || '');
+        setIsPremium(Boolean(profile.is_premium));
+        setUserSkills(
+          typeof profile.tech_stack === 'string'
+            ? profile.tech_stack.split(',').map((skill: string) => skill.trim()).filter(Boolean)
+            : []
+        );
+      }
+    };
+
+    loadProfile();
+  }, []);
 
   const handleAnalyze = async () => {
     if (!resumeText.trim() || !jobDescription.trim()) {
@@ -161,6 +191,9 @@ export default function ATSAnalyzer() {
         triggerLabel="Ask AI for Advice"
         prompt="Review my resume against this job description and tell me how to improve my match."
         context={{ page: 'analyzer', resumeText, jobDescription }}
+        userName={userName}
+        userSkills={userSkills}
+        isPremium={isPremium}
       />
     </div>
   );
