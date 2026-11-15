@@ -88,6 +88,7 @@
 |-------|-------------|--------|--------------|----------|
 | OpenCode | `app/cv-builder/page.tsx` | Add a Preview / Job Matches tab near the preview area and render `JobMatchesPanel` with `techStack` derived from the existing `skills` state. | 2026-11-05T10:59:30Z | Yes — explicit human instruction in session on 2026-11-05 |
 | OpenCode | `tsconfig.json` | Add `supabase/functions/**` to `exclude` so Deno Edge Function sources do not break Next.js type-checking. | 2026-11-05T12:49:05Z | Yes — human terminated Gemini and authorized OpenCode to take over Zone B in session on 2026-11-05 |
+| Gemini | `package.json` | Change `"build"` script from `"next build"` to `"next build --webpack"` to bypass Turbopack build crash on Vercel. | 2026-11-15T21:00:00Z | Yes — explicit human instruction in session on 2026-11-15 |
 
 ---
 
