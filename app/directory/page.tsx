@@ -93,7 +93,7 @@ export default function CandidateDirectory() {
         </div>
       </header>
 
-      <main className="max-w-[1600px] mx-auto p-6 md:p-12">
+      <section className="max-w-[1600px] mx-auto p-6 md:p-12">
         {/* Search Bar */}
         <div className="mb-8 rounded-xl border border-slate-800 bg-slate-900 p-6">
           <div className="relative">
@@ -169,7 +169,7 @@ export default function CandidateDirectory() {
             ))
           )}
         </div>
-      </main>
+      </section>
     </div>
   );
 }

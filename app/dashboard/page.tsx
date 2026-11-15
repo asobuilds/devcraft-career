@@ -69,7 +69,7 @@ export default function Dashboard() {
 
   if (syncing) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-400 gap-4">
+      <div className="w-full flex flex-col items-center justify-center text-slate-400 gap-4 py-24">
         <Loader2 className="animate-spin text-indigo-500 h-8 w-8" />
         <div className="text-sm font-semibold tracking-wide text-white">Synchronizing System Cockpit...</div>
         <div className="w-48 bg-slate-900 h-1.5 rounded-full overflow-hidden border border-slate-800">
@@ -85,7 +85,7 @@ export default function Dashboard() {
 
       {/* Offset container - shifts when sidebar expands on desktop, slides on mobile */}
       <div className="w-full">
-        <main className="p-6 md:p-10 max-w-5xl">
+        <section className="p-6 md:p-10 max-w-5xl">
           <div className="mb-8 flex justify-between items-start border-b border-slate-900 pb-6">
             <div>
               <h1 className="text-xl font-bold text-white">Welcome back, {userProfile?.full_name || 'User'}</h1>
@@ -181,7 +181,7 @@ export default function Dashboard() {
               </div>
             )}
           </div>
-        </main>
+        </section>
       </div>
     </div>
   );

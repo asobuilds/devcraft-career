@@ -124,9 +124,9 @@ export default function Sidebar() {
 
       {/* Desktop Sidebar Rail: fixed w-20 icon rail, group-hover expands to w-64 */}
       <aside
-        className="group fixed inset-y-0 left-0 hidden md:flex md:flex-col w-20 bg-slate-900 border-r border-slate-800 shadow-xl transition-colors z-50"
+        className="group fixed inset-y-0 left-0 hidden md:flex md:flex-col w-20 hover:w-64 overflow-hidden bg-slate-900 border-r border-slate-800 shadow-xl transition-all z-50"
       >
-        <div className="group-hover:w-64 flex items-center h-16 px-3 shrink-0 border-b border-slate-800/60 transition-colors">
+        <div className="flex items-center h-16 px-3 shrink-0 border-b border-slate-800/60 transition-colors">
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-xs">
               DC
@@ -144,12 +144,12 @@ export default function Sidebar() {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex items-center gap-2 px-2.5 py-1.5 rounded-sm text-xs font-medium transition-colors ${
+                className={`flex items-center gap-2 px-2.5 py-1.5 rounded-sm text-xs font-medium whitespace-nowrap transition-colors ${
                   isActive ? 'bg-indigo-600/15 text-indigo-400' : 'text-slate-300 hover:text-slate-100 hover:bg-slate-800/60'}
-                }`}
+                `}
               >
                 <item.icon size={16} strokeWidth={1.5} />
-                <span className="line-clamp-1">{item.name}</span>
+                <span className="hidden group-hover:inline whitespace-nowrap">{item.name}</span>
               </Link>
             );
           })}
@@ -158,10 +158,10 @@ export default function Sidebar() {
         <div className="p-2 border-t border-slate-800/60">
           <button
             onClick={handleSignOut}
-            className="w-full flex items-center gap-2 px-2 py-1.5 rounded-sm text-xs font-medium transition-colors text-slate-400 hover:text-red-400 hover:bg-red-500/10"
+            className="w-full flex items-center gap-2 px-2 py-1.5 rounded-sm text-xs font-medium whitespace-nowrap transition-colors text-slate-400 hover:text-red-400 hover:bg-red-500/10"
           >
             <LogOut size={14} strokeWidth={1.5} />
-            <span>Sign Out</span>
+            <span className="hidden group-hover:inline whitespace-nowrap">Sign Out</span>
           </button>
         </div>
       </aside>

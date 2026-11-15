@@ -132,7 +132,7 @@ export default function CoverLetterPage() {
         </div>
       </header>
 
-      <main className="max-w-[1600px] mx-auto p-6 md:p-10">
+      <section className="max-w-[1600px] mx-auto p-6 md:p-10">
 
         {/* Resume Selection Section */}
         <div className="mb-6 rounded-xl border border-slate-800 bg-slate-900 p-6">
@@ -221,7 +221,7 @@ export default function CoverLetterPage() {
           </div>
         )}
 
-      </main>
+      </section>
     </div>
   );
 }

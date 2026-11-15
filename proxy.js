@@ -19,7 +19,15 @@ export function proxy(request) {
     path.startsWith('/analyzer') ||
     path.startsWith('/portfolio-builder') ||
     path.startsWith('/settings') ||   // Open traffic channels cleanly
-    path.startsWith('/directory')     // Open traffic channels cleanly
+    path.startsWith('/directory') ||  // Open traffic channels cleanly
+    path.startsWith('/cover-letter') ||
+    path.startsWith('/resumes') ||
+    path.startsWith('/interview-prep') ||
+    path.startsWith('/admin') ||
+    path.startsWith('/fix-database') ||
+    path.startsWith('/forgot-password') ||
+    path.startsWith('/reset-password') ||
+    path.startsWith('/p/')            // Public portfolio routes
   ) {
     return NextResponse.next();
   }

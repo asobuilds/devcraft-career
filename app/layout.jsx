@@ -1,6 +1,6 @@
 import React from "react";
 import "./globals.css";
-import SidebarClient from "@/app/components/SidebarClient";
+import AppShell from "@/app/components/AppShell";
 
 export const metadata = {
   title: "DevCraft Career",
@@ -11,10 +11,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="antialiased bg-slate-950 text-slate-100">
-        <SidebarClient />
-        <main className="pl-20 relative min-h-screen bg-slate-950">
-          {children}
-        </main>
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );
