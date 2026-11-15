@@ -17,7 +17,7 @@ export async function GET() {
 
     return NextResponse.json(profiles || []);
   } catch (err) {
-    console.error('Error fetching directory profiles:', err);
-    return NextResponse.json({ error: err.message || 'Failed to fetch directory profiles' }, { status: 500 });
+    console.error('Error fetching directory profiles:', err as Error);
+    return NextResponse.json({ error: (err as Error).message || 'Failed to fetch directory profiles' }, { status: 500 });
   }
 }
