@@ -38,6 +38,7 @@
 | Gemini | `supabase/migrations/0005_fix_profiles_rls.sql` | multi-agent-workspace | 2026-11-15T19:30:00Z | active |
 | Gemini | `supabase/migrations/0006_debug_profiles_rls.sql` | main | 2026-11-15T20:00:00Z | active |
 | Gemini | `supabase/migrations/0007_secure_profiles_rls.sql` | main | 2026-11-15T20:15:00Z | active |
+| Gemini | `supabase/migrations/0008_comprehensive_profiles_fix.sql` | main | 2026-11-15T20:30:00Z | active |
 | Gemini | `app/components/Sidebar.tsx` | main | 2026-11-15T19:45:00Z | active |
 
 ---
