@@ -42,6 +42,7 @@
 | Gemini | `supabase/migrations/0009_bypass_0007.sql` | main | 2026-11-15T20:45:00Z | active |
 | Gemini | `app/api/directory/route.ts` | main | 2026-11-15T21:15:00Z | active |
 | Gemini | `supabase/migrations/0010_final_rls_fix.sql` | main | 2026-11-15T21:30:00Z | active |
+| Gemini | `supabase/migrations/0011_comprehensive_profiles_recon_fix.sql` | main | 2026-11-15T21:45:00Z | active |
 | Gemini | `app/components/Sidebar.tsx` | main | 2026-11-15T19:45:00Z | active |
 
 ---
