@@ -119,7 +119,7 @@ export default function CoverLetterPage() {
   }, [resumes]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div className="bg-slate-950 text-slate-100">
       <header className="border-b border-slate-900 bg-slate-900/40 backdrop-blur-md sticky top-0 z-40 px-6 py-4 flex items-center justify-between print:hidden">
         <div className="flex items-center gap-4">
           <Link href="/dashboard" className="p-2 rounded-lg bg-slate-900 text-slate-400 hover:text-white border border-slate-800">

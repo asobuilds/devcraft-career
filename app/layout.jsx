@@ -12,7 +12,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className="antialiased bg-slate-950 text-slate-100">
         <Sidebar />
-        <main className="md:pl-64 min-h-screen">
+        <main className="pl-20 min-h-screen">
           {children}
         </main>
       </body>

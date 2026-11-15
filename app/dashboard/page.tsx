@@ -81,8 +81,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      {/* Sidebar is now rendered globally in layout.jsx */}
+    <div className="bg-slate-950 text-slate-100">
 
       {/* Offset container - shifts when sidebar expands on desktop, slides on mobile */}
       <div className="w-full">
