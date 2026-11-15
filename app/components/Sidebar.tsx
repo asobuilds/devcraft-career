@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
@@ -39,18 +39,11 @@ const navItems: NavItem[] = [
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(true);
 
-  useEffect(() => {
-    // Check if we're on a mobile device
-    const checkMobile = () => {
-      setIsExpanded(window.innerWidth > 768);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  // Expanded state based on screen width - no resize listener to avoid
+  // console-open toggle issues (innerWidth changes when DevTools opens)
+  const isExpanded = window.innerWidth > 768;
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     if (supabase) {
@@ -60,10 +53,10 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="fixed inset-y-0 left-0 z-50 flex flex-col">
-      {/* Desktop Sidebar Rail */}
-      <aside
-        className={`group/rail fixed inset-y-0 left-0 ${isExpanded ? 'w-64' : 'w-16'} bg-slate-900 border-r border-slate-800 transition-all duration-300 ease-in-out hover:w-64 group-hover:w-64 z-50`}
+    <>
+      {/* Desktop Sidebar - fixed position */
+      <div className={`fixed inset-y-0 left-0 z-50 ${isExpanded ? 'w-64' : 'w-16'} bg-slate-900 border-r border-slate-800 transition-all duration-300 h-full`}
+        style={{ transition: isExpanded ? 'width 0.3s ease' : 'width 0.2s ease' }}
       >
         <div className="h-full w-full flex flex-col">
           {/* Logo */}
@@ -72,7 +65,7 @@ export default function Sidebar() {
               <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-xs shrink-0">
                 DC
               </div>
-              <span className="text-sm font-semibold text-white whitespace-nowrap opacity-0 invisible group-hover/rail:opacity-100 group-hover/rail:visible group-hover/rail:transition-all duration-200">
+              <span className="text-sm font-semibold text-white whitespace-nowrap">
                 DevCraft Console
               </span>
             </div>
@@ -87,13 +80,11 @@ export default function Sidebar() {
                   key={item.name}
                   href={item.href}
                   className={`relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
-                    isActive
-                      ? 'bg-indigo-600/15 text-indigo-400'
-                      : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
+                    isActive ? 'bg-indigo-600/15 text-indigo-400' : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'}
                   }`}
                 >
                   <item.icon size={20} strokeWidth={1.5} />
-                  <span className="w-0 opacity-0 invisible group-hover/rail:opacity-100 group-hover/rail:visible group-hover/rail:w-auto transition-all duration-200 whitespace-nowrap text-sm font-medium text-slate-200 ml-2">
+                  <span className="block text-sm font-medium text-slate-200">
                     {item.name}
                   </span>
                 </Link>
@@ -108,66 +99,65 @@ export default function Sidebar() {
               className="relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
             >
               <LogOut size={20} strokeWidth={1.5} />
-              <span className="w-0 opacity-0 invisible group-hover/rail:opacity-100 group-hover/rail:visible group-hover/rail:w-auto transition-all duration-200 whitespace-nowrap text-sm font-medium text-red-400 ml-2">
+              <span className="block text-xs font-medium text-red-400">
                 Sign Out
               </span>
             </button>
           </div>
         </div>
-      </aside>
+      </div>
+      }
 
-      {/* Mobile Hamburger Menu */}
-      <button
-        className={`absolute top-4 left-4 z-50 p-2 rounded-lg hover:bg-slate-800 transition-colors lg:hidden ${
-          isMenuOpen ? 'bg-indigo-600/20' : ''
-        }`}
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
-        aria-label="Open menu"
-      >
-        {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
+      {/* Mobile Hamburger Menu (only on mobile: innerWidth <= 768) */}
+      {window.innerWidth <= 768 && (
+        <div className="fixed top-0 left-0 right-0 bottom-0 z-40 bg-slate-900/90 backdrop-blur-md transition-all duration-300 pointer-events-none opacity-0 {
+          isMenuOpen ? 'pointer-events-auto opacity-100' : ''
+        } transition-opacity">
+          <button
+            className="absolute top-4 left-4 z-50 p-2 rounded-lg hover:bg-slate-800 transition-colors"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Open menu"
+          >
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
 
-      {/* Mobile Slide-out Drawer */}
-      {isMenuOpen && (
-        <div
-          className={`fixed inset-0 z-40 bg-slate-900/90 backdrop-blur-md transition-all duration-300 ease-in-out ${
-            isMenuOpen ? 'left-0' : 'left-full'
-          }`}
-        >
-          <nav className="flex flex-col h-screen p-8">
-            <button
-              className="absolute top-4 right-4 p-2 rounded-lg hover:bg-slate-800 transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-              aria-label="Close menu"
-            >
-              <X size={28} />
-            </button>
-            {navItems.map((item) => {
-              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={() => setIsMenuOpen(false)}
-                  className={`block p-3 rounded-lg text-lg font-medium transition-colors ${
-                    isActive ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-slate-100'
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              );
-            })}
-            <div className="mt-8 pt-8 border-t border-slate-800">
+          {/* Mobile drawer content - visible when menu is open */}
+          <div className="pointer-events-auto">
+            <nav className="h-screen w-64 bg-slate-900 border-r border-slate-800 p-8 flex flex-col">
               <button
-                onClick={handleSignOut}
-                className="w-full py-3 rounded-lg text-left text-slate-400 hover:text-red-400 transition-colors flex items-center"
+                className="absolute top-4 right-4 p-2 rounded-lg hover:bg-slate-800 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+                aria-label="Close menu"
               >
-                <LogOut size={16} className="mr-2 inline" /> Sign Out
+                <X size={28} />
               </button>
-            </div>
-          </nav>
+              {navItems.map((item) => {
+                const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`block p-3 rounded-lg text-lg font-medium transition-colors ${
+                      isActive ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-slate-100'}
+                    }`}
+                  >
+                    {item.name}
+                  </Link>
+                );
+              })}
+              <div className="mt-8 pt-8 border-t border-slate-800">
+                <button
+                  onClick={handleSignOut}
+                  className="w-full py-3 rounded-lg text-left text-slate-400 hover:text-red-400 transition-colors flex items-center"
+                >
+                  <LogOut size={16} className="mr-2 inline" /> Sign Out
+                </button>
+              </div>
+            </nav>
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
