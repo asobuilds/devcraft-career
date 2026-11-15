@@ -40,9 +40,8 @@ export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Desktop: fixed 80px icon rail by default, expand to 240px on hover
-  // Mobile: hidden drawer with hamburger menu (innerWidth <= 768)
-  const isMobile = window.innerWidth <= 768;
+  // Desktop: fixed w-20 icon rail by default, expand to w-64 on hover via group-hover
+  // Mobile: hidden drawer with hamburger menu (handled by isMenuOpen state)
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
@@ -123,56 +122,47 @@ export default function Sidebar() {
         </div>
       )}
 
-      {/* Desktop Sidebar Rail: fixed w-20 icon rail, group-hover expands to w-64 as overlay */}
+      {/* Desktop Sidebar Rail: fixed w-20 icon rail, group-hover expands to w-64 */}
       <aside
-        className={`absolute left-0 top-0 h-full w-20 bg-slate-900 border-r border-slate-800 shadow-xl transition-colors z-50 ${
-          isMobile ? 'hidden' : ''
-        }`}
+        className="group relative left-0 top-0 h-full w-20 bg-slate-900 border-r border-slate-800 shadow-xl transition-colors z-50"
       >
-        <div className="group relative h- full flex flex-col">
-          {/* Logo area that expands on group-hover */}
-          <div
-            className="group-hover:w-64 flex items-center h-16 px-3 shrink-0 border-b border-slate-800/60 transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-xs">
-                DC
-              </div>
-              <span className="text-sm font-semibold text-white whitespace-nowrap hidden group-hover:block">
-                DevCraft Console
-              </span>
+        <div className="group-hover:w-64 flex items-center h-16 px-3 shrink-0 border-b border-slate-800/60 transition-colors">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-xs">
+              DC
             </div>
+            <span className="text-sm font-semibold text-white whitespace-nowrap hidden group-hover:block">
+              DevCraft Console
+            </span>
           </div>
+        </div>
 
-          {/* Navigation - expands with sidebar */}
-          <nav className="flex-1 pt-2">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`flex items-center gap-2 px-2.5 py-1.5 rounded-sm text-xs font-medium transition-colors ${
-                    isActive ? 'bg-indigo-600/15 text-indigo-400' : 'text-slate-300 hover:text-slate-100 hover:bg-slate-800/60'}
-                  }`}
-                >
-                  <item.icon size={16} strokeWidth={1.5} />
-                  <span className="line-clamp-1">{item.name}</span>
-                </Link>
-              );
-            })}
-          </nav>
+        <nav className="flex-1 pt-2">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`flex items-center gap-2 px-2.5 py-1.5 rounded-sm text-xs font-medium transition-colors ${
+                  isActive ? 'bg-indigo-600/15 text-indigo-400' : 'text-slate-300 hover:text-slate-100 hover:bg-slate-800/60'}
+                }`}
+              >
+                <item.icon size={16} strokeWidth={1.5} />
+                <span className="line-clamp-1">{item.name}</span>
+              </Link>
+            );
+          })}
+        </nav>
 
-          {/* Footer */}
-          <div className="p-2 border-t border-slate-800/60">
-            <button
-              onClick={handleSignOut}
-              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-sm text-xs font-medium transition-colors text-slate-400 hover:text-red-400 hover:bg-red-500/10"
-            >
-              <LogOut size={14} strokeWidth={1.5} />
-              <span>Sign Out</span>
-            </button>
-          </div>
+        <div className="p-2 border-t border-slate-800/60">
+          <button
+            onClick={handleSignOut}
+            className="w-full flex items-center gap-2 px-2 py-1.5 rounded-sm text-xs font-medium transition-colors text-slate-400 hover:text-red-400 hover:bg-red-500/10"
+          >
+            <LogOut size={14} strokeWidth={1.5} />
+            <span>Sign Out</span>
+          </button>
         </div>
       </aside>
     </>

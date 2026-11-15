@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
+
 import { ArrowLeft, Mail, Loader2, Globe } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
@@ -16,16 +16,18 @@ export default function ForgotPassword() {
     setMessage(null);
 
     try {
-      // Direct integration mapping call requesting automated password reset handshakes
+      // Use hardcoded redirect path instead of window.location.origin
+      const redirectPath = '/reset-password';
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: redirectPath,
       });
 
       if (error) throw error;
       setMessage('✅ Reset instructions dispatched! Check your email inbox for the recovery link.');
       setEmail('');
-    } catch (err: any) {
-      setMessage('❌ Request failed: ' + (err.message || 'Unknown error occurred.'));
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      setMessage('❌ Request failed: ' + (error.message || 'Unknown error occurred.'));
     } finally {
       setLoading(false);
     }
@@ -34,15 +36,12 @@ export default function ForgotPassword() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6 relative">
       <div className="w-full max-w-md bg-slate-900/60 border border-slate-800 p-8 rounded-2xl backdrop-blur-md shadow-2xl relative z-10">
-        
-        <Link href="/login" className="inline-flex items-center gap-2 text-xs font-medium text-slate-500 hover:text-slate-300 transition-colors mb-6">
-          <ArrowLeft size={14} /> {"Back to login portal"}
-        </Link>
-
-        <div className="space-y-2 mb-8">
-          <h2 className="text-2xl font-bold tracking-tight text-white">{"Recover Access Keys"}</h2>
-          <p className="text-sm text-slate-400">{"Input your email to request a secure recovery pathway link."}</p>
+        <div className="flex items-center gap-2 mb-6">
+          <ArrowLeft size={14} className="mr-2" /> {"Back to login portal"}
         </div>
+
+        <h2 className="text-2xl font-bold tracking-tight text-white">{"Recover Access Keys"}</h2>
+        <p className="text-sm text-slate-400">{"Input your email to request a secure recovery pathway link."}</p>
 
         {message && (
           <div className="p-3.5 mb-5 rounded-xl border border-slate-800 bg-slate-950 text-xs font-medium text-slate-300 leading-relaxed">

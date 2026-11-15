@@ -59,7 +59,7 @@ export default function Login() {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: `${window.location.origin}/dashboard` }
+        options: { redirectTo: '/dashboard' }
       });
       if (error) throw error;
     } catch (err) { // FIXED: Stripped out explicit : any type parameter annotation
