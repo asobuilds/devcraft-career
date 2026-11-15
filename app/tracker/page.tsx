@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, Plus, Trash2, Loader2, Briefcase, Zap, Terminal, ExternalLink, CheckCircle2, Radar, X, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Loader2, Briefcase, Terminal, ExternalLink, CheckCircle2, Radar, X, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import AIAssistant from '@/app/components/AIAssistant';
 
 interface ApplicationItem {
   id: string;
@@ -14,6 +15,15 @@ interface ApplicationItem {
   salary_range?: string;
   apply_url?: string;
   notes?: string;
+}
+
+interface SourcedLead {
+  company?: string;
+  title?: string;
+  salary?: string;
+  url?: string;
+  source?: string;
+  matchScore?: number;
 }
 
 const SCAN_LOG_STEPS = [
@@ -167,7 +177,7 @@ export default function JobTracker() {
         return;
       }
 
-      const leads = (result.leads || []).slice(0, 8);
+      const leads: SourcedLead[] = (result.leads || []).slice(0, 8);
 
       if (leads.length === 0) {
         setScanMessage('No new matches found this time. We will keep checking.');
@@ -175,7 +185,7 @@ export default function JobTracker() {
         return;
       }
 
-      const newRows = leads.map((job: any) => ({
+      const newRows = leads.map((job: SourcedLead) => ({
         user_id: userId,
         company_name: job.company,
         job_title: job.title,
@@ -198,9 +208,9 @@ export default function JobTracker() {
       }
 
       setTimeout(() => setScanning(false), 1800);
-    } catch (error: any) {
+    } catch (error) {
       clearInterval(logInterval);
-      setScanMessage('Scan failed: ' + error.message);
+      setScanMessage('Scan failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
       setTimeout(() => setScanning(false), 1800);
     }
   };
@@ -358,7 +368,7 @@ export default function JobTracker() {
                       <div className="pt-2 border-t border-slate-900 flex justify-end gap-1">
                         <select
                           value={card.status}
-                          onChange={(e) => handleUpdateStatus(card.id, e.target.value as any)}
+                          onChange={(e) => handleUpdateStatus(card.id, e.target.value as ApplicationItem['status'])}
                           className="bg-slate-950 border border-slate-800 rounded px-1.5 py-0.5 text-[10px] text-slate-400 font-medium focus:outline-none"
                         >
                           <option value="lead">Move to Scraped Matches</option>
@@ -377,6 +387,13 @@ export default function JobTracker() {
           );
         })}
       </main>
+
+      <AIAssistant
+        title="Job Tracker Copilot"
+        triggerLabel="Which job should I prioritize?"
+        prompt="Based on my tracked applications, which job should I prioritize and why?"
+        context={{ page: 'tracker', applications: apps }}
+      />
     </div>
   );
 }

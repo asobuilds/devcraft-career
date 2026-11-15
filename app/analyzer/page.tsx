@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Loader2, FileText, Briefcase, Sparkles, CheckCircle2 } from 'lucide-react';
+import AIAssistant from '@/app/components/AIAssistant';
 
 export default function ATSAnalyzer() {
   const [resumeText, setResumeText] = useState('');
@@ -154,6 +155,13 @@ export default function ATSAnalyzer() {
           </div>
         </main>
       </div>
+
+      <AIAssistant
+        title="ATS Analyzer Copilot"
+        triggerLabel="Ask AI for Advice"
+        prompt="Review my resume against this job description and tell me how to improve my match."
+        context={{ page: 'analyzer', resumeText, jobDescription }}
+      />
     </div>
   );
 }

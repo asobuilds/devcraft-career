@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import AIAssistant from '@/app/components/AIAssistant';
 
 interface Resume {
   id: string;
@@ -222,6 +223,17 @@ export default function CoverLetterPage() {
         )}
 
       </section>
+
+      <AIAssistant
+        title="Cover Letter Copilot"
+        triggerLabel="Make it more professional"
+        prompt="Rewrite my cover letter to sound more professional and tailored to this job."
+        context={{
+          page: 'cover-letter',
+          jobDescription: state.jobDescription,
+          coverLetter: state.generatedCoverLetter ?? '',
+        }}
+      />
     </div>
   );
 }
