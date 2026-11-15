@@ -40,6 +40,7 @@
 
 | Agent | File | Commit | Resolved At | Notes |
 |-------|------|--------|-------------|-------|
+| Gemini | `app/api/generate-cover-letter/route.ts` | (this commit) | 2026-11-15T12:30:00Z | Created cover letter generation API with Claude/Gemini and rule-based fallback |
 | Gemini | `lib/jobSources.types.ts` | (pending) | 2026-11-05T11:05:00Z | Created TypeScript interfaces for Job aggregator |
 | Gemini | `lib/jobs-cache.ts` | (pending) | 2026-11-05T11:06:00Z | Created in-memory cache with 5-min TTL |
 | Gemini | `supabase/migrations/0001_job_matches.sql` | (pending) | 2026-11-05T11:08:00Z | Created migration for job_applications with RLS |

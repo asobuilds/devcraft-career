@@ -12,6 +12,7 @@ import {
   Users,
   Settings,
   LogOut,
+  Folder,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
@@ -23,6 +24,7 @@ const navItems = [
   { name: 'ATS Analyzer', href: '/analyzer', icon: FileSearch },
   { name: 'Tracker', href: '/tracker', icon: ListChecks },
   { name: 'Directory', href: '/directory', icon: Users },
+  { name: 'Cover Letter', href: '/cover-letter', icon: Folder },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
