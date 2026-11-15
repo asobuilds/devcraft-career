@@ -14,6 +14,9 @@
 
 | Agent | File | Branch | Claimed At | Status |
 |-------|------|--------|------------|--------|
+| Gemini | `app/api/analyze-resume/route.ts` | main | 2026-11-09T14:00:00Z | active |
+| Gemini | `app/analyzer/page.tsx` | main | 2026-11-09T14:00:00Z | active |
+|-------|------|--------|------------|--------|
 | Gemini | `supabase/migrations/0002_template_upgrades.sql` | main | 2026-11-09T12:00:00Z | active |
 | Gemini | `lib/jobSources.types.ts` | main | 2026-11-09T12:00:00Z | active |
 | Gemini | `lib/jobSources.js` | main | 2026-11-09T12:00:00Z | active |
@@ -25,6 +28,9 @@
 | OpenCode | app/cv-builder/components/TemplateGraduate.tsx | opencode/templates | 2026-11-12T18:52:00Z | active |
 | OpenCode | app/cv-builder/components/ProfilePhotoUploader.tsx | opencode/templates | 2026-11-12T18:52:00Z | active |
 | OpenCode | app/cv-builder/page.tsx | opencode/templates | 2026-11-12T18:52:00Z | active |
+| OpenCode | `app/cover-letter/page.tsx` | opencode/templates | 2026-11-15T00:00:00Z | active |
+| OpenCode | `app/components/CoverLetterPdf.jsx` | opencode/templates | 2026-11-15T00:00:00Z | active |
+| OpenCode | `app/components/Sidebar.tsx` | opencode/templates | 2026-11-15T00:00:00Z | active |
 
 ---
 
