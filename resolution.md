@@ -34,6 +34,7 @@
 | Gemini | `app/components/Sidebar.tsx` | multi-agent-workspace | 2026-11-15T19:00:00Z | active |
 | Gemini | `app/layout.jsx` | multi-agent-workspace | 2026-11-15T19:00:00Z | active |
 | Gemini | `app/dashboard/page.tsx` | multi-agent-workspace | 2026-11-15T19:00:00Z | active |
+| Gemini | `supabase/migrations/0004_profiles_schema_fix.sql` | multi-agent-workspace | 2026-11-15T19:15:00Z | active |
 
 ---
 
