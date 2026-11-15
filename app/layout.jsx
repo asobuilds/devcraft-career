@@ -12,7 +12,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className="antialiased bg-slate-950 text-slate-100">
         <Sidebar />
-        <main className="pl-6 transition-[padding-left] duration-200 ease-in-out hover:[padding-left]:64px">
+        <main className="pl-16 transition-all duration-300">
           {children}
         </main>
       </body>

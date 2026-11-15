@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -37,7 +39,6 @@ const navItems: NavItem[] = [
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  ;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
 
@@ -92,7 +93,7 @@ export default function Sidebar() {
                   }`}
                 >
                   <item.icon size={20} strokeWidth={1.5} />
-                  <span className="w-0 opacity-0 invisible group-hover/rail:opacity-100 group-hover/rail:visible group-hover/rail:visible group-hover/rail:w-auto transition-all duration-200 whitespace-nowrap text-sm font-medium text-slate-200 ml-2">
+                  <span className="w-0 opacity-0 invisible group-hover/rail:opacity-100 group-hover/rail:visible group-hover/rail:w-auto transition-all duration-200 whitespace-nowrap text-sm font-medium text-slate-200 ml-2">
                     {item.name}
                   </span>
                 </Link>
@@ -107,7 +108,7 @@ export default function Sidebar() {
               className="relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
             >
               <LogOut size={20} strokeWidth={1.5} />
-              <span className="w-0 opacity-0 invisible group-hover/rail:opacity-100 group-hover/rail:visible group-hover/rail:visible group-hover/rail:w-auto transition-all duration-200 whitespace-nowrap text-sm font-medium text-red-400 ml-2">
+              <span className="w-0 opacity-0 invisible group-hover/rail:opacity-100 group-hover/rail:visible group-hover/rail:w-auto transition-all duration-200 whitespace-nowrap text-sm font-medium text-red-400 ml-2">
                 Sign Out
               </span>
             </button>
@@ -117,7 +118,7 @@ export default function Sidebar() {
 
       {/* Mobile Hamburger Menu */}
       <button
-        className={`absolute top-4 left-4 z-50 p-2 rounded-lg hover:bg-slate-800 transition-colors ${
+        className={`absolute top-4 left-4 z-50 p-2 rounded-lg hover:bg-slate-800 transition-colors lg:hidden ${
           isMenuOpen ? 'bg-indigo-600/20' : ''
         }`}
         onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -129,9 +130,9 @@ export default function Sidebar() {
       {/* Mobile Slide-out Drawer */}
       {isMenuOpen && (
         <div
-          className="fixed inset-0 z-40 bg-slate-900/90 backdrop-blur-md left-full transition-all duration-300 ease-in-out ${
+          className={`fixed inset-0 z-40 bg-slate-900/90 backdrop-blur-md transition-all duration-300 ease-in-out ${
             isMenuOpen ? 'left-0' : 'left-full'
-          }"
+          }`}
         >
           <nav className="flex flex-col h-screen p-8">
             <button
@@ -147,8 +148,9 @@ export default function Sidebar() {
                 <Link
                   key={item.name}
                   href={item.href}
+                  onClick={() => setIsMenuOpen(false)}
                   className={`block p-3 rounded-lg text-lg font-medium transition-colors ${
-                    isActive ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-slate-100'}
+                    isActive ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-slate-100'
                   }`}
                 >
                   {item.name}
@@ -158,9 +160,9 @@ export default function Sidebar() {
             <div className="mt-8 pt-8 border-t border-slate-800">
               <button
                 onClick={handleSignOut}
-                className="w-full py-3 rounded-lg text-left text-slate-400 hover:text-red-400 transition-colors"
+                className="w-full py-3 rounded-lg text-left text-slate-400 hover:text-red-400 transition-colors flex items-center"
               >
-                <LogOut size={16} mr-2 /> Sign Out
+                <LogOut size={16} className="mr-2 inline" /> Sign Out
               </button>
             </div>
           </nav>

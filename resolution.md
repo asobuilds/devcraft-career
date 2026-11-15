@@ -31,6 +31,9 @@
 | OpenCode | `app/cover-letter/page.tsx` | opencode/templates | 2026-11-15T00:00:00Z | active |
 | OpenCode | `app/components/CoverLetterPdf.jsx` | opencode/templates | 2026-11-15T00:00:00Z | active |
 | OpenCode | `app/components/Sidebar.tsx` | opencode/templates | 2026-11-15T00:00:00Z | active |
+| Gemini | `app/components/Sidebar.tsx` | multi-agent-workspace | 2026-11-15T19:00:00Z | active |
+| Gemini | `app/layout.jsx` | multi-agent-workspace | 2026-11-15T19:00:00Z | active |
+| Gemini | `app/dashboard/page.tsx` | multi-agent-workspace | 2026-11-15T19:00:00Z | active |
 
 ---
 

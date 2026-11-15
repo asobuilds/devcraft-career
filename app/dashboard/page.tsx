@@ -85,7 +85,7 @@ export default function Dashboard() {
       {/* Sidebar is now rendered globally in layout.jsx */}
 
       {/* Offset container - shifts when sidebar expands on desktop, slides on mobile */}
-      <div className="pl-6 transition-[padding-left] duration-200 ease-in-out hover:[padding-left]:64px">
+      <div className="w-full">
         <main className="p-6 md:p-10 max-w-5xl">
           <div className="mb-8 flex justify-between items-start border-b border-slate-900 pb-6">
             <div>
