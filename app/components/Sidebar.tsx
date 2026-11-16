@@ -27,13 +27,13 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'CV Builder', href: '/cv-builder', icon: FileText },
-  { name: 'Portfolio Builder', href: '/portfolio-builder', icon: Code2 },
-  { name: 'Cover Letter', href: '/cover-letter', icon: Folder, isNew: true },
-  { name: 'ATS Analyzer', href: '/analyzer', icon: FileSearch, isNew: true },
-  { name: 'Tracker', href: '/tracker', icon: ListChecks },
-  { name: 'Directory', href: '/directory', icon: Users },
+  { name: 'My Hub', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Build CV', href: '/cv-builder', icon: FileText },
+  { name: 'My Portfolio', href: '/portfolio-builder', icon: Code2 },
+  { name: 'Write Cover Letter', href: '/cover-letter', icon: Folder, isNew: true },
+  { name: 'Beat the ATS', href: '/analyzer', icon: FileSearch, isNew: true },
+  { name: 'Job Tracker', href: '/tracker', icon: ListChecks },
+  { name: 'Find Talent', href: '/directory', icon: Users },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
@@ -82,7 +82,12 @@ export default function Sidebar() {
                 <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-xs">
                   DC
                 </div>
-                <span className="text-sm font-semibold text-white">DevCraft Console</span>
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold text-white">DevCraft Console</span>
+                  <span className="mt-0.5 inline-flex w-fit items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-300">
+                    🇳🇬 Naija Mode
+                  </span>
+                </div>
               </div>
               <button
                 className="p-2 rounded-lg hover:bg-slate-800 text-slate-300 transition-colors"
@@ -138,6 +143,13 @@ export default function Sidebar() {
             <span className="text-sm font-semibold text-white whitespace-nowrap hidden group-hover:block">
               DevCraft Console
             </span>
+          </div>
+        </div>
+
+        <div className="px-2 pt-2 shrink-0">
+          <div className="flex items-center justify-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[10px] font-semibold text-emerald-300 whitespace-nowrap">
+            <span>🇳🇬</span>
+            <span className="hidden group-hover:inline">Naija Mode</span>
           </div>
         </div>
 

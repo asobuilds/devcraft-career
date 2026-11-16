@@ -135,9 +135,9 @@ export default function Dashboard() {
             <div className="inline-flex items-center justify-center h-11 w-11 rounded-xl bg-white/15 text-white mb-5">
               <FileText size={22} />
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-white">Your Next Role Starts Here</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-white">Ready for your next big break?</h2>
             <p className="mt-3 text-sm md:text-base text-orange-100 max-w-lg">
-              Build an ATS-proof CV in minutes. Choose from 8 professional templates and export as PDF.
+              Whether you&apos;re applying to a Lagos fintech, a remote US startup, or a government parastatal, we&apos;ve got the tools to get you past the bots and in front of a human.
             </p>
           </div>
           <div className="relative z-10 mt-8">
@@ -158,7 +158,7 @@ export default function Dashboard() {
           </div>
           <h2 className="text-lg font-bold text-white">Beat the Robots</h2>
           <p className="mt-2 text-sm text-slate-400 flex-1">
-            Paste a job description and your CV. We&apos;ll show you exactly which keywords you&apos;re missing.
+            Most Nigerian companies now use ATS bots. Paste a job description here to see exactly what keywords you&apos;re missing.
           </p>
           <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-emerald-400">
             Open Analyzer
@@ -212,7 +212,7 @@ export default function Dashboard() {
           </div>
           <h2 className="text-lg font-bold text-white">Show, Don&apos;t Just Tell</h2>
           <p className="mt-2 text-sm text-slate-400 flex-1">
-            Turn your CV into a live portfolio website to share with recruiters.
+            Turn your CV into a custom portfolio link (e.g., devcraft-career.com/p/your-name) that you can drop in your Twitter bio or send to recruiters.
           </p>
           <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-orange-400">
             Build Portfolio
