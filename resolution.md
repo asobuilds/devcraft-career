@@ -50,6 +50,9 @@
 | Gemini | `app/components/Sidebar.tsx` | main | 2026-11-15T19:45:00Z | active |
 | Gemini | `app/components/Sidebar.tsx` | main | 2026-11-15T23:30:00Z | active |
 | Gemini | `app/dashboard/page.tsx` | main | 2026-11-15T23:30:00Z | active |
+| Gemini | `app/analyzer/page.tsx` | main | 2026-11-15T23:45:00Z | active |
+| Gemini | `app/cover-letter/page.tsx` | main | 2026-11-15T23:45:00Z | active |
+| Gemini | `app/tracker/page.tsx` | main | 2026-11-15T23:45:00Z | active |
 | Gemini | `app/components/Sidebar.tsx` | main | 2026-11-15T22:00:00Z | active |
 
 ---
@@ -139,6 +142,7 @@
 - `2026-11-15T22:45:00Z` — `OpenCode` — Updated landing page color/visual rhythm: footer pure black, How It Works `bg-black/50`, colored feature icons, glowing Scraper Demo container, and colored section subtitles.
 - `2026-11-15T23:15:00Z` — `OpenCode` — Applied Naija Modern design system to landing page: hero Unsplash background with dark overlay, orange-500 primary accents, emerald trust colors, local copy/FAQ, and black footer with orange border + flag.
 - `2026-11-15T23:30:00Z` — `Gemini` — Updated Sidebar active state and Dashboard primary accents to Naija Modern orange/emerald palette.
+- `2026-11-15T23:45:00Z` — `Gemini` — Localized internal tool page copy for ATS Analyzer, Cover Letter, and Tracker to Naija Modern brand voice.
 
 # Resolution & File Claims
 

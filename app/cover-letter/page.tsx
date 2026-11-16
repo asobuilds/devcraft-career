@@ -157,7 +157,10 @@ export default function CoverLetterPage() {
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
           </Link>
-          <h1 className="font-bold text-xl text-white">Cover Letter Generator</h1>
+          <div>
+            <h1 className="font-bold text-xl text-white">Generate a Winning Cover Letter</h1>
+            <p className="text-xs text-slate-500 mt-1">Don&apos;t send a generic &quot;I am writing to apply&quot; letter. Use AI to write a compelling, tailored letter that highlights your specific skills for the job.</p>
+          </div>
         </div>
       </header>
 

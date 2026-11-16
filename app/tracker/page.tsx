@@ -335,8 +335,8 @@ export default function JobTracker() {
             <ArrowLeft size={16} />
           </Link>
           <div>
-            <h1 className="text-xl font-bold text-white">Job Search Board Terminal</h1>
-            <p className="text-xs text-slate-500 mt-0.5">Optimistic Live Sync Engine Active.</p>
+            <h1 className="text-xl font-bold text-white">Your Job Application Tracker</h1>
+            <p className="text-xs text-slate-500 mt-0.5">Keep track of every application. From &apos;Applied&apos; to &apos;Interview&apos; to &apos;Offer&apos;. Never lose track of a job lead again.</p>
           </div>
         </div>
 
