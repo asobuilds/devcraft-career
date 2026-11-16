@@ -69,6 +69,12 @@ export default function ATSAnalyzer() {
       return;
     }
 
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      setError('Please log in to run an analysis.');
+      return;
+    }
+
     setError('');
     setAnalyzing(true);
     setScore(null);
@@ -78,7 +84,10 @@ export default function ATSAnalyzer() {
     try {
       const res = await fetch('/api/analyze-resume', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({ resumeText, jobDescription }),
       });
 

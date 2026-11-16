@@ -64,6 +64,12 @@
 | OpenCode | `app/api/route.js` | main | 2026-11-16T00:00:00Z | active |
 | OpenCode | `app/api/cron-scraper/route.js` | main | 2026-11-16T00:00:00Z | active |
 | OpenCode | `app/api/source-leads/route.js` | main | 2026-11-16T00:00:00Z | active |
+| Gemini | `supabase/migrations/0013_core_tables.sql` | main | 2026-11-16T00:30:00Z | active |
+| Gemini | `app/api/source-leads/route.js` | main | 2026-11-16T00:30:00Z | active |
+| Gemini | `app/api/cron-scraper/route.js` | main | 2026-11-16T00:30:00Z | active |
+| Gemini | `app/api/analyze-resume/route.ts` | main | 2026-11-16T00:30:00Z | active |
+| Gemini | `app/analyzer/page.tsx` | main | 2026-11-16T00:30:00Z | active |
+| Gemini | `app/tracker/page.tsx` | main | 2026-11-16T00:30:00Z | active |
 | Gemini | `app/components/Sidebar.tsx` | main | 2026-11-15T22:00:00Z | active |
 
 ---
@@ -155,6 +161,7 @@
 - `2026-11-15T23:30:00Z` — `Gemini` — Updated Sidebar active state and Dashboard primary accents to Naija Modern orange/emerald palette.
 - `2026-11-15T23:45:00Z` — `Gemini` — Localized internal tool page copy for ATS Analyzer, Cover Letter, and Tracker to Naija Modern brand voice.
 - `2026-11-16T00:00:00Z` — `OpenCode` — Replaced all `.single()` Supabase calls with `.maybeSingle()` and added null guards where required to resolve 406 Not Acceptable errors on profile lookups.
+- `2026-11-16T00:30:00Z` — `Gemini` — Created migration 0013 for core tables (resumes, portfolios, ats_scans, feedback) and secured source-leads, cron-scraper, and analyze-resume API routes with Supabase session auth.
 
 # Resolution & File Claims
 

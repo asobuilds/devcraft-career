@@ -4,16 +4,22 @@ import { findMatchingJobs } from '@/lib/jobSources';
 
 export async function POST(request) {
   try {
-    const { userId, country, location } = await request.json();
-
-    if (!userId) {
-      return NextResponse.json({ error: 'Missing user id' }, { status: 400 });
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader);
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { country, location } = await request.json().catch(() => ({}));
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('tech_stack, is_premium')
-      .eq('id', userId)
+      .eq('id', user.id)
       .maybeSingle();
 
       if (profileError || !profile) {

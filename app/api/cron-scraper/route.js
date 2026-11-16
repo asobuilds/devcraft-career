@@ -5,16 +5,22 @@ import { sendEmail, buildJobLeadEmailHtml } from '@/lib/sendEmail';
 
 export async function POST(request) {
   try {
-    const { userId, location } = await request.json();
-
-    if (!userId) {
-      return NextResponse.json({ error: 'Missing user id' }, { status: 400 });
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader);
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { location } = await request.json().catch(() => ({}));
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('full_name, email, tech_stack, is_premium')
-      .eq('id', userId)
+      .eq('id', user.id)
       .maybeSingle();
 
       if (profileError || !profile) {
@@ -43,7 +49,7 @@ export async function POST(request) {
     const topMatches = matchedJobs.slice(0, 5);
 
     const trackingCardRows = topMatches.map((job) => ({
-      user_id: userId,
+      user_id: user.id,
       company_name: job.company,
       job_title: job.title,
       status: 'lead',

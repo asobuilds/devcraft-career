@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { PDFParse } from 'pdf-parse';
 import mammoth from 'mammoth';
+import { supabase } from '@/lib/supabase';
 
 export const runtime = 'nodejs';
 
@@ -146,6 +147,16 @@ ${resumeText.slice(0, 6000)}`;
 
 export async function POST(request: Request) {
   try {
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader);
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     let resumeText = '';
     let jobDescription = '';
 

@@ -191,8 +191,11 @@ export default function JobTracker() {
     try {
       const response = await fetch('/api/source-leads', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: userId, location: 'Nigeria' }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token || ''}`,
+        },
+        body: JSON.stringify({ location: 'Nigeria' }),
       });
       const result = await response.json();
 
