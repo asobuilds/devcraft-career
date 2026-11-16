@@ -33,6 +33,7 @@
 | OpenCode | `app/components/Sidebar.tsx` | opencode/templates | 2026-11-15T00:00:00Z | active |
 | OpenCode | `app/page.tsx` | main | 2026-11-15T22:45:00Z | active |
 | OpenCode | `app/components/ScraperDemoWidget.jsx` | main | 2026-11-15T22:45:00Z | active |
+| OpenCode | `app/page.tsx` | main | 2026-11-15T23:15:00Z | active |
 | Gemini | `app/components/Sidebar.tsx` | multi-agent-workspace | 2026-11-15T19:00:00Z | active |
 | Gemini | `app/layout.jsx` | multi-agent-workspace | 2026-11-15T19:00:00Z | active |
 | Gemini | `app/dashboard/page.tsx` | multi-agent-workspace | 2026-11-15T19:00:00Z | active |
@@ -134,6 +135,7 @@
 - `2026-11-15T22:00:00Z` — `Gemini` — Added NEW badges to Sidebar `ATS Analyzer` and `Cover Letter` links and switched active nav state to `bg-slate-800 text-white` in both mobile drawer and desktop rail.
 - `2026-11-15T22:30:00Z` — `Gemini` — Created `supabase/migrations/0012_force_profiles_rebuild.sql` to drop/recreate `profiles`, reset grants/policies, re-enable RLS, and reload PostgREST schema.
 - `2026-11-15T22:45:00Z` — `OpenCode` — Updated landing page color/visual rhythm: footer pure black, How It Works `bg-black/50`, colored feature icons, glowing Scraper Demo container, and colored section subtitles.
+- `2026-11-15T23:15:00Z` — `OpenCode` — Applied Naija Modern design system to landing page: hero Unsplash background with dark overlay, orange-500 primary accents, emerald trust colors, local copy/FAQ, and black footer with orange border + flag.
 
 # Resolution & File Claims
 

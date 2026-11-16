@@ -18,11 +18,11 @@ import {
 } from 'lucide-react';
 
 const faqData = [
-  { question: 'What is DevCraft Career?', answer: "It's a free tool that helps you build a professional CV in minutes, and then automatically looks for jobs that fit your skills so you don't have to search for them yourself." },
-  { question: 'How does it find jobs for me?', answer: 'Once your CV or portfolio is ready, the system looks across the internet, including private companies, government postings, and freelance platforms, for roles that match your skills and experience. When it finds a good match, it sends you the job link so you can apply.' },
-  { question: 'Do I need a photo on my CV?', answer: 'No. You can choose a template with a photo or one without, whichever fits the kind of job you are applying for.' },
-  { question: 'Can I attach my certificates and results?', answer: 'Yes. While building your CV, you can upload supporting documents like certificates, transcripts, and other files to go along with it.' },
-  { question: 'Is it free to use?', answer: 'Yes. Building your CV and getting job matches is free. This project was built to help everyone, especially people who may not have easy access to career tools.' },
+  { question: 'What is DevCraft Naija?', answer: "It's a free, Nigeria-focused tool that helps you build a professional CV in minutes, then automatically searches for Nigerian jobs that fit your skills — private, government, or freelance — so you don't have to keep scrolling job boards." },
+  { question: 'How does it find jobs for me?', answer: 'Once your CV or portfolio is ready, the system scans Nigerian job platforms, company career pages, government postings, and freelance networks for roles that match your skills and location. When it finds a strong match, it sends you the application link.' },
+  { question: 'Do I need a photo on my CV?', answer: 'No. You can choose a template with a photo or one without, depending on the kind of role you are applying for in Nigeria.' },
+  { question: 'Can I attach my NYSC certificate, diplomas, and transcripts?', answer: 'Yes. While building your CV you can upload supporting documents like your NYSC certificate, degree, transcripts, certificates, and other files so they travel with your application.' },
+  { question: 'Is it free to use?', answer: 'Yes. Building your CV and getting job matches is completely free. DevCraft Naija was built to make career tools accessible to everyone in Nigeria, no matter your location or budget.' },
 ];
 
 const testimonials = [
@@ -58,17 +58,25 @@ export default function HomeLandingPage() {
         className="relative overflow-hidden scroll-mt-10 border-b border-slate-900"
       >
         <div
+          className="absolute inset-0 -z-10 bg-cover bg-center"
+          style={{
+            backgroundImage:
+              'url(https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2070&auto=format&fit=crop)',
+          }}
+        />
+        <div className="absolute inset-0 -z-10 bg-black/70" />
+        <div
           className="pointer-events-none absolute inset-0 -z-10"
           style={{
             backgroundImage:
-              'radial-gradient(60% 60% at 50% 0%, rgba(99,102,241,0.32) 0%, rgba(15,23,42,0) 70%), radial-gradient(45% 55% at 85% 20%, rgba(168,85,247,0.28) 0%, rgba(15,23,42,0) 72%), radial-gradient(45% 55% at 12% 28%, rgba(16,185,129,0.18) 0%, rgba(15,23,42,0) 72%)',
+              'linear-gradient(to bottom, rgba(2,6,23,0.95) 0%, rgba(2,6,23,0.6) 40%, rgba(2,6,23,0.3) 70%, rgba(2,6,23,0.95) 100%)',
           }}
         />
         <div
-          className="pointer-events-none absolute inset-0 -z-10 opacity-20"
+          className="pointer-events-none absolute inset-0 -z-10 opacity-10"
           style={{
             backgroundImage:
-              'linear-gradient(to right, rgba(148,163,184,0.22) 1px, transparent 1px), linear-gradient(to bottom, rgba(148,163,184,0.22) 1px, transparent 1px)',
+              'linear-gradient(to right, rgba(148,163,184,0.18) 1px, transparent 1px), linear-gradient(to bottom, rgba(148,163,184,0.18) 1px, transparent 1px)',
             backgroundSize: '44px 44px',
             maskImage:
               'radial-gradient(ellipse 70% 60% at 50% 0%, #000 50%, transparent 100%)',
@@ -78,21 +86,21 @@ export default function HomeLandingPage() {
         />
 
         <div className="max-w-4xl mx-auto px-6 pt-24 pb-20 text-center space-y-7">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/15 bg-white/5 backdrop-blur-md text-indigo-300 text-xs font-semibold shadow-lg shadow-indigo-950/40">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 backdrop-blur-md text-orange-300 text-xs font-semibold shadow-lg shadow-orange-950/40">
             <Sparkles size={14} />
             <span>Build once. Get matched. Get hired.</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-white leading-[1.1]">
-            Your CV, your portfolio, and your next job,{' '}
-            <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">
+            Your CV, your portfolio, and your next Nigerian job,{' '}
+            <span className="bg-gradient-to-r from-orange-400 via-orange-500 to-emerald-400 bg-clip-text text-transparent">
               all in one place.
             </span>
           </h1>
           <p className="text-slate-300 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
-            DevCraft Career helps you build a professional CV in minutes, then quietly searches the internet for jobs you actually qualify for, private, government, or freelance, and sends you the link to apply.
+            DevCraft Naija helps you build a professional CV in minutes, then quietly searches Nigerian job boards, government portals, and freelance platforms for roles you actually qualify for and sends you the link to apply.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-            <Link href="/register" className="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-sm font-semibold shadow-lg shadow-indigo-950/40 hover:from-indigo-400 hover:to-purple-400 transition-all inline-flex items-center gap-2">
+            <Link href="/register" className="px-6 py-3 rounded-xl bg-orange-500 hover:bg-orange-400 text-white text-sm font-semibold shadow-lg shadow-orange-950/40 transition-all inline-flex items-center gap-2">
               <span>Get Started Free</span>
               <ArrowRight size={16} />
             </Link>
@@ -111,24 +119,24 @@ export default function HomeLandingPage() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
-              <span className="text-2xl font-bold text-indigo-500/40">1</span>
+              <span className="text-2xl font-bold text-orange-500/40">1</span>
               <h3 className="text-sm font-semibold text-white mt-2">Build your CV</h3>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">Fill in your details, work history, and skills using our simple builder.</p>
             </div>
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
-              <span className="text-2xl font-bold text-indigo-500/40">2</span>
+              <span className="text-2xl font-bold text-orange-500/40">2</span>
               <h3 className="text-sm font-semibold text-white mt-2">Pick a template</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Choose from CV designs, with or without a photo, that fit the job you want.</p>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Choose a CV design that fits the Nigerian role you want, with or without a photo.</p>
             </div>
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
-              <span className="text-2xl font-bold text-indigo-500/40">3</span>
-              <h3 className="text-sm font-semibold text-white mt-2">We scan for jobs</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Our system searches the internet for jobs that match your skills and experience.</p>
+              <span className="text-2xl font-bold text-orange-500/40">3</span>
+              <h3 className="text-sm font-semibold text-white mt-2">We scan Nigerian job boards</h3>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Our system searches local platforms, government portals, and company career pages for matches.</p>
             </div>
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
-              <span className="text-2xl font-bold text-indigo-500/40">4</span>
+              <span className="text-2xl font-bold text-orange-500/40">4</span>
               <h3 className="text-sm font-semibold text-white mt-2">You get notified</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">When a matching job is found, you get a message with the link to apply.</p>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">When a matching role is found, you receive a message with the direct application link.</p>
             </div>
           </div>
         </section>
@@ -141,32 +149,32 @@ export default function HomeLandingPage() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
-              <FileText size={20} className="text-indigo-400 mb-3" />
+              <FileText size={20} className="text-orange-400 mb-3" />
               <h3 className="text-sm font-semibold text-white">Multiple CV Templates</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Choose from several designs, with or without a photo.</p>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Choose from several professional designs, with or without a photo.</p>
             </div>
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
               <Paperclip size={20} className="text-cyan-400 mb-3" />
-              <h3 className="text-sm font-semibold text-white">Attach Certificates</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Add your results, certificates, and other documents to your CV.</p>
+              <h3 className="text-sm font-semibold text-white">Attach Your NYSC Certificate & Documents</h3>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Upload your NYSC certificate, degree, transcripts, and other proof of qualifications.</p>
             </div>
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
               <Zap size={20} className="text-emerald-400 mb-3" />
               <h3 className="text-sm font-semibold text-white">Automatic Job Matching</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">We search the internet for jobs that fit your skills.</p>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">We search Nigerian job boards for roles that fit your skills.</p>
             </div>
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
               <Bell size={20} className="text-amber-400 mb-3" />
               <h3 className="text-sm font-semibold text-white">Instant Alerts</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Get notified the moment a matching job is found.</p>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Get notified the moment a matching role is found.</p>
             </div>
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
               <Building2 size={20} className="text-purple-400 mb-3" />
-              <h3 className="text-sm font-semibold text-white">Private and Government Jobs</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">We look across all kinds of work, not just tech jobs.</p>
+              <h3 className="text-sm font-semibold text-white">Private & Government Jobs</h3>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">We scan private companies, federal and state agencies, and freelance platforms.</p>
             </div>
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
-              <Gift size={20} className="text-pink-400 mb-3" />
+              <Gift size={20} className="text-emerald-400 mb-3" />
               <h3 className="text-sm font-semibold text-white">Completely Free</h3>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">Build your CV and get matched, at no cost.</p>
             </div>
@@ -186,7 +194,7 @@ export default function HomeLandingPage() {
           <div className="space-y-3">
             {faqData.map(function (item, index) {
               const isOpen = openFaqIndex === index;
-              const arrowClass = isOpen === true ? 'text-indigo-400 transition-transform rotate-180' : 'text-indigo-400 transition-transform';
+              const arrowClass = isOpen === true ? 'text-orange-400 transition-transform rotate-180' : 'text-orange-400 transition-transform';
               return (
                 <div key={index} className="border border-slate-800 rounded-xl overflow-hidden bg-slate-900/20">
                   <button onClick={() => toggleFaq(index)} type="button" className="w-full flex items-center justify-between p-5 text-left hover:bg-slate-900/40 transition-colors">
@@ -241,8 +249,8 @@ export default function HomeLandingPage() {
                   <button type="button" onClick={() => setRating(4)}><Star size={20} className={rating >= 4 ? 'text-amber-400' : 'text-slate-600'} fill={rating >= 4 ? 'currentColor' : 'none'} /></button>
                   <button type="button" onClick={() => setRating(5)}><Star size={20} className={rating >= 5 ? 'text-amber-400' : 'text-slate-600'} fill={rating >= 5 ? 'currentColor' : 'none'} /></button>
                 </div>
-                <textarea value={feedbackText} onChange={(e) => setFeedbackText(e.target.value)} required placeholder="Tell us what you think..." className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-white resize-none h-24 focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
-                <button type="submit" className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+                <textarea value={feedbackText} onChange={(e) => setFeedbackText(e.target.value)} required placeholder="Tell us what you think..." className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-white resize-none h-24 focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+                <button type="submit" className="flex items-center gap-2 bg-orange-500 hover:bg-orange-400 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
                   <Send size={14} />
                   <span>Submit</span>
                 </button>
@@ -255,13 +263,13 @@ export default function HomeLandingPage() {
           <span className="text-emerald-400 font-mono text-sm uppercase tracking-widest block mb-4">About</span>
           <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">About This Project</h2>
           <p className="text-slate-400 text-sm leading-relaxed">
-            DevCraft Career was built by Aso, a programmer and solution builder from Abuja, Nigeria, with a simple goal: make it easier for anyone to build a professional CV and find real job opportunities, without needing expensive tools or connections.
+            DevCraft Naija was built by Aso, a programmer and solution builder from Abuja, Nigeria, with a simple goal: make it easier for every Nigerian professional to build a world-class CV and find real job opportunities, without expensive tools or connections.
           </p>
         </section>
 
-        <footer className="border-t border-slate-800 bg-black px-6 py-8 text-center">
+        <footer className="border-t border-orange-500/20 bg-black px-6 py-8 text-center">
           <p className="text-[11px] text-slate-500">
-            © 2026 DevCraft Career. Built to help everyone find their next opportunity.
+            © 2026 DevCraft Naija 🇳🇬. Built in Nigeria for every Nigerian job seeker.
           </p>
         </footer>
     </div>
