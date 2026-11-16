@@ -4,29 +4,12 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import ScraperDemoWidget from './components/ScraperDemoWidget';
 import {
-  Home,
-  Workflow,
   Sparkles,
-  HelpCircle,
-  MessageSquare,
-  User,
-  Rocket,
-  Menu,
-  X,
   ChevronDown,
   Star,
   Send,
   ArrowRight,
 } from 'lucide-react';
-
-const navLinks = [
-  { href: '#hero', label: 'Home', icon: Home },
-  { href: '#how-it-works', label: 'How It Works', icon: Workflow },
-  { href: '#features', label: 'Features', icon: Sparkles },
-  { href: '#faq', label: 'FAQ', icon: HelpCircle },
-  { href: '#reviews', label: 'Reviews', icon: MessageSquare },
-  { href: '#about', label: 'About', icon: User },
-];
 
 const faqData = [
   { question: 'What is DevCraft Career?', answer: "It's a free tool that helps you build a professional CV in minutes, and then automatically looks for jobs that fit your skills so you don't have to search for them yourself." },
@@ -43,7 +26,6 @@ const testimonials = [
 ];
 
 export default function HomeLandingPage() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState(-1);
   const [rating, setRating] = useState(5);
   const [feedbackText, setFeedbackText] = useState('');
@@ -63,72 +45,57 @@ export default function HomeLandingPage() {
     setFeedbackText('');
   };
 
-  const sidebarClasses =
-    'fixed top-0 left-0 h-full w-64 bg-slate-900 border-r border-slate-800 z-40 flex flex-col justify-between transition-transform duration-300 ' +
-    (sidebarOpen ? 'translate-x-0' : '-translate-x-full') +
-    ' lg:translate-x-0';
-
   return (
-    <div className="min-h-screen flex bg-slate-950 text-slate-100">
-      <button onClick={() => setSidebarOpen(!sidebarOpen)} className="fixed top-4 left-4 z-50 lg:hidden bg-slate-900 text-white p-2 rounded-lg shadow-lg border border-slate-800">
-        {sidebarOpen === true ? <X size={20} /> : <Menu size={20} />}
-      </button>
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      <section
+        id="hero"
+        className="relative overflow-hidden scroll-mt-10 border-b border-slate-900"
+      >
+        <div
+          className="pointer-events-none absolute inset-0 -z-10"
+          style={{
+            backgroundImage:
+              'radial-gradient(60% 60% at 50% 0%, rgba(99,102,241,0.32) 0%, rgba(15,23,42,0) 70%), radial-gradient(45% 55% at 85% 20%, rgba(168,85,247,0.28) 0%, rgba(15,23,42,0) 72%), radial-gradient(45% 55% at 12% 28%, rgba(16,185,129,0.18) 0%, rgba(15,23,42,0) 72%)',
+          }}
+        />
+        <div
+          className="pointer-events-none absolute inset-0 -z-10 opacity-20"
+          style={{
+            backgroundImage:
+              'linear-gradient(to right, rgba(148,163,184,0.22) 1px, transparent 1px), linear-gradient(to bottom, rgba(148,163,184,0.22) 1px, transparent 1px)',
+            backgroundSize: '44px 44px',
+            maskImage:
+              'radial-gradient(ellipse 70% 60% at 50% 0%, #000 50%, transparent 100%)',
+            WebkitMaskImage:
+              'radial-gradient(ellipse 70% 60% at 50% 0%, #000 50%, transparent 100%)',
+          }}
+        />
 
-      {sidebarOpen === true ? (
-        <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setSidebarOpen(false)}></div>
-      ) : null}
-
-      <aside className={sidebarClasses}>
-        <div>
-          <div className="px-6 py-6 border-b border-slate-800">
-            <span className="text-xl font-bold tracking-tight text-white">
-              DevCraft <span className="text-indigo-400">Career</span>
-            </span>
-          </div>
-          <nav className="px-3 py-6 space-y-1">
-            {navLinks.map(function (item) {
-              return (
-                <a key={item.href} href={item.href} onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
-                  <item.icon size={18} />
-                  {item.label}
-                </a>
-              );
-            })}
-          </nav>
-        </div>
-        <div className="p-4 space-y-2">
-          <Link href="/register" className="flex items-center justify-center gap-2 w-full bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold py-3 rounded-lg transition-colors">
-            <Rocket size={16} />
-            Get Started
-          </Link>
-          <Link href="/login" className="flex items-center justify-center w-full border border-slate-700 text-slate-300 hover:text-white text-sm font-medium py-2.5 rounded-lg transition-colors">
-            Log In
-          </Link>
-        </div>
-      </aside>
-
-      <div className="flex-1 lg:ml-64 min-w-0">
-        <section id="hero" className="max-w-3xl mx-auto px-6 pt-24 pb-16 text-center space-y-6 scroll-mt-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-500/20 bg-indigo-500/5 text-indigo-400 text-xs font-semibold">
+        <div className="max-w-4xl mx-auto px-6 pt-24 pb-20 text-center space-y-7">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/15 bg-white/5 backdrop-blur-md text-indigo-300 text-xs font-semibold shadow-lg shadow-indigo-950/40">
             <Sparkles size={14} />
             <span>Build once. Get matched. Get hired.</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white leading-tight">
-            Your CV, your portfolio, and your next job, all in one place.
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-white leading-[1.1]">
+            Your CV, your portfolio, and your next job,{' '}
+            <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">
+              all in one place.
+            </span>
           </h1>
-          <p className="text-slate-400 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+          <p className="text-slate-300 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
             DevCraft Career helps you build a professional CV in minutes, then quietly searches the internet for jobs you actually qualify for, private, government, or freelance, and sends you the link to apply.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-            <Link href="/register" className="px-6 py-3 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-500 transition-colors inline-flex items-center gap-2">
+            <Link href="/register" className="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-sm font-semibold shadow-lg shadow-indigo-950/40 hover:from-indigo-400 hover:to-purple-400 transition-all inline-flex items-center gap-2">
               <span>Get Started Free</span>
               <ArrowRight size={16} />
             </Link>
-            <a href="#how-it-works" className="px-6 py-3 rounded-xl border border-slate-700 text-slate-300 text-sm font-medium hover:border-slate-600 hover:text-white transition-colors">
+            <a href="#how-it-works" className="px-6 py-3 rounded-xl border border-white/15 bg-white/5 backdrop-blur-md text-slate-200 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors">
               See how it works
             </a>
           </div>
-        </section>
+        </div>
+      </section>
 
         <section id="how-it-works" className="max-w-5xl mx-auto px-6 py-16 border-t border-slate-900 scroll-mt-20">
           <div className="text-center max-w-xl mx-auto mb-12 space-y-2">
@@ -136,22 +103,22 @@ export default function HomeLandingPage() {
             <p className="text-slate-400 text-sm">Four simple steps, explained plainly.</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-5 rounded-2xl border border-slate-800 bg-slate-900/40">
+            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
               <span className="text-2xl font-bold text-indigo-500/40">1</span>
               <h3 className="text-sm font-semibold text-white mt-2">Build your CV</h3>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">Fill in your details, work history, and skills using our simple builder.</p>
             </div>
-            <div className="p-5 rounded-2xl border border-slate-800 bg-slate-900/40">
+            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
               <span className="text-2xl font-bold text-indigo-500/40">2</span>
               <h3 className="text-sm font-semibold text-white mt-2">Pick a template</h3>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">Choose from CV designs, with or without a photo, that fit the job you want.</p>
             </div>
-            <div className="p-5 rounded-2xl border border-slate-800 bg-slate-900/40">
+            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
               <span className="text-2xl font-bold text-indigo-500/40">3</span>
               <h3 className="text-sm font-semibold text-white mt-2">We scan for jobs</h3>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">Our system searches the internet for jobs that match your skills and experience.</p>
             </div>
-            <div className="p-5 rounded-2xl border border-slate-800 bg-slate-900/40">
+            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
               <span className="text-2xl font-bold text-indigo-500/40">4</span>
               <h3 className="text-sm font-semibold text-white mt-2">You get notified</h3>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">When a matching job is found, you get a message with the link to apply.</p>
@@ -165,27 +132,27 @@ export default function HomeLandingPage() {
             <p className="text-slate-400 text-sm">Everything you need to find and land a job, in one place.</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="p-5 rounded-2xl border border-slate-800 bg-slate-900/40">
+            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
               <h3 className="text-sm font-semibold text-white">Multiple CV Templates</h3>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">Choose from several designs, with or without a photo.</p>
             </div>
-            <div className="p-5 rounded-2xl border border-slate-800 bg-slate-900/40">
+            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
               <h3 className="text-sm font-semibold text-white">Attach Certificates</h3>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">Add your results, certificates, and other documents to your CV.</p>
             </div>
-            <div className="p-5 rounded-2xl border border-slate-800 bg-slate-900/40">
+            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
               <h3 className="text-sm font-semibold text-white">Automatic Job Matching</h3>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">We search the internet for jobs that fit your skills.</p>
             </div>
-            <div className="p-5 rounded-2xl border border-slate-800 bg-slate-900/40">
+            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
               <h3 className="text-sm font-semibold text-white">Instant Alerts</h3>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">Get notified the moment a matching job is found.</p>
             </div>
-            <div className="p-5 rounded-2xl border border-slate-800 bg-slate-900/40">
+            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
               <h3 className="text-sm font-semibold text-white">Private and Government Jobs</h3>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">We look across all kinds of work, not just tech jobs.</p>
             </div>
-            <div className="p-5 rounded-2xl border border-slate-800 bg-slate-900/40">
+            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
               <h3 className="text-sm font-semibold text-white">Completely Free</h3>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">Build your CV and get matched, at no cost.</p>
             </div>
@@ -201,8 +168,8 @@ export default function HomeLandingPage() {
           </div>
           <div className="space-y-3">
             {faqData.map(function (item, index) {
-              var isOpen = openFaqIndex === index;
-              var arrowClass = isOpen === true ? 'text-indigo-400 transition-transform rotate-180' : 'text-indigo-400 transition-transform';
+              const isOpen = openFaqIndex === index;
+              const arrowClass = isOpen === true ? 'text-indigo-400 transition-transform rotate-180' : 'text-indigo-400 transition-transform';
               return (
                 <div key={index} className="border border-slate-800 rounded-xl overflow-hidden bg-slate-900/20">
                   <button onClick={() => toggleFaq(index)} type="button" className="w-full flex items-center justify-between p-5 text-left hover:bg-slate-900/40 transition-colors">
@@ -227,7 +194,7 @@ export default function HomeLandingPage() {
           <div className="grid sm:grid-cols-3 gap-6 mb-12">
             {testimonials.map(function (t) {
               return (
-                <div key={t.name} className="p-5 rounded-2xl border border-slate-800 bg-slate-900/40">
+                <div key={t.name} className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
                   <div className="flex gap-0.5 mb-3 text-amber-400">
                     <Star size={14} fill="currentColor" />
                     <Star size={14} fill="currentColor" />
@@ -278,7 +245,6 @@ export default function HomeLandingPage() {
             © 2026 DevCraft Career. Built to help everyone find their next opportunity.
           </p>
         </footer>
-      </div>
     </div>
   );
 }
