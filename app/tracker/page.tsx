@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { ArrowLeft, Plus, Trash2, Loader2, Briefcase, Terminal, ExternalLink, CheckCircle2, Radar, X, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd';
 import AIAssistant from '@/app/components/AIAssistant';
 
 interface ApplicationItem {
@@ -15,6 +16,27 @@ interface ApplicationItem {
   salary_range?: string;
   apply_url?: string;
   notes?: string;
+  created_at?: string;
+}
+
+type BoardStatus = 'lead' | 'applied' | 'interviewing' | 'offered';
+
+const BOARD_COLUMNS: Array<{ key: BoardStatus; label: string; dot: string }> = [
+  { key: 'lead', label: 'Wishlist', dot: 'bg-slate-400' },
+  { key: 'applied', label: 'Applied', dot: 'bg-sky-400' },
+  { key: 'interviewing', label: 'Interviewing', dot: 'bg-amber-400' },
+  { key: 'offered', label: 'Offer', dot: 'bg-emerald-400' },
+];
+
+function formatAppliedDate(value?: string): string {
+  if (!value) return 'No date';
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return 'No date';
+  return parsed.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
 }
 
 interface SourcedLead {
@@ -155,8 +177,39 @@ export default function JobTracker() {
     }
   };
 
-  const handleDeleteApplication = async (id: string) => {
-    const originalApps = [...apps];
+  const handleDragEnd = async (result: DropResult) => {
+    const { draggableId, source, destination } = result;
+    if (!destination) return;
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
+      return;
+    }
+
+    const nextStatus = destination.droppableId as BoardStatus;
+    const originalApps = apps;
+    const card = apps.find((item) => item.id === draggableId);
+    if (!card || card.status === nextStatus) return;
+
+    setApps((prev) =>
+      prev.map((item) =>
+        item.id === draggableId ? { ...item, status: nextStatus } : item
+      )
+    );
+
+    const { error } = await supabase
+      .from('job_applications')
+      .update({ status: nextStatus })
+      .eq('id', draggableId);
+
+    if (error) {
+      setApps(originalApps);
+      setToast({ type: 'error', message: 'Cloud sync failed. The card was moved back.' });
+    }
+  };
+
+  const handleDeleteApplication = async (id: string) => {    const originalApps = [...apps];
     setApps(apps.filter(a => a.id !== id));
 
     const { error } = await supabase
@@ -262,8 +315,8 @@ export default function JobTracker() {
             <div className="h-9 flex-1 min-w-[200px] bg-slate-800/60 rounded-xl animate-pulse" />
           </div>
         </div>
-        <div className="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-5 gap-6 items-start">
-          {['Scraped Matches', 'Applied', 'Interviewing', 'Offered', 'Archived'].map((label, i) => (
+        <div className="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
+          {['Wishlist', 'Applied', 'Interviewing', 'Offer'].map((label, i) => (
             <div key={i} className="bg-slate-900/20 border border-slate-900 rounded-2xl p-4 flex flex-col gap-4">
               <div className="flex items-center justify-between border-b border-slate-900 pb-2">
                 <div className="h-3 w-24 bg-slate-800 rounded animate-pulse" />
@@ -284,14 +337,6 @@ export default function JobTracker() {
       </div>
     );
   }
-
-  const sections: Array<{ key: ApplicationItem['status']; label: string }> = [
-    { key: 'lead', label: 'Scraped Matches' },
-    { key: 'applied', label: 'Applied' },
-    { key: 'interviewing', label: 'Interviewing' },
-    { key: 'offered', label: 'Offered' },
-    { key: 'rejected', label: 'Archived' },
-  ];
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-6 font-sans">
@@ -363,61 +408,90 @@ export default function JobTracker() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-5 gap-6 items-start">
-        {sections.map(({ key: columnKey, label }) => {
-          const filteredCards = apps.filter(item => item.status === columnKey);
-          return (
-            <div key={columnKey} className="bg-slate-900/20 border border-slate-900 rounded-2xl p-4 flex flex-col gap-4">
-              <div className="flex items-center justify-between border-b border-slate-900 pb-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">{label}</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-900 text-slate-500 font-mono font-bold border border-slate-800">{filteredCards.length}</span>
-              </div>
-
-              <div className="space-y-3 min-h-[250px]">
-                {filteredCards.map(card => (
-                  <div key={card.id} className="bg-slate-900/60 border border-slate-800/80 p-4 rounded-xl space-y-3 shadow-md hover:border-slate-700 transition-all group relative">
-                    <button onClick={() => handleDeleteApplication(card.id)} className="absolute top-4 right-4 text-slate-600 hover:text-red-400 hidden group-hover:block transition-colors">
-                      <Trash2 size={12} />
-                    </button>
-                    <div className="space-y-1">
-                      <h4 className="text-xs font-bold text-white tracking-wide truncate pr-4">{card.job_title}</h4>
-                      <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
-                        <Briefcase size={10} className="text-slate-500" />
-                        <span className="truncate">{card.company_name}</span>
-                      </div>
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <main className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 items-start">
+          {BOARD_COLUMNS.map((column) => {
+            const filteredCards = apps.filter((item) => item.status === column.key);
+            return (
+              <Droppable droppableId={column.key} key={column.key}>
+                {(provided, snapshot) => (
+                  <div className={`flex flex-col gap-4 rounded-2xl border p-4 transition-colors ${snapshot.isDraggingOver ? 'border-orange-500/40 bg-orange-500/5' : 'border-slate-900 bg-slate-900/20'}`}>
+                    <div className="flex items-center justify-between border-b border-slate-900 pb-2">
+                      <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
+                        <span className={`h-2 w-2 rounded-full ${column.dot}`} />
+                        {column.label}
+                      </span>
+                      <span className="rounded-full border border-slate-800 bg-slate-900 px-2 py-0.5 font-mono text-[10px] font-bold text-slate-500">
+                        {filteredCards.length}
+                      </span>
                     </div>
-                    {card.salary_range ? <p className="text-[10px] text-slate-500 font-mono">{card.salary_range}</p> : null}
 
-                    {columnKey === 'lead' && card.apply_url ? (
-                      <button
-                        onClick={() => handleApplyClick(card)}
-                        className="w-full inline-flex items-center justify-center gap-1.5 bg-emerald-600/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-600/20 text-[10px] font-semibold py-2 rounded-lg transition-colors"
-                      >
-                        <ExternalLink size={11} /> Apply &amp; Move to Applied
-                      </button>
-                    ) : (
-                      <div className="pt-2 border-t border-slate-900 flex justify-end gap-1">
-                        <select
-                          value={card.status}
-                          onChange={(e) => handleUpdateStatus(card.id, e.target.value as ApplicationItem['status'])}
-                          className="bg-slate-950 border border-slate-800 rounded px-1.5 py-0.5 text-[10px] text-slate-400 font-medium focus:outline-none"
-                        >
-                          <option value="lead">Move to Scraped Matches</option>
-                          <option value="applied">Move to Applied</option>
-                          <option value="interviewing">Move to Interview</option>
-                          <option value="offered">Move to Offered</option>
-                          <option value="rejected">Move to Archived</option>
-                        </select>
-                      </div>
-                    )}
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className="flex-1 space-y-3 min-h-[300px]"
+                    >
+                      {filteredCards.map((card, index) => (
+                        <Draggable key={card.id} draggableId={card.id} index={index}>
+                          {(dragProvided, dragSnapshot) => (
+                            <div
+                              ref={dragProvided.innerRef}
+                              {...dragProvided.draggableProps}
+                              {...dragProvided.dragHandleProps}
+                              style={dragProvided.draggableProps.style}
+                            >
+                              <div className={`group relative space-y-3 rounded-xl border p-4 shadow-md transition-all ${dragSnapshot.isDragging ? 'border-orange-500/60 bg-slate-800 shadow-2xl' : 'border-slate-800/80 bg-slate-900/60 hover:border-slate-700'}`}>
+                                <button
+                                  onClick={() => handleDeleteApplication(card.id)}
+                                  className="absolute top-4 right-4 hidden text-slate-600 transition-colors hover:text-red-400 group-hover:block"
+                                  aria-label={`Delete ${card.job_title}`}
+                                >
+                                  <Trash2 size={12} />
+                                </button>
+                                <div className="space-y-1">
+                                  <h4 className="truncate pr-4 text-xs font-bold tracking-wide text-white">
+                                    {card.job_title}
+                                  </h4>
+                                  <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                                    <Briefcase size={10} className="text-slate-500" />
+                                    <span className="truncate">{card.company_name}</span>
+                                  </div>
+                                  <p className="font-mono text-[10px] text-slate-500">
+                                    {formatAppliedDate(card.created_at)}
+                                  </p>
+                                </div>
+                                {card.salary_range ? (
+                                  <p className="font-mono text-[10px] text-slate-500">
+                                    {card.salary_range}
+                                  </p>
+                                ) : null}
+                                {column.key === 'lead' && card.apply_url ? (
+                                  <button
+                                    onClick={() => handleApplyClick(card)}
+                                    className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-600/10 py-2 text-[10px] font-semibold text-emerald-300 transition-colors hover:bg-emerald-600/20"
+                                  >
+                                    <ExternalLink size={11} /> Apply &amp; Move to Applied
+                                  </button>
+                                ) : null}
+                              </div>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                      {filteredCards.length === 0 ? (
+                        <p className="py-10 text-center text-[10px] italic text-slate-700">
+                          Drop a card here
+                        </p>
+                      ) : null}
+                    </div>
                   </div>
-                ))}
-                {filteredCards.length === 0 ? <p className="text-center text-[10px] text-slate-700 py-10 italic">Lane clear</p> : null}
-              </div>
-            </div>
-          );
-        })}
-      </main>
+                )}
+              </Droppable>
+            );
+          })}
+        </main>
+      </DragDropContext>
 
       <AIAssistant
         title="Job Tracker Copilot"

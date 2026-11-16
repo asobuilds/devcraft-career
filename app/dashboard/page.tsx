@@ -13,6 +13,7 @@ import {
   Users,
   Check,
   ArrowRight,
+  Download,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -83,6 +84,8 @@ export default function Dashboard() {
   const [completedSteps, setCompletedSteps] = useState<boolean[]>(
     checklistTasks.map(() => false)
   );
+  const [downloadingCv, setDownloadingCv] = useState(false);
+  const [cvDownloadError, setCvDownloadError] = useState('');
 
   const completedCount = completedSteps.filter(Boolean).length;
 
@@ -90,6 +93,81 @@ export default function Dashboard() {
     setCompletedSteps((prev) =>
       prev.map((done, i) => (i === index ? !done : done))
     );
+  };
+
+  const handleDownloadLatestCv = async () => {
+    setDownloadingCv(true);
+    setCvDownloadError('');
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Please sign in again to download your CV.');
+      }
+
+      const { data: resumeData, error: resumeError } = await supabase
+        .from('resumes')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (resumeError) throw resumeError;
+      if (!resumeData) {
+        throw new Error('No CV found yet. Build your CV first.');
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name, email, phone, website')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      const { pdf } = await import('@react-pdf/renderer');
+      const { default: PdfDocumentRouter } = await import(
+        '@/app/cv-builder/components/PdfDocumentRouter'
+      );
+
+      const skills = Array.isArray(resumeData.skills)
+        ? resumeData.skills.join(', ')
+        : typeof resumeData.skills === 'string'
+          ? resumeData.skills
+          : '';
+
+      const pdfDocument = (
+        <PdfDocumentRouter
+          theme={resumeData.active_template || 'modern-indigo'}
+          fullName={profile?.full_name || userProfile?.full_name || 'Your Name'}
+          email={profile?.email || user.email || ''}
+          phone={profile?.phone || ''}
+          website={profile?.website || ''}
+          summary={resumeData.summary || ''}
+          skills={skills}
+          experience={Array.isArray(resumeData.experience) ? resumeData.experience : []}
+        />
+      );
+
+      const blob = await pdf(pdfDocument).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const safeTitle = String(resumeData.resume_title || 'devcraft-cv')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+      link.href = url;
+      link.download = `${safeTitle || 'devcraft-cv'}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Could not export your CV.';
+      setCvDownloadError(message);
+    } finally {
+      setDownloadingCv(false);
+    }
   };
 
   useEffect(() => {
@@ -155,14 +233,27 @@ export default function Dashboard() {
           </h1>
           <p className="text-xs text-slate-500 mt-1">Account Session Status: Verified. Active.</p>
         </div>
-        {userProfile?.is_admin && (
-          <Link
-            href="/admin"
-            className="self-start text-[10px] bg-red-950/20 border border-red-900/30 text-red-400 px-3 py-1 rounded-md uppercase font-mono font-bold tracking-wider hover:bg-red-950/40"
+        <div className="flex flex-col items-start gap-2 sm:items-end">
+          <button
+            onClick={handleDownloadLatestCv}
+            disabled={downloadingCv}
+            className="inline-flex items-center gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 px-4 py-2.5 text-xs font-semibold text-orange-300 transition-colors hover:bg-orange-500/20 disabled:opacity-50"
           >
-            Open Admin Terminal
-          </Link>
-        )}
+            {downloadingCv ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+            {downloadingCv ? 'Preparing PDF...' : 'Download Latest CV'}
+          </button>
+          {cvDownloadError ? (
+            <span className="max-w-xs text-[10px] text-red-400">{cvDownloadError}</span>
+          ) : null}
+          {userProfile?.is_admin && (
+            <Link
+              href="/admin"
+              className="text-[10px] bg-red-950/20 border border-red-900/30 text-red-400 px-3 py-1 rounded-md uppercase font-mono font-bold tracking-wider hover:bg-red-950/40"
+            >
+              Open Admin Terminal
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Job-Ready Checklist */}

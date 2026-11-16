@@ -1,28 +1,22 @@
 'use client';
 
-import React, { lazy, Suspense } from 'react';
+import React from 'react';
 import CVPdfDocument from './CVPdfDocument';
+import CVPdfLagosCorporate from './CVPdfLagosCorporate';
+import CVPdfTechStack from './CVPdfTechStack';
 
-const PdfDocumentRouter = ({ theme, fullName, email, phone, website, summary, skills, experience }) => {
-  const PdfComponent = theme === 'lagos-corporate'
-    ? lazy(() => import('./CVPdfLagosCorporate'))
-    : theme === 'tech-stack'
-      ? lazy(() => import('./CVPdfTechStack'))
-      : CVPdfDocument;
+const PdfDocumentRouter = (props) => {
+  const { theme } = props;
 
-  return (
-    <Suspense fallback={<div>Loading PDF document...</div>}>
-      <PdfComponent
-        fullName={fullName}
-        email={email}
-        phone={phone}
-        website={website}
-        summary={summary}
-        skills={skills}
-        experience={experience}
-      />
-    </Suspense>
-  );
+  if (theme === 'lagos-corporate') {
+    return <CVPdfLagosCorporate {...props} />;
+  }
+
+  if (theme === 'tech-stack') {
+    return <CVPdfTechStack {...props} />;
+  }
+
+  return <CVPdfDocument {...props} />;
 };
 
 export default PdfDocumentRouter;
