@@ -29,59 +29,68 @@ async function extractTextFromFile(file: File): Promise<string> {
   return buffer.toString('utf-8');
 }
 
-const COMMON_KEYWORDS = [
-  'react', 'typescript', 'javascript', 'python', 'sql', 'node', 'aws', 'docker',
-  'agile', 'scrum', 'git', 'ci/cd', 'graphql', 'tailwind', 'next.js', 'testing',
-  'mongodb', 'postgresql', 'express', 'vue', 'angular', 'flask', 'django',
-  'kubernetes', 'linux', 'rest api', 'microservices', 'serverless', 'redis',
-  'finance', 'accounting', 'analyst', 'excel', 'leadership', 'communication'
-];
+const STOP_WORDS = new Set([
+  'a', 'an', 'and', 'are', 'as', 'at', 'be', 'been', 'but', 'by', 'can',
+  'could', 'did', 'do', 'does', 'doing', 'done', 'during', 'each', 'eg',
+  'for', 'from', 'further', 'had', 'has', 'have', 'having', 'he', 'her',
+  'here', 'hers', 'him', 'his', 'how', 'i', 'if', 'in', 'into', 'is',
+  'it', 'its', 'just', 'like', 'me', 'more', 'most', 'my', 'neither',
+  'nor', 'not', 'now', 'of', 'off', 'on', 'once', 'one', 'only', 'or',
+  'other', 'our', 'ours', 'ourselves', 'out', 'over', 'own', 'same',
+  'she', 'should', 'so', 'some', 'such', 'than', 'that', 'the', 'their',
+  'theirs', 'them', 'themselves', 'then', 'there', 'these', 'they',
+  'this', 'those', 'through', 'to', 'too', 'under', 'until', 'up', 'very',
+  'was', 'we', 'well', 'were', 'what', 'when', 'where', 'which', 'while',
+  'who', 'whom', 'why', 'will', 'with', 'would', 'you', 'your', 'yours',
+  'yourself', 'yourselves', 'the', 'job', 'role', 'position', 'company',
+  'work', 'team', 'candidate', 'candidates', 'years', 'year', 'month',
+  'months', 'day', 'days', 'week', 'weeks', 'time', 'times', 'new',
+  'full', 'part', 'time', 'based', 'remote', 'hybrid', 'on', 'site',
+  'minimum', 'less', 'plus', 'salary', 'negotiable', 'benefits', 'perks',
+  'etc', 'ie', 'vs', 'via', 'per', 'may', 'must', 'shall', 'should',
+  'could', 'would', 'will', 'can', 'must', 'need', 'able', 'required',
+  'preferred', 'nice', 'to', 'have', 'plus', 'or', 'and'
+]);
 
-function ruleBasedAnalysis(resumeText: string, jobDescription: string) {
-  const jobLower = jobDescription.toLowerCase();
+function extractKeywords(text: string): string[] {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s/]+/g, ' ')
+    .split(/\s+/)
+    .filter((word) => word.length > 3 && !STOP_WORDS.has(word));
+}
+
+function strictKeywordMatchScore(resumeText: string, jobDescription: string) {
+  const keywords = Array.from(new Set(extractKeywords(jobDescription)));
   const resumeLower = resumeText.toLowerCase();
 
-  const relevantKeywords = COMMON_KEYWORDS.filter((kw) => jobLower.includes(kw));
-  const passed: string[] = [];
-  const missing: string[] = [];
+  const matchedKeywords: string[] = [];
+  const missingKeywords: string[] = [];
 
-  if (relevantKeywords.length === 0) {
-    // extract words from job description if none of common match
-    const words = jobLower.replace(/[^\w\s]/g, '').split(/\s+/).filter((w) => w.length > 4);
-    const uniqueWords = Array.from(new Set(words)).slice(0, 15);
-    for (const w of uniqueWords) {
-      if (resumeLower.includes(w)) {
-        passed.push(w);
-      } else {
-        missing.push(w);
-      }
-    }
-  } else {
-    for (const kw of relevantKeywords) {
-      if (resumeLower.includes(kw)) {
-        passed.push(kw);
-      } else {
-        missing.push(kw);
-      }
+  for (const keyword of keywords) {
+    if (resumeLower.includes(keyword)) {
+      matchedKeywords.push(keyword);
+    } else {
+      missingKeywords.push(keyword);
     }
   }
 
-  const total = passed.length + missing.length;
-  const score = total > 0 ? Math.round((passed.length / total) * 100) : 65;
+  const total = matchedKeywords.length + missingKeywords.length;
+  const score = total > 0 ? Math.round((matchedKeywords.length / total) * 100) : 0;
 
   let feedback = '';
   if (score >= 75) {
-    feedback = 'Excellent alignment! Your resume closely matches the key requirements and keywords of the job description.';
+    feedback = 'Excellent keyword alignment. Your resume closely matches the job description.';
   } else if (score >= 50) {
-    feedback = 'Moderate match. Consider integrating more targeted keywords and action metrics to pass strict ATS filters.';
+    feedback = 'Moderate match. Consider adding the missing keywords naturally into your resume.';
   } else {
-    feedback = 'Low keyword overlap. Your resume is missing several critical technical terms mentioned in the job description.';
+    feedback = 'Low keyword overlap. Your resume is missing many key terms from the job description.';
   }
 
   return {
     score,
-    missingKeywords: missing,
-    passedKeywords: passed,
+    matchedKeywords,
+    missingKeywords,
     feedback,
   };
 }
@@ -96,7 +105,7 @@ ${jobDescription.slice(0, 4000)}
 Resume Text:
 ${resumeText.slice(0, 6000)}`;
 
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
+  const result = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -110,8 +119,8 @@ ${resumeText.slice(0, 6000)}`;
     }),
   });
 
-  if (!res.ok) throw new Error('Claude API error: ' + res.status);
-  const data = await res.json();
+  if (!result.ok) throw new Error('Claude API error: ' + result.status);
+  const data = await result.json();
   const text = data.content?.[0]?.text || '';
   const match = text.match(/\{[\s\S]*\}/);
   if (!match) throw new Error('Invalid JSON response from Claude');
@@ -129,7 +138,7 @@ Resume Text:
 ${resumeText.slice(0, 6000)}`;
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-  const res = await fetch(url, {
+  const result = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -137,8 +146,8 @@ ${resumeText.slice(0, 6000)}`;
     }),
   });
 
-  if (!res.ok) throw new Error('Gemini API error: ' + res.status);
-  const data = await res.json();
+  if (!result.ok) throw new Error('Gemini API error: ' + result.status);
+  const data = await result.json();
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
   const match = text.match(/\{[\s\S]*\}/);
   if (!match) throw new Error('Invalid JSON response from Gemini');
@@ -189,15 +198,20 @@ export async function POST(request: Request) {
 
     let analysis;
     try {
+      let aiAnalysis = null;
       if (ANTHROPIC_API_KEY) {
-        analysis = await analyzeWithClaude(resumeText, jobDescription);
+        aiAnalysis = await analyzeWithClaude(resumeText, jobDescription);
       } else if (GEMINI_API_KEY) {
-        analysis = await analyzeWithGemini(resumeText, jobDescription);
-      } else {
-        analysis = ruleBasedAnalysis(resumeText, jobDescription);
+        aiAnalysis = await analyzeWithGemini(resumeText, jobDescription);
       }
+
+      const strict = strictKeywordMatchScore(resumeText, jobDescription);
+      analysis = {
+        ...aiAnalysis,
+        ...strict,
+      };
     } catch {
-      analysis = ruleBasedAnalysis(resumeText, jobDescription);
+      analysis = strictKeywordMatchScore(resumeText, jobDescription);
     }
 
     return NextResponse.json({ success: true, ...analysis }, { status: 200 });
