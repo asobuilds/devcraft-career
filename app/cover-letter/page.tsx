@@ -9,6 +9,8 @@ interface Resume {
   id: string;
   resume_title: string;
   skills: string[];
+  summary?: string | null;
+  experience?: Array<Record<string, unknown>> | null;
   created_at: string;
 }
 
@@ -18,12 +20,25 @@ interface CoverLetterState {
   jobDescription: string;
   generatedCoverLetter: string | null;
   isGenerating: boolean;
-  showPdf: boolean;
+}
+
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (character) => {
+    const entities: Record<string, string> = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+    };
+    return entities[character];
+  });
 }
 
 export default function CoverLetterPage() {
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
   const [userSkills, setUserSkills] = useState<string[]>([]);
   const [isPremium, setIsPremium] = useState(false);
   const [state, setState] = useState<CoverLetterState>({
@@ -32,7 +47,6 @@ export default function CoverLetterPage() {
     jobDescription: '',
     generatedCoverLetter: null,
     isGenerating: false,
-    showPdf: false,
   });
 
   useEffect(() => {
@@ -57,12 +71,13 @@ export default function CoverLetterPage() {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('full_name, tech_stack, is_premium')
+        .select('full_name, email, tech_stack, is_premium')
         .eq('id', user.id)
         .maybeSingle();
 
       if (profile) {
         setUserName(profile.full_name || '');
+        setUserEmail(profile.email || '');
         setIsPremium(Boolean(profile.is_premium));
         setUserSkills(
           typeof profile.tech_stack === 'string'
@@ -83,19 +98,52 @@ export default function CoverLetterPage() {
       return;
     }
 
+    if (!jobDescription.trim()) {
+      alert('Please paste a job description first.');
+      return;
+    }
+
+    const selectedResume = resumeId
+      ? resumes.find((resume) => resume.id === resumeId)
+      : undefined;
+
+    const resumeData = selectedResume
+      ? {
+          name: userName || 'Candidate',
+          email: userEmail,
+          summary: selectedResume.summary || '',
+          skills: Array.isArray(selectedResume.skills) ? selectedResume.skills : [],
+          experience: Array.isArray(selectedResume.experience)
+            ? selectedResume.experience.map((entry) => {
+                const item = entry as Record<string, unknown>;
+                return {
+                  role: String(item.role ?? ''),
+                  company: String(item.company ?? ''),
+                  description: String(item.bullets ?? ''),
+                };
+              })
+            : [],
+        }
+      : {
+          name: userName || 'Candidate',
+          email: userEmail,
+          summary: '',
+          skills: skillsInput
+            .split(',')
+            .map((skill) => skill.trim())
+            .filter(Boolean),
+          experience: [],
+        };
+
     setState((prev) => ({ ...prev, isGenerating: true, generatedCoverLetter: null }));
 
     try {
-      const response = await fetch('/api/cover-letter', {
+      const response = await fetch('/api/generate-cover-letter', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          resumeId,
-          skillsInput,
-          jobDescription,
-        }),
+        body: JSON.stringify({ resumeData, jobDescription }),
       });
 
       const data = await response.json();
@@ -108,7 +156,6 @@ export default function CoverLetterPage() {
         ...prev,
         generatedCoverLetter: data.coverLetter,
         isGenerating: false,
-        showPdf: true,
       }));
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
@@ -116,20 +163,47 @@ export default function CoverLetterPage() {
       alert('Failed to generate cover letter: ' + (error.message || 'Unknown error'));
       setState((prev) => ({ ...prev, isGenerating: false }));
     }
-  }, [state]);
+  }, [state, resumes, userName, userEmail]);
 
   const handleDownloadPdf = useCallback(() => {
     const { generatedCoverLetter } = state;
     if (!generatedCoverLetter) return;
 
-    // Trigger download by creating a blob and simulating a click
-    const blob = new Blob([generatedCoverLetter], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'cover-letter.txt';
-    a.click();
-    URL.revokeObjectURL(url);
+    const existingFrame = document.getElementById('cover-letter-print-frame');
+    if (existingFrame) existingFrame.remove();
+
+    const frame = document.createElement('iframe');
+    frame.id = 'cover-letter-print-frame';
+    frame.style.position = 'fixed';
+    frame.style.right = '0';
+    frame.style.bottom = '0';
+    frame.style.width = '0';
+    frame.style.height = '0';
+    frame.style.border = '0';
+
+    frame.onload = () => {
+      frame.contentWindow?.focus();
+      frame.contentWindow?.print();
+      window.setTimeout(() => frame.remove(), 1000);
+    };
+
+    document.body.appendChild(frame);
+
+    const printDocument = frame.contentWindow?.document;
+    if (!printDocument) {
+      frame.remove();
+      return;
+    }
+
+    printDocument.open();
+    printDocument.write(
+      '<!doctype html><html><head><title>Cover Letter</title><style>' +
+        "@page { margin: 1in; } body { font-family: Georgia, 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; color: #111; white-space: pre-wrap; }" +
+        '</style></head><body>' +
+        escapeHtml(generatedCoverLetter) +
+        '</body></html>'
+    );
+    printDocument.close();
   }, [state]);
 
   const handleSkillsChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -143,7 +217,7 @@ export default function CoverLetterPage() {
   const handleResumeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     const resumeId = e.target.value || null;
     const resume = resumes.find((r) => r.id === resumeId);
-    const skillsInput = resume ? resume.skills.join(', ') : '';
+    const skillsInput = resume && Array.isArray(resume.skills) ? resume.skills.join(', ') : '';
     setState((prev) => ({ ...prev, resumeId, skillsInput }));
   }, [resumes]);
 
@@ -241,14 +315,6 @@ export default function CoverLetterPage() {
                   <polyline points="12 5 19 12 5 19"></polyline>
                 </svg> Download PDF
               </button>
-              {state.showPdf && (
-                <button className="rounded-full bg-slate-700 p-1">
-                  <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="3" y1="3" x2="21" y2="21"></line>
-                    <line x1="3" y1="21" x2="21" y2="3"></line>
-                  </svg> View PDF
-                </button>
-              )}
             </div>
           </div>
         )}

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import ScraperDemoWidget from './components/ScraperDemoWidget';
+import { supabase } from '@/lib/supabase';
 import {
   Sparkles,
   ChevronDown,
@@ -36,6 +37,7 @@ export default function HomeLandingPage() {
   const [rating, setRating] = useState(5);
   const [feedbackText, setFeedbackText] = useState('');
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [feedbackError, setFeedbackError] = useState('');
 
   const toggleFaq = (index: number) => {
     if (openFaqIndex === index) {
@@ -45,8 +47,23 @@ export default function HomeLandingPage() {
     }
   };
 
-  const handleFeedbackSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFeedbackSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!feedbackText.trim()) return;
+
+    setFeedbackError('');
+    const { data: { user } } = await supabase.auth.getUser();
+    const { error } = await supabase.from('feedback').insert({
+      user_id: user?.id ?? null,
+      rating,
+      message: feedbackText.trim(),
+    });
+
+    if (error) {
+      setFeedbackError('Could not submit feedback: ' + error.message);
+      return;
+    }
+
     setFeedbackSubmitted(true);
     setFeedbackText('');
   };
@@ -256,6 +273,7 @@ export default function HomeLandingPage() {
                   <button type="button" onClick={() => setRating(5)}><Star size={20} className={rating >= 5 ? 'text-amber-400' : 'text-slate-600'} fill={rating >= 5 ? 'currentColor' : 'none'} /></button>
                 </div>
                 <textarea value={feedbackText} onChange={(e) => setFeedbackText(e.target.value)} required placeholder="Tell us what you think..." className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-white resize-none h-24 focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+                {feedbackError ? <p className="text-xs text-red-400">{feedbackError}</p> : null}
                 <button type="submit" className="flex items-center gap-2 bg-orange-500 hover:bg-orange-400 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
                   <Send size={14} />
                   <span>Submit</span>

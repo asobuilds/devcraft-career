@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import { ArrowLeft, Save, Printer, Plus, Trash2, Loader2, Download, Layers, Lock, Sparkles, CreditCard, Briefcase, Eye, X, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Printer, Plus, Trash2, Loader2, Download, Layers, Lock, Sparkles, CreditCard, Briefcase, Eye, X, CheckCircle2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
 import JobMatchesPanel from '@/app/components/jobs/JobMatchesPanel';
@@ -21,7 +21,6 @@ import ProfilePhotoUploader from './components/ProfilePhotoUploader';
 import AIInterviewGuide from './components/AIInterviewGuide';
 import CertificateUploader from './components/CertificateUploader';
 import PdfDocumentRouter from './components/PdfDocumentRouter';
-import CVPdfDocument from './components/CVPdfDocument'; // eslint-disable-line no-unused-vars
 
 interface ExperienceItem {
   id: string;
@@ -46,11 +45,12 @@ export default function CVBuilder() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [resumeId, setResumeId] = useState<string | null>(null);
   const [isPremium, setIsPremium] = useState<boolean>(false);
   const [avatarUrl, setAvatarUrl] = useState<string>('');
   const [allowPhoto, setAllowPhoto] = useState<boolean>(false);
   const [showGuide, setShowGuide] = useState<boolean>(false);
-  const [attachments, setAttachments] = useState<any[]>([]);
+  const [attachments, setAttachments] = useState<Record<string, unknown>[]>([]);
   const [toast, setToast] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
 
   const [resumeTitle, setResumeTitle] = useState('My Professional CV');
@@ -93,6 +93,7 @@ export default function CVBuilder() {
 
         const { data: cv } = await supabase.from('resumes').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
         if (cv) {
+          setResumeId(cv.id);
           setResumeTitle(cv.resume_title || 'My Professional CV');
           setSummary(cv.summary || '');
           setSkills(cv.skills ? cv.skills.join(', ') : '');
@@ -170,12 +171,57 @@ export default function CVBuilder() {
     setSaving(true);
     setToast(null);
     try {
-      await supabase.from('profiles').upsert({ id: userId, full_name: fullName, email, phone, website, updated_at: new Date().toISOString() });
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert(
+          {
+            id: userId,
+            full_name: fullName,
+            email,
+            phone,
+            website,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'id' }
+        );
+
+      if (profileError) {
+        setToast({ type: 'error', message: 'Could not save profile: ' + profileError.message });
+        return;
+      }
+
       const skillsArray = skills.split(',').map((s) => s.trim()).filter(Boolean);
-      await supabase.from('resumes').upsert({ user_id: userId, resume_title: resumeTitle, summary, skills: skillsArray, experience, active_template: theme, attachments, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+      const resumePayload = {
+        id: resumeId ?? undefined,
+        user_id: userId,
+        resume_title: resumeTitle,
+        summary,
+        skills: skillsArray,
+        experience,
+        active_template: theme,
+        attachments,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { data: savedResume, error: resumeError } = await supabase
+        .from('resumes')
+        .upsert(resumePayload, { onConflict: 'id' })
+        .select('id')
+        .maybeSingle();
+
+      if (resumeError) {
+        setToast({ type: 'error', message: 'Could not save CV: ' + resumeError.message });
+        return;
+      }
+
+      if (savedResume?.id) {
+        setResumeId(savedResume.id);
+      }
+
       setToast({ type: 'success', message: 'Document saved successfully!' });
-    } catch (error: any) {
-      setToast({ type: 'error', message: 'Server database error: ' + error.message });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      setToast({ type: 'error', message: 'Server database error: ' + message });
     } finally {
       setSaving(false);
     }

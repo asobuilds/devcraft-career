@@ -14,6 +14,7 @@ export default function ATSAnalyzer() {
   const [feedback, setFeedback] = useState('');
   const [error, setError] = useState('');
 
+  const [userId, setUserId] = useState<string | null>(null);
   const [userName, setUserName] = useState('');
   const [userSkills, setUserSkills] = useState<string[]>([]);
   const [isPremium, setIsPremium] = useState(false);
@@ -22,6 +23,25 @@ export default function ATSAnalyzer() {
     const loadProfile = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+      setUserId(user.id);
+
+      const { data: latestScan } = await supabase
+        .from('ats_scans')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (latestScan) {
+        setResumeText(latestScan.resume_text || '');
+        setJobDescription(latestScan.job_description || '');
+        setScore(typeof latestScan.score === 'number' ? latestScan.score : null);
+        setMissingKeywords(
+          Array.isArray(latestScan.missing_keywords) ? latestScan.missing_keywords : []
+        );
+        setFeedback(latestScan.feedback || '');
+      }
 
       const { data: profile } = await supabase
         .from('profiles')
@@ -65,9 +85,27 @@ export default function ATSAnalyzer() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Analysis failed');
 
+      const nextMissingKeywords = Array.isArray(data.missingKeywords) ? data.missingKeywords : [];
+      const nextFeedback = data.feedback || '';
+
       setScore(data.score ?? null);
-      setMissingKeywords(Array.isArray(data.missingKeywords) ? data.missingKeywords : []);
-      setFeedback(data.feedback || '');
+      setMissingKeywords(nextMissingKeywords);
+      setFeedback(nextFeedback);
+
+      if (userId) {
+        const { error: saveError } = await supabase.from('ats_scans').insert({
+          user_id: userId,
+          resume_text: resumeText,
+          job_description: jobDescription,
+          score: typeof data.score === 'number' ? data.score : null,
+          missing_keywords: nextMissingKeywords,
+          feedback: nextFeedback,
+        });
+
+        if (saveError) {
+          console.error('Failed to save ATS scan:', saveError);
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Analysis failed');
     } finally {

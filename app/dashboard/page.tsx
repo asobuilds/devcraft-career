@@ -203,9 +203,12 @@ export default function Dashboard() {
                   >
                     <Check size={13} strokeWidth={3} />
                   </button>
-                  <span className={`text-sm ${done ? 'text-slate-500 line-through' : 'text-slate-200'}`}>
+                  <Link
+                    href={task.href}
+                    className={`flex-1 text-sm ${done ? 'text-slate-500 line-through' : 'text-slate-200'}`}
+                  >
                     {task.label}
-                  </span>
+                  </Link>
                   <Link
                     href={task.href}
                     className="ml-auto shrink-0 text-[11px] font-semibold text-orange-400 hover:text-orange-300"
