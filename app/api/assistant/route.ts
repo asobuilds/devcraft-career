@@ -30,13 +30,13 @@ const bodySchema = z.object({
 });
 
 function buildSystemPrompt(context: z.infer<typeof contextSchema>) {
-  const userName = context.userName?.trim() || 'the user';
+  const userName = context.userName?.trim() || 'General User';
   const premiumLabel = context.isPremium ? 'Premium' : 'Free';
   const page = context.page || 'career workspace';
   const skills =
     context.userSkills && context.userSkills.length > 0
       ? context.userSkills.join(', ')
-      : 'not provided yet';
+      : 'No skills provided';
 
   const sections: string[] = [
     'PERSONA',

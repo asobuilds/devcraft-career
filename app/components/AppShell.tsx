@@ -14,8 +14,12 @@ const PUBLIC_ROUTES = [
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const normalizedPath =
+    pathname && pathname.length > 1 ? pathname.replace(/\/+$/, '') : '/';
   const isPublicRoute =
-    PUBLIC_ROUTES.includes(pathname) || pathname.startsWith('/p/');
+    normalizedPath === '/' ||
+    PUBLIC_ROUTES.includes(normalizedPath) ||
+    normalizedPath.startsWith('/p/');
 
   if (isPublicRoute) {
     return (
