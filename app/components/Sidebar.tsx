@@ -101,7 +101,7 @@ export default function Sidebar() {
                     href={item.href}
                     onClick={() => setIsMenuOpen(false)}
                     className={`flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-colors ${
-                      isActive ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                      isActive ? 'bg-orange-500/10 text-orange-400 border-r-2 border-orange-500' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                     }`}
                   >
                     <item.icon size={20} strokeWidth={1.5} />
@@ -149,7 +149,7 @@ export default function Sidebar() {
                 key={item.name}
                 href={item.href}
                 className={`flex items-center gap-2 px-2.5 py-1.5 rounded-sm text-xs font-medium whitespace-nowrap transition-colors ${
-                  isActive ? 'bg-slate-800 text-white' : 'text-slate-300 hover:text-slate-100 hover:bg-slate-800/60'
+                  isActive ? 'bg-orange-500/10 text-orange-400 border-r-2 border-orange-500' : 'text-slate-300 hover:text-slate-100 hover:bg-slate-800/60'
                 }`}
               >
                 <item.icon size={16} strokeWidth={1.5} />
