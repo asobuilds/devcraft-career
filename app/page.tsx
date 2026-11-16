@@ -9,6 +9,12 @@ import {
   Star,
   Send,
   ArrowRight,
+  FileText,
+  Paperclip,
+  Zap,
+  Bell,
+  Building2,
+  Gift,
 } from 'lucide-react';
 
 const faqData = [
@@ -97,8 +103,9 @@ export default function HomeLandingPage() {
         </div>
       </section>
 
-        <section id="how-it-works" className="max-w-5xl mx-auto px-6 py-16 border-t border-slate-900 scroll-mt-20">
+        <section id="how-it-works" className="max-w-5xl mx-auto px-6 py-16 border-t border-slate-900 scroll-mt-20 bg-black/50">
           <div className="text-center max-w-xl mx-auto mb-12 space-y-2">
+            <span className="text-emerald-400 font-mono text-sm uppercase tracking-widest">How It Works</span>
             <h2 className="text-2xl sm:text-3xl font-bold text-white">How It Works</h2>
             <p className="text-slate-400 text-sm">Four simple steps, explained plainly.</p>
           </div>
@@ -126,43 +133,53 @@ export default function HomeLandingPage() {
           </div>
         </section>
 
-        <section id="features" className="max-w-5xl mx-auto px-6 py-16 border-t border-slate-900 scroll-mt-20">
+        <section id="features" className="max-w-5xl mx-auto px-6 py-16 border-t border-slate-900 scroll-mt-20 bg-slate-950">
           <div className="text-center max-w-xl mx-auto mb-12 space-y-2">
+            <span className="text-emerald-400 font-mono text-sm uppercase tracking-widest">Features</span>
             <h2 className="text-2xl sm:text-3xl font-bold text-white">What You Get</h2>
             <p className="text-slate-400 text-sm">Everything you need to find and land a job, in one place.</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
+              <FileText size={20} className="text-indigo-400 mb-3" />
               <h3 className="text-sm font-semibold text-white">Multiple CV Templates</h3>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">Choose from several designs, with or without a photo.</p>
             </div>
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
+              <Paperclip size={20} className="text-cyan-400 mb-3" />
               <h3 className="text-sm font-semibold text-white">Attach Certificates</h3>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">Add your results, certificates, and other documents to your CV.</p>
             </div>
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
+              <Zap size={20} className="text-emerald-400 mb-3" />
               <h3 className="text-sm font-semibold text-white">Automatic Job Matching</h3>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">We search the internet for jobs that fit your skills.</p>
             </div>
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
+              <Bell size={20} className="text-amber-400 mb-3" />
               <h3 className="text-sm font-semibold text-white">Instant Alerts</h3>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">Get notified the moment a matching job is found.</p>
             </div>
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
+              <Building2 size={20} className="text-purple-400 mb-3" />
               <h3 className="text-sm font-semibold text-white">Private and Government Jobs</h3>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">We look across all kinds of work, not just tech jobs.</p>
             </div>
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
+              <Gift size={20} className="text-pink-400 mb-3" />
               <h3 className="text-sm font-semibold text-white">Completely Free</h3>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">Build your CV and get matched, at no cost.</p>
             </div>
           </div>
         </section>
 
-        <ScraperDemoWidget />
+        <div className="shadow-[0_0_30px_rgba(16,185,129,0.15)] border-emerald-500/30">
+          <ScraperDemoWidget />
+        </div>
 
         <section id="faq" className="max-w-3xl mx-auto px-6 py-16 border-t border-slate-900 scroll-mt-20">
           <div className="text-center max-w-xl mx-auto mb-10 space-y-2">
+            <span className="text-emerald-400 font-mono text-sm uppercase tracking-widest">FAQ</span>
             <h2 className="text-2xl sm:text-3xl font-bold text-white">Frequently Asked Questions</h2>
             <p className="text-slate-400 text-sm">Everything explained simply.</p>
           </div>
@@ -189,6 +206,7 @@ export default function HomeLandingPage() {
 
         <section id="reviews" className="max-w-5xl mx-auto px-6 py-16 border-t border-slate-900 scroll-mt-20">
           <div className="text-center max-w-xl mx-auto mb-10 space-y-2">
+            <span className="text-emerald-400 font-mono text-sm uppercase tracking-widest">Reviews</span>
             <h2 className="text-2xl sm:text-3xl font-bold text-white">What Users Are Saying</h2>
           </div>
           <div className="grid sm:grid-cols-3 gap-6 mb-12">
@@ -234,14 +252,15 @@ export default function HomeLandingPage() {
         </section>
 
         <section id="about" className="max-w-3xl mx-auto px-6 py-16 border-t border-slate-900 scroll-mt-20 text-center">
+          <span className="text-emerald-400 font-mono text-sm uppercase tracking-widest block mb-4">About</span>
           <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">About This Project</h2>
           <p className="text-slate-400 text-sm leading-relaxed">
             DevCraft Career was built by Aso, a programmer and solution builder from Abuja, Nigeria, with a simple goal: make it easier for anyone to build a professional CV and find real job opportunities, without needing expensive tools or connections.
           </p>
         </section>
 
-        <footer className="border-t border-slate-900 px-6 py-8 text-center">
-          <p className="text-[11px] text-slate-600">
+        <footer className="border-t border-slate-800 bg-black px-6 py-8 text-center">
+          <p className="text-[11px] text-slate-500">
             © 2026 DevCraft Career. Built to help everyone find their next opportunity.
           </p>
         </footer>

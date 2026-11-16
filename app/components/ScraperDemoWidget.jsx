@@ -64,9 +64,7 @@ export default function ScraperDemoWidget() {
   return (
     <section className="max-w-3xl mx-auto px-6 py-16 border-t border-slate-900 scroll-mt-20">
       <div className="text-center max-w-xl mx-auto mb-8 space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 text-xs font-semibold mb-2">
-          <Radar size={14} /> Live Demo
-        </div>
+        <span className="text-emerald-400 font-mono text-sm uppercase tracking-widest block">Live Demo</span>
         <h2 className="text-2xl sm:text-3xl font-bold text-white">See the Scraper Work</h2>
         <p className="text-slate-400 text-sm">Type a job title and watch it search real job boards, live, right now.</p>
       </div>
