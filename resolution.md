@@ -69,6 +69,8 @@
 | Gemini | `app/api/cron-scraper/route.js` | main | 2026-11-16T00:30:00Z | active |
 | Gemini | `app/api/analyze-resume/route.ts` | main | 2026-11-16T00:30:00Z | active |
 | Gemini | `app/api/analyze-resume/route.ts` | main | 2026-11-16T01:00:00Z | active |
+| Gemini | `supabase/migrations/0015_kanban_tracker.sql` | main | 2026-11-16T01:30:00Z | active |
+| Gemini | `app/api/tracker/route.ts` | main | 2026-11-16T01:30:00Z | active |
 | Gemini | `app/analyzer/page.tsx` | main | 2026-11-16T00:30:00Z | active |
 | Gemini | `app/tracker/page.tsx` | main | 2026-11-16T00:30:00Z | active |
 | Gemini | `app/components/Sidebar.tsx` | main | 2026-11-15T22:00:00Z | active |
@@ -164,6 +166,7 @@
 - `2026-11-16T00:00:00Z` — `OpenCode` — Replaced all `.single()` Supabase calls with `.maybeSingle()` and added null guards where required to resolve 406 Not Acceptable errors on profile lookups.
 - `2026-11-16T00:30:00Z` — `Gemini` — Created migration 0013 for core tables (resumes, portfolios, ats_scans, feedback) and secured source-leads, cron-scraper, and analyze-resume API routes with Supabase session auth.
 - `2026-11-16T01:00:00Z` — `Gemini` — Replaced rule-based ATS scoring with strict keyword extraction from job description and resume match ratio.
+- `2026-11-16T01:30:00Z` — `Gemini` — Added migration 0015 for Kanban tracker status column/index and created authenticated tracker API route for status updates.
 
 # Resolution & File Claims
 
