@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Loader2, FileText, Briefcase, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Loader2, FileText, Briefcase, Sparkles, AlertCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import AIAssistant from '@/app/components/AIAssistant';
 
@@ -175,7 +175,7 @@ export default function ATSAnalyzer() {
 
           {/* Results */}
           <div className="bg-slate-900/30 border border-slate-800 rounded-2xl p-6 space-y-6">
-            {!score && !analyzing ? (
+            {score === null && !analyzing ? (
               <div className="h-full flex flex-col items-center justify-center text-center text-slate-500 space-y-3 min-h-[200px]">
                 <Sparkles size={24} className="opacity-50" />
                 <p className="text-sm font-medium">Ready to analyze</p>
@@ -187,35 +187,87 @@ export default function ATSAnalyzer() {
                 <p className="text-sm text-slate-400">Running AI-powered matching...</p>
               </div>
             ) : (
-              <div className="space-y-5">
-                {/* Score Card */}
+              <div className="space-y-6">
                 {(() => {
-                  const displayScore = score ?? 0;
+                  const displayScore = Math.max(0, Math.min(100, score ?? 0));
+                  const radius = 64;
+                  const circumference = 2 * Math.PI * radius;
+                  const dashOffset = circumference - (displayScore / 100) * circumference;
+                  const scoreColor =
+                    displayScore >= 80
+                      ? 'text-emerald-400'
+                      : displayScore >= 50
+                        ? 'text-amber-400'
+                        : 'text-red-400';
+                  const scoreStroke =
+                    displayScore >= 80
+                      ? '#34d399'
+                      : displayScore >= 50
+                        ? '#fbbf24'
+                        : '#f87171';
+
                   return (
                     <>
-                      <div className="flex items-center gap-4 pb-5 border-b border-slate-800">
-                        <div className={`h-16 w-16 rounded-full border-2 flex items-center justify-center text-lg font-black ${
-                          displayScore >= 75 ? 'border-green-500 text-green-400 bg-green-500/10' :
-                          displayScore >= 50 ? 'border-yellow-500 text-yellow-400 bg-yellow-500/10' :
-                          'border-red-500 text-red-400 bg-red-500/10'
-                        }`}>
-                          {displayScore}%
+                      {/* Score Ring */}
+                      <div className="flex flex-col items-center text-center pb-6 border-b border-slate-800">
+                        <div className="relative h-40 w-40">
+                          <svg
+                            viewBox="0 0 160 160"
+                            className="h-full w-full -rotate-90"
+                            role="img"
+                            aria-label={`ATS match score ${displayScore} percent`}
+                          >
+                            <circle
+                              cx="80"
+                              cy="80"
+                              r={radius}
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="12"
+                              className="text-slate-800"
+                            />
+                            <circle
+                              cx="80"
+                              cy="80"
+                              r={radius}
+                              fill="none"
+                              stroke={scoreStroke}
+                              strokeWidth="12"
+                              strokeLinecap="round"
+                              strokeDasharray={circumference}
+                              strokeDashoffset={dashOffset}
+                              className="transition-all duration-700 ease-out"
+                            />
+                          </svg>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center">
+                            <span className={`text-4xl font-black ${scoreColor}`}>
+                              {displayScore}%
+                            </span>
+                            <span className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                              Match
+                            </span>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-xs font-bold text-white uppercase tracking-wider">Match Score</p>
-                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">{feedback}</p>
-                        </div>
+                        <p className={`mt-4 text-lg font-bold ${scoreColor}`}>
+                          {displayScore}% Match
+                        </p>
+                        <p className="mt-1 max-w-md text-xs leading-relaxed text-slate-400">
+                          {feedback}
+                        </p>
                       </div>
 
                       {/* Missing Keywords */}
                       <div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-3 flex items-center gap-1.5">
-                          <CheckCircle2 size={12} className="text-emerald-500" /> Missing Keywords ({missingKeywords.length})
+                        <span className="mb-3 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                          <AlertCircle size={12} className="text-red-400" /> Missing Keywords ({missingKeywords.length})
                         </span>
                         {missingKeywords.length > 0 ? (
-                          <div className="flex flex-wrap gap-1.5">
+                          <div className="grid grid-cols-2 gap-2">
                             {missingKeywords.map((kw, i) => (
-                              <span key={i} className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-300 text-[10px] px-2.5 py-1 rounded-md font-mono">
+                              <span
+                                key={i}
+                                className="truncate rounded-md border border-red-500/20 bg-red-500/10 px-2.5 py-1.5 text-center font-mono text-[11px] text-red-400"
+                              >
                                 {kw}
                               </span>
                             ))}
