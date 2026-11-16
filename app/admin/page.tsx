@@ -25,7 +25,7 @@ export default function AdminTerminal() {
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (!profile || !profile.is_admin) {
         router.push('/dashboard');

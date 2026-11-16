@@ -53,6 +53,17 @@
 | Gemini | `app/analyzer/page.tsx` | main | 2026-11-15T23:45:00Z | active |
 | Gemini | `app/cover-letter/page.tsx` | main | 2026-11-15T23:45:00Z | active |
 | Gemini | `app/tracker/page.tsx` | main | 2026-11-15T23:45:00Z | active |
+| OpenCode | `app/cv-builder/page.tsx` | main | 2026-11-16T00:00:00Z | active |
+| OpenCode | `app/admin/page.tsx` | main | 2026-11-16T00:00:00Z | active |
+| OpenCode | `app/admin/logs/page.tsx` | main | 2026-11-16T00:00:00Z | active |
+| OpenCode | `app/interview-prep/page.jsx` | main | 2026-11-16T00:00:00Z | active |
+| OpenCode | `app/portfolio-builder/page.jsx` | main | 2026-11-16T00:00:00Z | active |
+| OpenCode | `app/resumes/page.tsx` | main | 2026-11-16T00:00:00Z | active |
+| OpenCode | `app/cv-builder/import/page.jsx` | main | 2026-11-16T00:00:00Z | active |
+| OpenCode | `app/tracker/page.tsx` | main | 2026-11-16T00:00:00Z | active |
+| OpenCode | `app/api/route.js` | main | 2026-11-16T00:00:00Z | active |
+| OpenCode | `app/api/cron-scraper/route.js` | main | 2026-11-16T00:00:00Z | active |
+| OpenCode | `app/api/source-leads/route.js` | main | 2026-11-16T00:00:00Z | active |
 | Gemini | `app/components/Sidebar.tsx` | main | 2026-11-15T22:00:00Z | active |
 
 ---
@@ -143,6 +154,7 @@
 - `2026-11-15T23:15:00Z` — `OpenCode` — Applied Naija Modern design system to landing page: hero Unsplash background with dark overlay, orange-500 primary accents, emerald trust colors, local copy/FAQ, and black footer with orange border + flag.
 - `2026-11-15T23:30:00Z` — `Gemini` — Updated Sidebar active state and Dashboard primary accents to Naija Modern orange/emerald palette.
 - `2026-11-15T23:45:00Z` — `Gemini` — Localized internal tool page copy for ATS Analyzer, Cover Letter, and Tracker to Naija Modern brand voice.
+- `2026-11-16T00:00:00Z` — `OpenCode` — Replaced all `.single()` Supabase calls with `.maybeSingle()` and added null guards where required to resolve 406 Not Acceptable errors on profile lookups.
 
 # Resolution & File Claims
 

@@ -76,10 +76,16 @@ export default function ImportResume() {
           website: parsed.website || '',
         })
         .select('id')
-        .single();
+        .maybeSingle();
 
       if (insertError) {
         setErrorMessage('Could not save the imported resume: ' + insertError.message);
+        setUploading(false);
+        return;
+      }
+
+      if (!inserted) {
+        setErrorMessage('Could not save the imported resume. Please try again.');
         setUploading(false);
         return;
       }

@@ -82,7 +82,7 @@ export default function CVBuilder() {
       setUserId(user.id);
 
       try {
-        const { data: profile } = await supabase.from('profiles').select('full_name, email, phone, website, is_premium').eq('id', user.id).single();
+        const { data: profile } = await supabase.from('profiles').select('full_name, email, phone, website, is_premium').eq('id', user.id).maybeSingle();
         if (profile) {
           setFullName(profile.full_name || '');
           setEmail(profile.email || '');

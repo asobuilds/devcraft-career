@@ -26,7 +26,7 @@ export default function AdminLogs() {
         router.push('/login');
         return;
       }
-      const { data: profile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single();
+      const { data: profile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).maybeSingle();
       if (!profile || !profile.is_admin) {
         router.push('/dashboard');
         return;

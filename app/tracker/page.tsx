@@ -121,7 +121,7 @@ export default function JobTracker() {
       .from('job_applications')
       .insert([newRow])
       .select()
-      .single();
+      .maybeSingle();
 
     if (!error && data) {
       setApps([...apps, data as ApplicationItem]);

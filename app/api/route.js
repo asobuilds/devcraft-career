@@ -14,9 +14,9 @@ export async function POST(request) {
       .from('profiles')
       .select('is_premium, full_name, tech_stack')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
 
-    if (profileError || !profile) {
+      if (profileError || !profile) {
       return NextResponse.json({ error: 'Profile lookup execution error' }, { status: 404 });
     }
 

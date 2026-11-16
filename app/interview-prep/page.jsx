@@ -33,7 +33,7 @@ export default function InterviewPrep() {
       }
       setUserId(user.id);
 
-      const { data: profile } = await supabase.from('profiles').select('tech_stack').eq('id', user.id).single();
+      const { data: profile } = await supabase.from('profiles').select('tech_stack').eq('id', user.id).maybeSingle();
       if (profile && profile.tech_stack) {
         setSkills(profile.tech_stack);
       }

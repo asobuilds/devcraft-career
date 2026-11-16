@@ -56,11 +56,16 @@ export default function ResumesLibrary() {
         attachments: [],
       })
       .select('id')
-      .single();
+      .maybeSingle();
     setCreating(false);
 
     if (error) {
       alert('Could not create a new resume: ' + error.message);
+      return;
+    }
+
+    if (!data) {
+      alert('Could not create a new resume. Please try again.');
       return;
     }
 
@@ -72,9 +77,9 @@ export default function ResumesLibrary() {
       .from('resumes')
       .select('*')
       .eq('id', resumeId)
-      .single();
+      .maybeSingle();
 
-    if (fetchError || !original) {
+      if (fetchError || !original) {
       alert('Could not load that resume to duplicate.');
       return;
     }
@@ -88,14 +93,19 @@ export default function ResumesLibrary() {
         resume_title: (original.resume_title || 'Untitled Resume') + ' (Copy)',
       })
       .select('id')
-      .single();
+      .maybeSingle();
 
-    if (insertError) {
-      alert('Could not duplicate: ' + insertError.message);
-      return;
-    }
+      if (insertError) {
+        alert('Could not duplicate: ' + insertError.message);
+        return;
+      }
 
-    setResumes((prev) => [
+      if (!inserted) {
+        alert('Could not duplicate: no data returned. Please try again.');
+        return;
+      }
+
+      setResumes((prev) => [
       { id: inserted.id, resume_title: copyFields.resume_title + ' (Copy)', updated_at: new Date().toISOString(), target_role: original.target_role },
       ...prev,
     ]);
