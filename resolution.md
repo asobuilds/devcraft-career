@@ -43,6 +43,7 @@
 | Gemini | `app/api/directory/route.ts` | main | 2026-11-15T21:15:00Z | active |
 | Gemini | `supabase/migrations/0010_final_rls_fix.sql` | main | 2026-11-15T21:30:00Z | active |
 | Gemini | `supabase/migrations/0011_comprehensive_profiles_recon_fix.sql` | main | 2026-11-15T21:45:00Z | active |
+| Gemini | `supabase/migrations/0012_force_profiles_rebuild.sql` | main | 2026-11-15T22:30:00Z | active |
 | Gemini | `app/components/Sidebar.tsx` | main | 2026-11-15T19:45:00Z | active |
 | Gemini | `app/components/Sidebar.tsx` | main | 2026-11-15T22:00:00Z | active |
 
@@ -129,6 +130,7 @@
 - `2026-11-05T12:49:05Z` — `OpenCode` — Human terminated Gemini (API crashes) and authorized OpenCode to take over Zone B. Approved change request to edit Zone C `tsconfig.json` (exclude `supabase/functions/**`). Claimed `tsconfig.json`, `supabase/functions/jooble-jobs/index.ts`, and `documentation/features/backend-jobs.md`.
 - `2026-11-05T12:50:42Z` — `OpenCode` — Zone B takeover complete: excluded `supabase/functions/**` in `tsconfig.json`, rewrote the `jooble-jobs` Edge Function (JOOBLE_API_KEY secret, CORS, GET/POST, 429 handling), and verified `npm run build` with Supabase env supplied. Committing as `feat(opencode): finish backend jooble function and tsconfig fix`.
 - `2026-11-15T22:00:00Z` — `Gemini` — Added NEW badges to Sidebar `ATS Analyzer` and `Cover Letter` links and switched active nav state to `bg-slate-800 text-white` in both mobile drawer and desktop rail.
+- `2026-11-15T22:30:00Z` — `Gemini` — Created `supabase/migrations/0012_force_profiles_rebuild.sql` to drop/recreate `profiles`, reset grants/policies, re-enable RLS, and reload PostgREST schema.
 
 # Resolution & File Claims
 
