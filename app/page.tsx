@@ -52,42 +52,39 @@ export default function HomeLandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div className="relative isolate min-h-screen bg-slate-950 text-slate-100">
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.06]"
+        style={{
+          backgroundImage:
+            'linear-gradient(to right, rgba(255,255,255,0.8) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.8) 1px, transparent 1px)',
+          backgroundSize: '56px 56px',
+        }}
+      />
+
       <section
         id="hero"
-        className="relative overflow-hidden scroll-mt-10 border-b border-slate-900"
+        className="relative isolate overflow-hidden scroll-mt-10 border-b border-slate-900 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black"
       >
         <div
-          className="absolute inset-0 -z-10 bg-cover bg-center"
+          className="pointer-events-none absolute inset-0 -z-10 opacity-[0.08]"
           style={{
             backgroundImage:
-              'url(https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2070&auto=format&fit=crop)',
-          }}
-        />
-        <div className="absolute inset-0 -z-10 bg-black/70" />
-        <div
-          className="pointer-events-none absolute inset-0 -z-10"
-          style={{
-            backgroundImage:
-              'linear-gradient(to bottom, rgba(2,6,23,0.95) 0%, rgba(2,6,23,0.6) 40%, rgba(2,6,23,0.3) 70%, rgba(2,6,23,0.95) 100%)',
-          }}
-        />
-        <div
-          className="pointer-events-none absolute inset-0 -z-10 opacity-10"
-          style={{
-            backgroundImage:
-              'linear-gradient(to right, rgba(148,163,184,0.18) 1px, transparent 1px), linear-gradient(to bottom, rgba(148,163,184,0.18) 1px, transparent 1px)',
-            backgroundSize: '44px 44px',
+              'linear-gradient(to right, rgba(255,255,255,0.9) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.9) 1px, transparent 1px)',
+            backgroundSize: '48px 48px',
             maskImage:
-              'radial-gradient(ellipse 70% 60% at 50% 0%, #000 50%, transparent 100%)',
+              'radial-gradient(ellipse 70% 60% at 50% 0%, #000 45%, transparent 100%)',
             WebkitMaskImage:
-              'radial-gradient(ellipse 70% 60% at 50% 0%, #000 50%, transparent 100%)',
+              'radial-gradient(ellipse 70% 60% at 50% 0%, #000 45%, transparent 100%)',
           }}
         />
 
-        <div className="max-w-4xl mx-auto px-6 pt-24 pb-20 text-center space-y-7">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 backdrop-blur-md text-orange-300 text-xs font-semibold shadow-lg shadow-orange-950/40">
-            <Sparkles size={14} />
+        <div className="pointer-events-none absolute top-0 left-1/4 -z-10 h-96 w-96 rounded-full bg-orange-500/20 blur-[128px] animate-pulse motion-reduce:animate-none [animation-duration:9s]" />
+        <div className="pointer-events-none absolute bottom-0 right-1/4 -z-10 h-96 w-96 rounded-full bg-emerald-500/10 blur-[128px] animate-pulse motion-reduce:animate-none [animation-duration:11s]" />
+
+        <div className="relative z-10 max-w-4xl mx-auto px-6 pt-24 pb-20 text-center space-y-7">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-orange-400/40 bg-orange-500/15 backdrop-blur-md text-orange-200 text-xs font-semibold shadow-[0_0_45px_-10px_rgba(249,115,22,0.65)] ring-1 ring-orange-400/20">
+            <Sparkles size={14} className="text-orange-400" />
             <span>Build once. Get matched. Get hired.</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-white leading-[1.1]">
