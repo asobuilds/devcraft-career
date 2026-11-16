@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Terminal, Search, Loader2, CheckCircle2, ArrowRight, Radar } from 'lucide-react';
+import { Terminal, Search, Loader2, CheckCircle2, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 const DEMO_LOG_STEPS = [
@@ -54,7 +54,7 @@ export default function ScraperDemoWidget() {
         setResults(result.jobs || []);
         setScanning(false);
       }, 500);
-    } catch (error) {
+    } catch {
       clearInterval(logInterval);
       setErrorMessage('Something went wrong. Please try again.');
       setScanning(false);
@@ -68,6 +68,8 @@ export default function ScraperDemoWidget() {
         <h2 className="text-2xl sm:text-3xl font-bold text-white">See the Scraper Work</h2>
         <p className="text-slate-400 text-sm">Type a job title and watch it search real job boards, live, right now.</p>
       </div>
+
+      <h3 className="text-center text-sm font-semibold text-emerald-300 mb-3">Try it now. See real jobs.</h3>
 
       <div className="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
         <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-900 bg-slate-900/60">
@@ -89,7 +91,7 @@ export default function ScraperDemoWidget() {
             <button
               onClick={handleTestScraper}
               disabled={scanning || !jobTitle.trim()}
-              className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors disabled:opacity-50 animate-pulse motion-reduce:animate-none [animation-duration:3s]"
             >
               {scanning ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
               Test Scraper
@@ -116,7 +118,7 @@ export default function ScraperDemoWidget() {
           {results !== null ? (
             <div className="space-y-2 pt-2">
               {results.length === 0 ? (
-                <p className="text-xs text-slate-500">No live matches for that title right now — try a broader term like "developer" or "engineer".</p>
+                <p className="text-xs text-slate-500">No live matches for that title right now — try a broader term like &quot;developer&quot; or &quot;engineer&quot;.</p>
               ) : (
                 results.map(function (job, index) {
                   return (

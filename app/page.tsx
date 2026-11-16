@@ -26,9 +26,9 @@ const faqData = [
 ];
 
 const testimonials = [
-  { name: 'Amaka O.', role: 'Frontend Developer', text: 'I built my CV in ten minutes and got matched to a remote job within a week.' },
-  { name: 'Tunde A.', role: 'Data Analyst', text: 'The job alerts actually match my skills. I no longer scroll through jobs that do not fit me.' },
-  { name: 'Chiamaka N.', role: 'Recent Graduate', text: 'Being able to attach my certificates made my CV feel complete and professional.' },
+  { name: 'Amaka O.', role: 'Frontend Developer (Lagos)', text: 'I built my CV in ten minutes. Got an interview at a fintech in Yaba within a week.' },
+  { name: 'Tunde A.', role: 'Data Analyst (Abuja)', text: 'The job alerts matched me to a remote analytics role at a health-tech startup, so I stopped scrolling irrelevant boards.' },
+  { name: 'Chiamaka N.', role: 'Recent Graduate (Enugu)', text: 'Attaching my NYSC discharge certificate and transcripts took one click and made my CV feel complete.' },
 ];
 
 export default function HomeLandingPage() {
@@ -104,36 +104,45 @@ export default function HomeLandingPage() {
             <a href="#how-it-works" className="px-6 py-3 rounded-xl border border-white/15 bg-white/5 backdrop-blur-md text-slate-200 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors">
               See how it works
             </a>
+            <p className="w-full text-slate-500 text-xs mt-3">
+              No credit card required • Free forever plan
+            </p>
           </div>
         </div>
       </section>
 
         <section id="how-it-works" className="max-w-5xl mx-auto px-6 py-16 border-t border-slate-900 scroll-mt-20 bg-black/50">
           <div className="text-center max-w-xl mx-auto mb-12 space-y-2">
-            <span className="text-emerald-400 font-mono text-sm uppercase tracking-widest">How It Works</span>
+            <span className="text-emerald-400 font-mono text-sm uppercase tracking-widest">The Journey</span>
             <h2 className="text-2xl sm:text-3xl font-bold text-white">How It Works</h2>
             <p className="text-slate-400 text-sm">Four simple steps, explained plainly.</p>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
-              <span className="text-2xl font-bold text-orange-500/40">1</span>
-              <h3 className="text-sm font-semibold text-white mt-2">Build your CV</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Fill in your details, work history, and skills using our simple builder.</p>
-            </div>
-            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
-              <span className="text-2xl font-bold text-orange-500/40">2</span>
-              <h3 className="text-sm font-semibold text-white mt-2">Pick a template</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Choose a CV design that fits the Nigerian role you want, with or without a photo.</p>
-            </div>
-            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
-              <span className="text-2xl font-bold text-orange-500/40">3</span>
-              <h3 className="text-sm font-semibold text-white mt-2">We scan Nigerian job boards</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Our system searches local platforms, government portals, and company career pages for matches.</p>
-            </div>
-            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
-              <span className="text-2xl font-bold text-orange-500/40">4</span>
-              <h3 className="text-sm font-semibold text-white mt-2">You get notified</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">When a matching role is found, you receive a message with the direct application link.</p>
+          <div className="relative">
+            <div
+              className="pointer-events-none absolute left-0 right-0 top-6 hidden border-t border-slate-800 lg:block"
+              aria-hidden="true"
+            />
+            <div className="relative grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="flex flex-col items-center text-center">
+                <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-slate-800 bg-slate-950 text-lg font-bold text-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.15)]">1</div>
+                <h3 className="mt-4 text-sm font-semibold text-white">Build your CV</h3>
+                <p className="mt-2 text-xs text-slate-400 leading-relaxed">Fill in your details, work history, and skills using our simple builder.</p>
+              </div>
+              <div className="flex flex-col items-center text-center">
+                <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-slate-800 bg-slate-950 text-lg font-bold text-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.15)]">2</div>
+                <h3 className="mt-4 text-sm font-semibold text-white">Pick a template</h3>
+                <p className="mt-2 text-xs text-slate-400 leading-relaxed">Choose a design that fits the Nigerian role you want, with or without a photo.</p>
+              </div>
+              <div className="flex flex-col items-center text-center">
+                <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-slate-800 bg-slate-950 text-lg font-bold text-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.15)]">3</div>
+                <h3 className="mt-4 text-sm font-semibold text-white">We scan Nigerian job boards</h3>
+                <p className="mt-2 text-xs text-slate-400 leading-relaxed">Our system searches local platforms, government portals, and company career pages for matches.</p>
+              </div>
+              <div className="flex flex-col items-center text-center">
+                <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-slate-800 bg-slate-950 text-lg font-bold text-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.15)]">4</div>
+                <h3 className="mt-4 text-sm font-semibold text-white">You get notified</h3>
+                <p className="mt-2 text-xs text-slate-400 leading-relaxed">When a matching role is found, you receive a message with the direct application link.</p>
+              </div>
             </div>
           </div>
         </section>
@@ -147,33 +156,33 @@ export default function HomeLandingPage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
               <FileText size={20} className="text-orange-400 mb-3" />
-              <h3 className="text-sm font-semibold text-white">Multiple CV Templates</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Choose from several professional designs, with or without a photo.</p>
+              <h3 className="text-sm font-semibold text-white">Beat the ATS</h3>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Our templates are parsed correctly by Nigerian and international ATS systems.</p>
             </div>
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
               <Paperclip size={20} className="text-cyan-400 mb-3" />
-              <h3 className="text-sm font-semibold text-white">Attach Your NYSC Certificate & Documents</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Upload your NYSC certificate, degree, transcripts, and other proof of qualifications.</p>
+              <h3 className="text-sm font-semibold text-white">One-Click NYSC &amp; Certificates</h3>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Upload your NYSC discharge certificate, degrees, and results directly to your CV.</p>
             </div>
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
               <Zap size={20} className="text-emerald-400 mb-3" />
-              <h3 className="text-sm font-semibold text-white">Automatic Job Matching</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">We search Nigerian job boards for roles that fit your skills.</p>
+              <h3 className="text-sm font-semibold text-white">Jobs That Actually Fit You</h3>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">We scan Nigerian job boards so you only see roles you are qualified for.</p>
             </div>
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
               <Bell size={20} className="text-amber-400 mb-3" />
-              <h3 className="text-sm font-semibold text-white">Instant Alerts</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Get notified the moment a matching role is found.</p>
+              <h3 className="text-sm font-semibold text-white">Never Miss a Match</h3>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Get pinged the moment a matching role goes live, with the apply link ready.</p>
             </div>
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
               <Building2 size={20} className="text-purple-400 mb-3" />
-              <h3 className="text-sm font-semibold text-white">Private & Government Jobs</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">We scan private companies, federal and state agencies, and freelance platforms.</p>
+              <h3 className="text-sm font-semibold text-white">Private, Government &amp; Freelance</h3>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">One search covers companies, federal and state agencies, and freelance platforms.</p>
             </div>
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
               <Gift size={20} className="text-emerald-400 mb-3" />
-              <h3 className="text-sm font-semibold text-white">Completely Free</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Build your CV and get matched, at no cost.</p>
+              <h3 className="text-sm font-semibold text-white">Free Forever</h3>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Build your CV and get matched at no cost. No credit card, no paywall.</p>
             </div>
           </div>
         </section>
