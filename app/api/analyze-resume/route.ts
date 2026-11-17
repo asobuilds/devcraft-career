@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { PDFParse } from 'pdf-parse';
 import mammoth from 'mammoth';
 import { supabase } from '@/lib/supabase';
-import { generateObject } from 'ai';
+import { generateText } from 'ai';
 import { z } from 'zod';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 
@@ -143,7 +143,8 @@ Each suggestion MUST have exactly three fields:
 - original: The exact line from the user's resume that needs improvement.
 - improved: The exact rewritten line that includes the missing keyword(s) and uses strong action verbs with metrics, following the XYZ formula: Accomplished [X] as measured by [Y], by doing [Z].
 - reason: A brief explanation of why this change helps, for example "Added the missing keyword 'Docker' and quantified the impact".
-Constraints: Do NOT invent experience. Only use information present in the original resume. If a keyword is missing but the user has related experience, suggest how to reframe it. If the user has no related experience, list it as a gap to learn.`;
+Constraints: Do NOT invent experience. Only use information present in the original resume. If a keyword is missing but the user has related experience, suggest how to reframe it. If the user has no related experience, list it as a gap to learn.
+Return ONLY a valid JSON object. Do not include any text before or after the JSON. Do not use markdown code fences.`;
 
   const prompt = `Job Description:
 ${jobDescription.slice(0, 4000)}
@@ -151,14 +152,33 @@ ${jobDescription.slice(0, 4000)}
 Resume Text:
 ${resumeText.slice(0, 6000)}`;
 
-  const { object } = await generateObject({
+  const { text } = await generateText({
     model,
-    schema: analysisSchema,
     system,
     prompt,
   });
 
-  return object;
+  let jsonString = text.trim();
+  if (jsonString.startsWith('```json')) {
+    jsonString = jsonString.replace(/^```json\n?/, '').replace(/\n?```$/, '');
+  } else if (jsonString.startsWith('```')) {
+    jsonString = jsonString.replace(/^```\n?/, '').replace(/\n?```$/, '');
+  }
+
+  const firstBrace = jsonString.indexOf('{');
+  const lastBrace = jsonString.lastIndexOf('}');
+  if (firstBrace === -1 || lastBrace === -1) {
+    throw new Error('AI did not return JSON');
+  }
+  jsonString = jsonString.substring(firstBrace, lastBrace + 1);
+
+  try {
+    const parsed = JSON.parse(jsonString);
+    return analysisSchema.parse(parsed);
+  } catch (error) {
+    console.error('[Analyze Resume] Failed to parse AI JSON:', error);
+    throw new Error('AI did not return valid JSON');
+  }
 }
 
 export async function POST(request: Request) {
@@ -222,7 +242,7 @@ export async function POST(request: Request) {
       }
 
       if (!aiAnalysis) {
-        return NextResponse.json({ error: 'All AI providers failed. Please try again.' }, { status: 500 });
+        return NextResponse.json({ error: 'All AI providers failed.' }, { status: 500 });
       }
 
       analysis = {
@@ -232,7 +252,7 @@ export async function POST(request: Request) {
     } catch (error) {
       console.error('[Analyze Resume] All providers failed:', error);
       return NextResponse.json(
-        { error: 'All AI providers failed. Please try again.' },
+        { error: 'All AI providers failed.' },
         { status: 500 }
       );
     }
