@@ -82,6 +82,7 @@
 | OpenCode | `app/cv-builder/page.tsx` | main | 2026-11-16T02:30:00Z | active |
 | OpenCode | `app/tracker/page.tsx` | main | 2026-11-16T03:30:00Z | active |
 | Gemini | `supabase/migrations/0017_seed_directory.sql` | main | 2026-11-16T03:00:00Z | active |
+| Gemini | `app/api/assistant/route.ts` | main | 2026-11-16T04:00:00Z | active |
 | Gemini | `app/analyzer/page.tsx` | main | 2026-11-16T00:30:00Z | active |
 | Gemini | `app/tracker/page.tsx` | main | 2026-11-16T00:30:00Z | active |
 | Gemini | `app/components/Sidebar.tsx` | main | 2026-11-15T22:00:00Z | active |
@@ -182,6 +183,7 @@
 - `2026-11-16T02:30:00Z` — `OpenCode` — Fixed portfolio tech_stack array formatting and ensured CV builder save uses active Supabase session.
 - `2026-11-16T03:30:00Z` — `OpenCode` — Polished Kanban tracker UI with sticky column headers, status dots, count badges, premium hover effects, and orange drag placeholders.
 - `2026-11-16T03:00:00Z` — `Gemini` — Seeded public directory with 5 demo candidate profiles.
+- `2026-11-16T04:00:00Z` — `Gemini` — Added AI assistant fallback stream when OPENAI_API_KEY is missing and logged Zod validation errors.
 
 # Resolution & File Claims
 

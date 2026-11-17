@@ -1,4 +1,4 @@
-import { convertToModelMessages, streamText, type UIMessage } from 'ai';
+import { convertToModelMessages, createUIMessageStream, streamText, type UIMessage } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
 
@@ -104,10 +104,16 @@ function buildSystemPrompt(context: z.infer<typeof contextSchema>) {
 
 export async function POST(req: Request) {
   if (!process.env.OPENAI_API_KEY) {
-    return Response.json(
-      { error: 'AI assistant is not configured. Set OPENAI_API_KEY.' },
-      { status: 503 }
-    );
+    const stream = createUIMessageStream({
+      execute: async ({ writer }) => {
+        writer.write({
+          type: 'text-delta',
+          id: 'offline',
+          delta: 'AI is currently offline. Please add your OPENAI_API_KEY to the environment.',
+        });
+      },
+    });
+    return new Response(stream);
   }
 
   let rawBody: unknown;
@@ -130,6 +136,14 @@ export async function POST(req: Request) {
 
   const parsed = bodySchema.safeParse(rawBody);
   if (!parsed.success) {
+    console.error(
+      '[AI Assistant] Zod validation failed:',
+      parsed.error.issues.map((issue) => ({
+        path: issue.path.join('.'),
+        message: issue.message,
+        code: issue.code,
+      }))
+    );
     return Response.json(
       {
         error:
