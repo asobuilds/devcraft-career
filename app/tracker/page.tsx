@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, Plus, Trash2, Loader2, Briefcase, Terminal, ExternalLink, CheckCircle2, Radar, X, AlertCircle, Sparkles } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Loader2, Briefcase, Terminal, ExternalLink, CheckCircle2, Radar, X, AlertCircle, Sparkles, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd';
 import AIAssistant from '@/app/components/AIAssistant';
@@ -472,12 +472,12 @@ export default function JobTracker() {
               <Droppable droppableId={column.key} key={column.key}>
                 {(provided, snapshot) => (
                   <div className={`flex flex-col gap-4 rounded-2xl border p-4 transition-colors ${snapshot.isDraggingOver ? 'border-orange-500/40 bg-orange-500/5' : 'border-slate-900 bg-slate-900/20'}`}>
-                    <div className="flex items-center justify-between border-b border-slate-900 pb-2">
+                    <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-800 bg-slate-950/95 px-2 pb-3 backdrop-blur-md">
                       <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
                         <span className={`h-2 w-2 rounded-full ${column.dot}`} />
                         {column.label}
                       </span>
-                      <span className="rounded-full border border-slate-800 bg-slate-900 px-2 py-0.5 font-mono text-[10px] font-bold text-slate-500">
+                      <span className="rounded-full border border-orange-500/20 bg-orange-500/10 px-2.5 py-0.5 font-mono text-[10px] font-bold text-orange-300">
                         {filteredCards.length}
                       </span>
                     </div>
@@ -496,7 +496,7 @@ export default function JobTracker() {
                               {...dragProvided.dragHandleProps}
                               style={dragProvided.draggableProps.style}
                             >
-                              <div className={`group relative space-y-3 rounded-xl border p-4 shadow-md transition-all ${dragSnapshot.isDragging ? 'border-orange-500/60 bg-slate-800 shadow-2xl' : 'border-slate-800/80 bg-slate-900/60 hover:border-slate-700'}`}>
+                              <div className={`group relative space-y-3 rounded-xl border p-4 shadow-md transition-all ${dragSnapshot.isDragging ? 'border-orange-500/60 bg-slate-800 shadow-2xl' : 'border-slate-800/80 bg-slate-900/60 hover:border-orange-500/50 hover:shadow-lg'}`}>
                                 <button
                                   onClick={() => handleDeleteApplication(card.id)}
                                   className="absolute top-4 right-4 hidden text-slate-600 transition-colors hover:text-red-400 group-hover:block"
@@ -505,14 +505,15 @@ export default function JobTracker() {
                                   <Trash2 size={12} />
                                 </button>
                                 <div className="space-y-1">
-                                  <h4 className="truncate pr-4 text-xs font-bold tracking-wide text-white">
-                                    {card.job_title}
-                                  </h4>
+                                  <p className="truncate pr-4 text-sm font-bold text-white">
+                                    {card.company_name}
+                                  </p>
                                   <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
                                     <Briefcase size={10} className="text-slate-500" />
-                                    <span className="truncate">{card.company_name}</span>
+                                    <span className="truncate">{card.job_title}</span>
                                   </div>
-                                  <p className="font-mono text-[10px] text-slate-500">
+                                  <p className="flex items-center gap-1 font-mono text-[10px] text-slate-500">
+                                    <Calendar size={10} className="text-slate-600" />
                                     {formatAppliedDate(card.created_at)}
                                   </p>
                                 </div>

@@ -80,6 +80,7 @@
 | Gemini | `agent.md` | main | 2026-11-16T02:00:00Z | active |
 | OpenCode | `app/portfolio-builder/page.jsx` | main | 2026-11-16T02:30:00Z | active |
 | OpenCode | `app/cv-builder/page.tsx` | main | 2026-11-16T02:30:00Z | active |
+| OpenCode | `app/tracker/page.tsx` | main | 2026-11-16T03:30:00Z | active |
 | Gemini | `supabase/migrations/0017_seed_directory.sql` | main | 2026-11-16T03:00:00Z | active |
 | Gemini | `app/analyzer/page.tsx` | main | 2026-11-16T00:30:00Z | active |
 | Gemini | `app/tracker/page.tsx` | main | 2026-11-16T00:30:00Z | active |
@@ -179,6 +180,7 @@
 - `2026-11-16T01:30:00Z` — `Gemini` — Added migration 0015 for Kanban tracker status column/index and created authenticated tracker API route for status updates.
 - `2026-11-16T02:00:00Z` — `Gemini` — Removed all backend premium gates, deleted Paystack webhook and fix-database page, and updated README/agent docs to reflect a 100% free platform.
 - `2026-11-16T02:30:00Z` — `OpenCode` — Fixed portfolio tech_stack array formatting and ensured CV builder save uses active Supabase session.
+- `2026-11-16T03:30:00Z` — `OpenCode` — Polished Kanban tracker UI with sticky column headers, status dots, count badges, premium hover effects, and orange drag placeholders.
 - `2026-11-16T03:00:00Z` — `Gemini` — Seeded public directory with 5 demo candidate profiles.
 
 # Resolution & File Claims
