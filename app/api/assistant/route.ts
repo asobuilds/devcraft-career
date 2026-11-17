@@ -1,8 +1,6 @@
 import {
-  convertToModelMessages,
   createUIMessageStream,
   streamText,
-  type UIMessage,
 } from 'ai';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { z } from 'zod';
@@ -209,8 +207,33 @@ export async function POST(req: Request) {
   }
 
   const payload = parsed.data;
-  const modelMessages = await convertToModelMessages(payload.messages as UIMessage[]);
   const systemPrompt = buildSystemPrompt(payload.context ?? {});
+
+  const sanitizeMessages = (messages: unknown[]) =>
+    messages
+      .map((message) => {
+        if (!message || typeof message !== 'object') return null;
+
+        const msg = message as { role?: string; parts?: unknown };
+        const role = msg.role === 'assistant' ? 'assistant' : 'user';
+
+        let content = '';
+        if (Array.isArray(msg.parts)) {
+          content = msg.parts
+            .filter((part): part is { type: string; text?: string } =>
+              Boolean(part) && typeof part === 'object' && (part as Record<string, unknown>).type === 'text'
+            )
+            .map((part) => (typeof part.text === 'string' ? part.text : ''))
+            .join('');
+        }
+
+        return { role, content: content.trim() };
+      })
+      .filter((message): message is { role: string; content: string } =>
+        Boolean(message && message.content.length > 0)
+      );
+
+  const sanitizedMessages = sanitizeMessages(payload.messages);
 
   for (const provider of PROVIDER_MODELS) {
     if (!provider.key) {
@@ -222,7 +245,7 @@ export async function POST(req: Request) {
       const result = streamText({
         model: provider.model,
         system: systemPrompt,
-        messages: modelMessages,
+        messages: sanitizedMessages as Array<{ role: 'user' | 'assistant'; content: string }>,
       });
       return result.toUIMessageStreamResponse();
     } catch (error) {
