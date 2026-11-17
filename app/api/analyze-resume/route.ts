@@ -122,7 +122,7 @@ async function analyzeWithProvider(
   model: (typeof PROVIDER_MODELS)[number]['model'],
   resumeText: string,
   jobDescription: string
-): Promise<{ score?: number; matchedKeywords?: string[]; missingKeywords?: string[]; feedback?: string }> {
+): Promise<{ score?: number; matchedKeywords?: string[]; missingKeywords?: string[]; feedback?: string } | null> {
   const prompt = `You are an expert ATS (Applicant Tracking System) resume analyzer. Compare the following resume text against the job description and return ONLY valid JSON in this exact format:
 {"score": number (0-100), "matchedKeywords": ["string"], "missingKeywords": ["string"], "feedback": "string"}
 
@@ -138,16 +138,27 @@ ${resumeText.slice(0, 6000)}`;
   });
 
   const text = result.text || '';
-  const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error('Invalid JSON response from AI provider');
-  const parsed = JSON.parse(match[0]);
+  console.log('[Analyze Resume] Raw AI response:', text);
 
-  return {
-    score: typeof parsed.score === 'number' ? parsed.score : undefined,
-    matchedKeywords: Array.isArray(parsed.matchedKeywords) ? parsed.matchedKeywords : undefined,
-    missingKeywords: Array.isArray(parsed.missingKeywords) ? parsed.missingKeywords : undefined,
-    feedback: typeof parsed.feedback === 'string' ? parsed.feedback : undefined,
-  };
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) {
+    console.error('[Analyze Resume] AI response did not contain a JSON object.');
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(match[0]);
+
+    return {
+      score: typeof parsed.score === 'number' ? parsed.score : undefined,
+      matchedKeywords: Array.isArray(parsed.matchedKeywords) ? parsed.matchedKeywords : undefined,
+      missingKeywords: Array.isArray(parsed.missingKeywords) ? parsed.missingKeywords : undefined,
+      feedback: typeof parsed.feedback === 'string' ? parsed.feedback : undefined,
+    };
+  } catch (error) {
+    console.error('[Analyze Resume] Failed to parse AI JSON:', error);
+    return null;
+  }
 }
 
 export async function POST(request: Request) {
@@ -211,7 +222,12 @@ export async function POST(request: Request) {
       }
 
       analysis = {
-        ...aiAnalysis,
+        ...(aiAnalysis ?? {
+          score: 50,
+          matchedKeywords: [],
+          missingKeywords: [],
+          feedback: 'AI returned invalid format. Please try again.',
+        }),
         ...strict,
       };
     } catch (error) {
