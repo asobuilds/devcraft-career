@@ -126,9 +126,10 @@ export default function ATSAnalyzer() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-6 font-sans">
-      <div className={`mx-auto flex w-full transition-all duration-300 ${isAiOpen ? 'xl:w-[calc(100%-420px)]' : 'w-full'}`}>
-        <div className="w-full max-w-4xl space-y-8">
-          <header className="pb-6 border-b border-slate-900">
+      <div className="flex w-full min-h-[calc(100vh-3rem)] gap-0">
+        <div className={isAiOpen ? "flex-1 lg:w-[calc(100%-420px)] transition-all duration-300 pr-4" : "flex-1 transition-all duration-300 pr-4"}>
+          <div className="w-full max-w-4xl mx-auto space-y-8">
+            <header className="pb-6 border-b border-slate-900">
             <h1 className="text-xl font-bold text-white">Beat the ATS Bot</h1>
             <p className="text-xs text-slate-500 mt-1">Our system analyzes your CV against specific job descriptions (both local and international) to ensure you get past the automated screening.</p>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-400">
@@ -338,17 +339,34 @@ export default function ATSAnalyzer() {
             </div>
           </main>
         </div>
+        </div>
+
+        {isAiOpen ? (
+          <div className="w-[400px] shrink-0 hidden lg:block">
+            <AIAssistant
+              title="ATS Analyzer Copilot"
+              triggerLabel="Ask AI for Advice"
+              prompt="Review my resume against this job description and tell me how to improve my match."
+              context={{ page: 'analyzer', resumeText, jobDescription }}
+              userName={userName}
+              userSkills={userSkills}
+              forceOpen
+            />
+          </div>
+        ) : null}
       </div>
 
-      <AIAssistant
-        title="ATS Analyzer Copilot"
-        triggerLabel="Ask AI for Advice"
-        prompt="Review my resume against this job description and tell me how to improve my match."
-        context={{ page: 'analyzer', resumeText, jobDescription }}
-        userName={userName}
-        userSkills={userSkills}
-        onOpenChange={setIsAiOpen}
-      />
+      {!isAiOpen ? (
+        <AIAssistant
+          title="ATS Analyzer Copilot"
+          triggerLabel="Ask AI for Advice"
+          prompt="Review my resume against this job description and tell me how to improve my match."
+          context={{ page: 'analyzer', resumeText, jobDescription }}
+          userName={userName}
+          userSkills={userSkills}
+          onOpenChange={setIsAiOpen}
+        />
+      ) : null}
     </div>
   );
 }

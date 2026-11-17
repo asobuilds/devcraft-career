@@ -17,6 +17,7 @@ export interface AIAssistantProps {
   userName: string;
   userSkills: string[];
   onOpenChange?: (open: boolean) => void;
+  forceOpen?: boolean;
 }
 
 export default function AIAssistant({
@@ -27,10 +28,13 @@ export default function AIAssistant({
   userName,
   userSkills,
   onOpenChange,
+  forceOpen,
 }: AIAssistantProps) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
   const [input, setInput] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const open = forceOpen ?? internalOpen;
 
   const [transport] = useState(
     () =>
@@ -72,8 +76,10 @@ export default function AIAssistant({
   };
 
   const handleOpen = () => {
-    setOpen(true);
-    onOpenChange?.(true);
+    if (!forceOpen) {
+      setInternalOpen(true);
+      onOpenChange?.(true);
+    }
     if (messages.length === 0) {
       send(prompt);
     }
@@ -89,7 +95,7 @@ export default function AIAssistant({
 
   return (
     <>
-      {!open && (
+      {!open && !forceOpen && (
         <button
           type="button"
           onClick={handleOpen}
@@ -119,8 +125,10 @@ export default function AIAssistant({
           <button
             type="button"
             onClick={() => {
-              setOpen(false);
-              onOpenChange?.(false);
+              if (!forceOpen) {
+                setInternalOpen(false);
+                onOpenChange?.(false);
+              }
             }}
             className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
             aria-label="Close assistant"
