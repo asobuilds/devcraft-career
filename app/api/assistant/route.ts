@@ -1,5 +1,10 @@
-import { convertToModelMessages, createUIMessageStream, streamText, type UIMessage } from 'ai';
-import { openai } from '@ai-sdk/openai';
+import {
+  convertToModelMessages,
+  createUIMessageStream,
+  streamText,
+  type UIMessage,
+} from 'ai';
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
@@ -102,20 +107,31 @@ function buildSystemPrompt(context: z.infer<typeof contextSchema>) {
   return sections.join('\n\n');
 }
 
-export async function POST(req: Request) {
-  if (!process.env.OPENAI_API_KEY) {
-    const stream = createUIMessageStream({
-      execute: async ({ writer }) => {
-        writer.write({
-          type: 'text-delta',
-          id: 'offline',
-          delta: 'AI is currently offline. Please add your OPENAI_API_KEY to the environment.',
-        });
-      },
-    });
-    return new Response(stream);
-  }
+const groq = createOpenAICompatible({
+  name: 'groq',
+  baseURL: 'https://api.groq.com/openai/v1',
+  apiKey: process.env.GROQ_API_KEY || '',
+});
 
+const gemini = createOpenAICompatible({
+  name: 'gemini',
+  baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai/',
+  apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '',
+});
+
+const agnes = createOpenAICompatible({
+  name: 'agnes',
+  baseURL: 'https://api.agnes-ai.cn/v1',
+  apiKey: process.env.AGNES_API_KEY || '',
+});
+
+const PROVIDER_MODELS = [
+  { name: 'Groq', model: groq('llama-3.3-70b-versatile'), key: process.env.GROQ_API_KEY },
+  { name: 'Gemini', model: gemini('gemini-2.0-flash'), key: process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY },
+  { name: 'Agnes', model: agnes('agnes-3.0-flash'), key: process.env.AGNES_API_KEY },
+];
+
+export async function POST(req: Request) {
   let rawBody: unknown;
   try {
     rawBody = await req.json();
@@ -157,12 +173,36 @@ export async function POST(req: Request) {
   }
 
   const payload = parsed.data;
+  const modelMessages = await convertToModelMessages(payload.messages as UIMessage[]);
+  const systemPrompt = buildSystemPrompt(payload.context ?? {});
 
-  const result = streamText({
-    model: openai('gpt-4o-mini'),
-    system: buildSystemPrompt(payload.context ?? {}),
-    messages: await convertToModelMessages(payload.messages as UIMessage[]),
+  for (const provider of PROVIDER_MODELS) {
+    if (!provider.key) {
+      console.warn(`[AI Assistant] ${provider.name} skipped: missing API key`);
+      continue;
+    }
+
+    try {
+      const result = streamText({
+        model: provider.model,
+        system: systemPrompt,
+        messages: modelMessages,
+      });
+      return result.toUIMessageStreamResponse();
+    } catch (error) {
+      console.error(`[AI Assistant] ${provider.name} failed:`, error);
+    }
+  }
+
+  const fallbackStream = createUIMessageStream({
+    execute: async ({ writer }) => {
+      writer.write({
+        type: 'text-delta',
+        id: 'fallback',
+        delta: 'All AI providers are currently unavailable. Please try again later.',
+      });
+    },
   });
 
-  return result.toUIMessageStreamResponse();
+  return new Response(fallbackStream);
 }
