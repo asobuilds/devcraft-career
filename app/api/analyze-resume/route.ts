@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { PDFParse } from 'pdf-parse';
 import mammoth from 'mammoth';
 import { supabase } from '@/lib/supabase';
-import { generateText, Output } from 'ai';
+import { generateObject } from 'ai';
 import { z } from 'zod';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 
@@ -151,14 +151,14 @@ ${jobDescription.slice(0, 4000)}
 Resume Text:
 ${resumeText.slice(0, 6000)}`;
 
-  const result = await generateText({
+  const { object } = await generateObject({
     model,
+    schema: analysisSchema,
     system,
     prompt,
-    output: Output.object({ schema: analysisSchema }),
   });
 
-  return result.output;
+  return object;
 }
 
 export async function POST(request: Request) {
@@ -222,7 +222,7 @@ export async function POST(request: Request) {
       }
 
       if (!aiAnalysis) {
-        return NextResponse.json({ error: 'All AI providers failed' }, { status: 500 });
+        return NextResponse.json({ error: 'All AI providers failed. Please try again.' }, { status: 500 });
       }
 
       analysis = {
@@ -232,7 +232,7 @@ export async function POST(request: Request) {
     } catch (error) {
       console.error('[Analyze Resume] All providers failed:', error);
       return NextResponse.json(
-        { error: 'All AI providers are currently unavailable. Please try again later.' },
+        { error: 'All AI providers failed. Please try again.' },
         { status: 500 }
       );
     }
