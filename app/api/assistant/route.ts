@@ -49,7 +49,9 @@ function buildSystemPrompt(context: z.infer<typeof contextSchema>) {
     `The user's name is ${userName}. They have the following skills: ${skills}.`,
     '',
     'PAGE CONTEXT',
-    `They are currently on the ${page} page.`,
+    page === 'tracker'
+      ? 'They are currently on the Job Tracker page, a Kanban board where they can see all their job applications grouped into Wishlist, Applied, Interviewing, Offer, and Rejected columns.'
+      : `They are currently on the ${page} page.`,
     '',
     'TASK RULES',
   ];
@@ -64,7 +66,9 @@ function buildSystemPrompt(context: z.infer<typeof contextSchema>) {
     );
   } else if (context.page === 'tracker') {
     sections.push(
-      'Provide strategic advice on which job to prioritize based on their skills.'
+      'The user can see every application card on their board, grouped by status: Wishlist (lead), Applied, Interviewing, Offer, and Rejected.',
+      'Use the tracked applications below to give specific, prioritized advice. Reference companies and roles by name, mention which column each is in, and recommend concrete next moves such as following up, preparing for an interview, or moving stale applications to Rejected.',
+      'Prioritize active opportunities (Interviewing and Offer) over stale Wishlist or Applied entries.'
     );
   } else {
     sections.push(
@@ -74,8 +78,14 @@ function buildSystemPrompt(context: z.infer<typeof contextSchema>) {
 
   sections.push(
     '',
+    'FORMATTING',
+    'Use Markdown so the response is easy to scan: open with one short sentence, then 2-5 bullet points starting with "- ". Put **bold** around key terms, company names, column names, and action labels. Do not use tables, code blocks, or long paragraphs.'
+  );
+
+  sections.push(
+    '',
     'CONSTRAINTS',
-    'Do NOT hallucinate experience. If you suggest adding a skill, tell them they need to acquire it first. Keep responses under 200 words. Use bullet points for actionable advice.'
+    'Do NOT hallucinate experience. If you suggest adding a skill, tell them they need to acquire it first. Keep responses under 200 words.'
   );
 
   if (context.jobDescription) {
@@ -90,18 +100,44 @@ function buildSystemPrompt(context: z.infer<typeof contextSchema>) {
     sections.push('', 'CURRENT COVER LETTER DRAFT', context.coverLetter);
   }
 
+  if (context.page === 'tracker') {
+    const boardStatuses = [
+      { key: 'lead', label: 'Wishlist' },
+      { key: 'applied', label: 'Applied' },
+      { key: 'interviewing', label: 'Interviewing' },
+      { key: 'offered', label: 'Offer' },
+      { key: 'rejected', label: 'Rejected' },
+    ];
+    const applications = context.applications ?? [];
+    const counts = boardStatuses
+      .map(({ key, label }) => `${label}: ${applications.filter((application) => application.status === key).length}`)
+      .join(', ');
+    sections.push(`Board counts: ${counts}.`);
+  }
+
   if (context.applications && context.applications.length > 0) {
+    const statusLabels: Record<string, string> = {
+      lead: 'Wishlist',
+      applied: 'Applied',
+      interviewing: 'Interviewing',
+      offered: 'Offer',
+      rejected: 'Rejected',
+    };
     const summarized = context.applications.map((application, index) => {
       const parts = [
         application.company_name,
         application.job_title,
-        application.status,
+        application.status ? statusLabels[application.status] ?? application.status : null,
         application.salary_range,
         application.notes,
       ].filter(Boolean);
       return `${index + 1}. ${parts.join(' — ')}`;
     });
     sections.push(`Job applications currently tracked:\n${summarized.join('\n')}`);
+  } else if (context.page === 'tracker') {
+    sections.push(
+      'The board is currently empty. Suggest that the user add a job with the "+ Add Job" button or load demo applications to explore the board.'
+    );
   }
 
   return sections.join('\n\n');
