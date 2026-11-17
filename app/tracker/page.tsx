@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, Plus, Trash2, Loader2, Briefcase, Terminal, ExternalLink, CheckCircle2, Radar, X, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Loader2, Briefcase, Terminal, ExternalLink, CheckCircle2, Radar, X, AlertCircle, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd';
 import AIAssistant from '@/app/components/AIAssistant';
@@ -71,6 +71,7 @@ export default function JobTracker() {
   const [salary, setSalary] = useState('');
 
   const [scanning, setScanning] = useState(false);
+  const [loadingDemo, setLoadingDemo] = useState(false);
   const [scanLogIndex, setScanLogIndex] = useState(0);
   const [scanMessage, setScanMessage] = useState('');
   const [toast, setToast] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
@@ -152,6 +153,52 @@ export default function JobTracker() {
     } else if (error) {
       setToast({ type: 'error', message: 'Failed to add application. Please try again.' });
     }
+  };
+
+  const handleLoadDemoData = async () => {
+    if (!userId || loadingDemo) return;
+    setLoadingDemo(true);
+
+    const demoApplications = [
+      {
+        user_id: userId,
+        company_name: 'Google',
+        job_title: 'Frontend Engineer',
+        status: 'lead',
+        salary_range: '₦1,200,000 / mo',
+      },
+      {
+        user_id: userId,
+        company_name: 'Flutterwave',
+        job_title: 'React Developer',
+        status: 'applied',
+        salary_range: '₦900,000 / mo',
+      },
+      {
+        user_id: userId,
+        company_name: 'Paystack',
+        job_title: 'Product Designer',
+        status: 'interviewing',
+        salary_range: '₦850,000 / mo',
+      },
+    ];
+
+    const { error } = await supabase.from('job_applications').insert(demoApplications);
+
+    if (error) {
+      setToast({ type: 'error', message: 'Could not load demo applications. Please try again.' });
+      setLoadingDemo(false);
+      return;
+    }
+
+    const { data } = await supabase
+      .from('job_applications')
+      .select('*')
+      .eq('user_id', userId);
+
+    if (data) setApps(data as ApplicationItem[]);
+    setToast({ type: 'success', message: 'Demo applications loaded.' });
+    setLoadingDemo(false);
   };
 
   // --- UPGRADE: Optimistic UI State Updates Strategy ---
@@ -387,6 +434,17 @@ export default function JobTracker() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          {apps.length === 0 && (
+            <button
+              onClick={handleLoadDemoData}
+              disabled={loadingDemo || scanning}
+              className="inline-flex items-center gap-2 border border-orange-500/30 bg-orange-500/10 text-orange-300 hover:bg-orange-500/20 font-semibold text-xs px-4 py-2.5 rounded-xl transition-all disabled:opacity-50"
+            >
+              {loadingDemo ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+              Load Demo Applications
+            </button>
+          )}
+
           <button
             onClick={handleFindJobsNow}
             disabled={scanning}
