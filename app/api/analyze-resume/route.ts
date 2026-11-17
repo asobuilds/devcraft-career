@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { PDFParse } from 'pdf-parse';
 import mammoth from 'mammoth';
 import { supabase } from '@/lib/supabase';
-import { generateText } from 'ai';
+import { generateText, Output } from 'ai';
+import { z } from 'zod';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 
 export const runtime = 'nodejs';
@@ -23,6 +24,19 @@ const agnes = createOpenAICompatible({
   name: 'agnes',
   baseURL: 'https://api.agnes-ai.cn/v1',
   apiKey: process.env.AGNES_API_KEY || '',
+});
+
+const analysisSchema = z.object({
+  score: z.number(),
+  matchedKeywords: z.array(z.string()),
+  missingKeywords: z.array(z.string()),
+  suggestions: z.array(
+    z.object({
+      original: z.string(),
+      improved: z.string(),
+      reason: z.string(),
+    })
+  ),
 });
 
 const PROVIDER_MODELS = [
@@ -122,9 +136,9 @@ async function analyzeWithProvider(
   model: (typeof PROVIDER_MODELS)[number]['model'],
   resumeText: string,
   jobDescription: string
-): Promise<{ score?: number; matchedKeywords?: string[]; missingKeywords?: string[]; feedback?: string } | null> {
-  const prompt = `You are an expert ATS (Applicant Tracking System) resume analyzer. Compare the following resume text against the job description and return ONLY valid JSON in this exact format:
-{"score": number (0-100), "matchedKeywords": ["string"], "missingKeywords": ["string"], "feedback": "string"}
+): Promise<z.infer<typeof analysisSchema>> {
+  const prompt = `You are an expert ATS (Applicant Tracking System) resume analyzer. Compare the following resume text against the job description.
+Identify the match score from 0-100, the keywords present in both documents, the important keywords missing from the resume, and specific bullet-point rewrites that would improve the resume. For each suggestion, include the original bullet, an improved version, and the reason for the change.
 
 Job Description:
 ${jobDescription.slice(0, 4000)}
@@ -135,30 +149,10 @@ ${resumeText.slice(0, 6000)}`;
   const result = await generateText({
     model,
     prompt,
+    output: Output.object({ schema: analysisSchema }),
   });
 
-  const text = result.text || '';
-  console.log('[Analyze Resume] Raw AI response:', text);
-
-  const match = text.match(/\{[\s\S]*\}/);
-  if (!match) {
-    console.error('[Analyze Resume] AI response did not contain a JSON object.');
-    return null;
-  }
-
-  try {
-    const parsed = JSON.parse(match[0]);
-
-    return {
-      score: typeof parsed.score === 'number' ? parsed.score : undefined,
-      matchedKeywords: Array.isArray(parsed.matchedKeywords) ? parsed.matchedKeywords : undefined,
-      missingKeywords: Array.isArray(parsed.missingKeywords) ? parsed.missingKeywords : undefined,
-      feedback: typeof parsed.feedback === 'string' ? parsed.feedback : undefined,
-    };
-  } catch (error) {
-    console.error('[Analyze Resume] Failed to parse AI JSON:', error);
-    return null;
-  }
+  return result.output;
 }
 
 export async function POST(request: Request) {
@@ -207,7 +201,7 @@ export async function POST(request: Request) {
     try {
       const strict = strictKeywordMatchScore(resumeText, jobDescription);
 
-      let aiAnalysis = null;
+      let aiAnalysis: z.infer<typeof analysisSchema> | null = null;
       for (const provider of PROVIDER_MODELS) {
         if (!provider.key) {
           continue;
@@ -215,19 +209,18 @@ export async function POST(request: Request) {
 
         try {
           aiAnalysis = await analyzeWithProvider(provider.model, resumeText, jobDescription);
-          if (aiAnalysis) break;
+          break;
         } catch (error) {
           console.error(`[Analyze Resume] ${provider.name} failed:`, error);
         }
       }
 
+      if (!aiAnalysis) {
+        return NextResponse.json({ error: 'All AI providers failed' }, { status: 500 });
+      }
+
       analysis = {
-        ...(aiAnalysis ?? {
-          score: 50,
-          matchedKeywords: [],
-          missingKeywords: [],
-          feedback: 'AI returned invalid format. Please try again.',
-        }),
+        ...aiAnalysis,
         ...strict,
       };
     } catch (error) {
