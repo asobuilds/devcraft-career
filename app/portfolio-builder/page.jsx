@@ -84,13 +84,16 @@ export default function PortfolioBuilder() {
     if (!userId) return;
 
     const trimmedSubdomain = subdomain ? subdomain.toLowerCase().trim() : '';
+    const techStackArray = techStack
+      ? techStack.split(',').map((s) => s.trim()).filter(Boolean)
+      : [];
 
     setSaving(true);
     const { error } = await supabase.from('portfolios').upsert({
       user_id: userId,
       title: portfolioTitle,
       bio: bio,
-      tech_stack: techStack,
+      tech_stack: techStackArray,
       custom_subdomain: trimmedSubdomain || null,
       selected_template: selectedTemplate,
       projects: projects,

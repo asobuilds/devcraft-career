@@ -153,6 +153,13 @@ export default function CVBuilder() {
 
   const handleSave = async () => {
     if (!userId) return;
+
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !session) {
+      setToast({ type: 'error', message: 'Session expired. Please log in again and save.' });
+      return;
+    }
+
     setSaving(true);
     setToast(null);
     try {
