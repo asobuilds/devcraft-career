@@ -137,10 +137,15 @@ async function analyzeWithProvider(
   resumeText: string,
   jobDescription: string
 ): Promise<z.infer<typeof analysisSchema>> {
-  const prompt = `You are an expert ATS (Applicant Tracking System) resume analyzer. Compare the following resume text against the job description.
-Identify the match score from 0-100, the keywords present in both documents, the important keywords missing from the resume, and specific bullet-point rewrites that would improve the resume. For each suggestion, include the original bullet, an improved version, and the reason for the change.
+  const system = `You are an expert ATS optimizer and CV writer for the Nigerian job market.
+Analyze the resume against the job description. Return a JSON object with: score (0-100), matchedKeywords (array), missingKeywords (array), and suggestions (array of objects).
+Each suggestion MUST have exactly three fields:
+- original: The exact line from the user's resume that needs improvement.
+- improved: The exact rewritten line that includes the missing keyword(s) and uses strong action verbs with metrics, following the XYZ formula: Accomplished [X] as measured by [Y], by doing [Z].
+- reason: A brief explanation of why this change helps, for example "Added the missing keyword 'Docker' and quantified the impact".
+Constraints: Do NOT invent experience. Only use information present in the original resume. If a keyword is missing but the user has related experience, suggest how to reframe it. If the user has no related experience, list it as a gap to learn.`;
 
-Job Description:
+  const prompt = `Job Description:
 ${jobDescription.slice(0, 4000)}
 
 Resume Text:
@@ -148,6 +153,7 @@ ${resumeText.slice(0, 6000)}`;
 
   const result = await generateText({
     model,
+    system,
     prompt,
     output: Output.object({ schema: analysisSchema }),
   });
