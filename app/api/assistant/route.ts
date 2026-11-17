@@ -126,7 +126,7 @@ const agnes = createOpenAICompatible({
 });
 
 const PROVIDER_MODELS = [
-  { name: 'Groq', model: groq('llama-3.3-70b-versatile'), key: process.env.GROQ_API_KEY },
+  { name: 'Groq', model: groq('openai/gpt-oss-120b'), key: process.env.GROQ_API_KEY },
   { name: 'Gemini', model: gemini('gemini-2.0-flash'), key: process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY },
   { name: 'Agnes', model: agnes('agnes-3.0-flash'), key: process.env.AGNES_API_KEY },
 ];
