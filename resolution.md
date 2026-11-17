@@ -84,6 +84,7 @@
 | OpenCode | `app/tracker/page.tsx` | main | 2026-11-16T05:00:00Z | active |
 | OpenCode | `app/components/AIAssistant.tsx` | main | 2026-11-16T05:00:00Z | active |
 | OpenCode | `app/api/assistant/route.ts` | main | 2026-11-16T05:30:00Z | active |
+| OpenCode | `app/analyzer/page.tsx` | main | 2026-11-16T06:00:00Z | active |
 | OpenCode | `app/api/assistant/route.ts` | main | 2026-11-16T04:30:00Z | active |
 | OpenCode | `package.json` | main | 2026-11-16T04:30:00Z | active |
 | Gemini | `supabase/migrations/0017_seed_directory.sql` | main | 2026-11-16T03:00:00Z | active |
@@ -192,6 +193,7 @@
 - `2026-11-16T04:30:00Z` — `OpenCode` — Implemented multi-provider AI failover with Groq, Gemini, and Agnes via `@ai-sdk/openai-compatible`.
 - `2026-11-16T05:00:00Z` — `OpenCode` — Fixed AI assistant overlap on tracker, added descriptive copy, column subtexts, glassmorphism cards, and horizontal scroll.
 - `2026-11-16T05:30:00Z` — `OpenCode` — Sanitized AI assistant message history for multi-provider compatibility.
+- `2026-11-16T06:00:00Z` — `OpenCode` — Restructured ATS Analyzer layout with AI overlap fix, glassmorphism input cards, and matched/missing keyword badges.
 
 # Resolution & File Claims
 
