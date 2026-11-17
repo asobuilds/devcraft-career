@@ -71,6 +71,13 @@
 | Gemini | `app/api/analyze-resume/route.ts` | main | 2026-11-16T01:00:00Z | active |
 | Gemini | `supabase/migrations/0015_kanban_tracker.sql` | main | 2026-11-16T01:30:00Z | active |
 | Gemini | `app/api/tracker/route.ts` | main | 2026-11-16T01:30:00Z | active |
+| Gemini | `app/api/source-leads/route.js` | main | 2026-11-16T02:00:00Z | active |
+| Gemini | `app/api/cron-scraper/route.js` | main | 2026-11-16T02:00:00Z | active |
+| Gemini | `app/api/route.js` | main | 2026-11-16T02:00:00Z | active |
+| Gemini | `app/api/paystack-webhook/route.js` | main | 2026-11-16T02:00:00Z | active |
+| Gemini | `app/fix-database/page.jsx` | main | 2026-11-16T02:00:00Z | active |
+| Gemini | `README.md` | main | 2026-11-16T02:00:00Z | active |
+| Gemini | `agent.md` | main | 2026-11-16T02:00:00Z | active |
 | Gemini | `app/analyzer/page.tsx` | main | 2026-11-16T00:30:00Z | active |
 | Gemini | `app/tracker/page.tsx` | main | 2026-11-16T00:30:00Z | active |
 | Gemini | `app/components/Sidebar.tsx` | main | 2026-11-15T22:00:00Z | active |
@@ -167,6 +174,7 @@
 - `2026-11-16T00:30:00Z` — `Gemini` — Created migration 0013 for core tables (resumes, portfolios, ats_scans, feedback) and secured source-leads, cron-scraper, and analyze-resume API routes with Supabase session auth.
 - `2026-11-16T01:00:00Z` — `Gemini` — Replaced rule-based ATS scoring with strict keyword extraction from job description and resume match ratio.
 - `2026-11-16T01:30:00Z` — `Gemini` — Added migration 0015 for Kanban tracker status column/index and created authenticated tracker API route for status updates.
+- `2026-11-16T02:00:00Z` — `Gemini` — Removed all backend premium gates, deleted Paystack webhook and fix-database page, and updated README/agent docs to reflect a 100% free platform.
 
 # Resolution & File Claims
 

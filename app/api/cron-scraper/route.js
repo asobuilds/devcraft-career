@@ -19,20 +19,12 @@ export async function POST(request) {
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('full_name, email, tech_stack, is_premium')
+      .select('full_name, email, tech_stack')
       .eq('id', user.id)
       .maybeSingle();
 
       if (profileError || !profile) {
       return NextResponse.json({ error: 'Profile lookup failed' }, { status: 404 });
-    }
-
-    if (!profile.is_premium) {
-      return NextResponse.json({
-        success: false,
-        opportunityFound: false,
-        message: 'Job lead sourcing and notifications are a Premium feature. Upgrade to activate automatic job matching.',
-      }, { status: 200 });
     }
 
     const techStack = profile.tech_stack || '';

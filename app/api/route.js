@@ -9,10 +9,10 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Missing authorized target user identifier link token' }, { status: 400 });
     }
 
-    // 1. Fetch profile to check if they are a subscribed premium user
+    // 1. Fetch profile for tech stack
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('is_premium, full_name, tech_stack')
+      .select('full_name, tech_stack')
       .eq('id', userId)
       .maybeSingle();
 
@@ -20,15 +20,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Profile lookup execution error' }, { status: 404 });
     }
 
-    // 2. Strict monetization gate check barrier rule
-    if (!profile.is_premium) {
-      return NextResponse.json({ 
-        success: false, 
-        message: 'Normal Free account tier. Sourcing radar remains paused. Upgrade to Premium to trigger automated background internet scraping radars.' 
-      }, { status: 200 });
-    }
-
-    // 3. Simulated high-velocity internet scraper registry arrays matrix
+    // 2. Simulated high-velocity internet scraper registry arrays matrix
     const internetJobsScrapedMatrix = [
       { company: 'Stripe Corporate Systems', title: 'Contract Integration Engineer', stackKeyword: 'typescript', salary: '₦1,800,000 / Mo' },
       { company: 'ScaleData Automation Corp', title: 'Remote Backend Python Developer', stackKeyword: 'python', salary: '₦2,400,000 / Mo' },
@@ -44,7 +36,7 @@ export async function POST(request) {
     );
 
     if (matchedOpportunity) {
-      // 4. AUTOMATED PLACEMENT: Insert tracking card straight into user Kanban tracking table board
+      // 3. AUTOMATED PLACEMENT: Insert tracking card straight into user Kanban tracking table board
       const newTrackingCardRow = {
         user_id: userId,
         company_name: matchedOpportunity.company,

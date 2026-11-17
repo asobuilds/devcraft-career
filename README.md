@@ -1,6 +1,6 @@
 # DevCraft Career
 
-DevCraft Career is a professional platform that helps job seekers build high-impact CVs and developer portfolios, search relevant job openings automatically (including regional boards via Apify and 11+ global/local sources), and track their career progress.
+DevCraft Career is a professional, 100% free platform that helps job seekers build high-impact CVs and developer portfolios, search relevant job openings automatically (including regional boards via Apify and 11+ global/local sources), and track their career progress.
 
 Live URL: https://devcraft-career.vercel.app
 
@@ -55,7 +55,6 @@ Live URL: https://devcraft-career.vercel.app
 | `JOOBLE_API_KEY` | Jooble API Key | Optional |
 | `FINDWORK_API_KEY` | Findwork API Key | Optional |
 | `RAPIDAPI_KEY` | JSearch RapidAPI Key | Optional |
-| `PAYSTACK_SECRET_KEY` | Paystack webhook & payment verification key | Optional |
 | `ANTHROPIC_API_KEY` | Anthropic Claude API key for AI assist | Optional |
 | `RESEND_API_KEY` | Resend API key for email notifications | Optional |
 
