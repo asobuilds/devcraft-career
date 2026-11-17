@@ -86,6 +86,7 @@
 | OpenCode | `app/tracker/page.tsx` | main | 2026-11-16T05:00:00Z | active |
 | OpenCode | `app/components/AIAssistant.tsx` | main | 2026-11-16T05:00:00Z | active |
 | OpenCode | `app/api/assistant/route.ts` | main | 2026-11-16T05:30:00Z | active |
+| OpenCode | `app/api/analyze-resume/route.ts` | main | 2026-11-16T07:00:00Z | active |
 | OpenCode | `app/analyzer/page.tsx` | main | 2026-11-16T06:00:00Z | active |
 | OpenCode | `app/api/assistant/route.ts` | main | 2026-11-16T04:30:00Z | active |
 | OpenCode | `package.json` | main | 2026-11-16T04:30:00Z | active |
@@ -197,6 +198,7 @@
 - `2026-11-16T05:30:00Z` — `OpenCode` — Sanitized AI assistant message history for multi-provider compatibility.
 - `2026-11-16T06:00:00Z` — `OpenCode` — Restructured ATS Analyzer layout with AI overlap fix, glassmorphism input cards, and matched/missing keyword badges.
 - `2026-11-16T06:30:00Z` — `Gemini` — Ensured ATS Analyzer AI receives resume and job description context, and added system prompt guidance for missing inputs.
+- `2026-11-16T07:00:00Z` — `OpenCode` — Updated analyze-resume API with multi-provider failover and JSON error handling.
 
 # Resolution & File Claims
 

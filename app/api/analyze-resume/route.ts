@@ -2,11 +2,34 @@ import { NextResponse } from 'next/server';
 import { PDFParse } from 'pdf-parse';
 import mammoth from 'mammoth';
 import { supabase } from '@/lib/supabase';
+import { generateText } from 'ai';
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 
 export const runtime = 'nodejs';
 
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+const groq = createOpenAICompatible({
+  name: 'groq',
+  baseURL: 'https://api.groq.com/openai/v1',
+  apiKey: process.env.GROQ_API_KEY || '',
+});
+
+const gemini = createOpenAICompatible({
+  name: 'gemini',
+  baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai/',
+  apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '',
+});
+
+const agnes = createOpenAICompatible({
+  name: 'agnes',
+  baseURL: 'https://api.agnes-ai.cn/v1',
+  apiKey: process.env.AGNES_API_KEY || '',
+});
+
+const PROVIDER_MODELS = [
+  { name: 'Groq', model: groq('openai/gpt-oss-120b'), key: process.env.GROQ_API_KEY },
+  { name: 'Gemini', model: gemini('gemini-2.0-flash'), key: process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY },
+  { name: 'Agnes', model: agnes('agnes-3.0-flash'), key: process.env.AGNES_API_KEY },
+];
 
 async function extractTextFromFile(file: File): Promise<string> {
   const arrayBuffer = await file.arrayBuffer();
@@ -95,9 +118,13 @@ function strictKeywordMatchScore(resumeText: string, jobDescription: string) {
   };
 }
 
-async function analyzeWithClaude(resumeText: string, jobDescription: string) {
+async function analyzeWithProvider(
+  model: (typeof PROVIDER_MODELS)[number]['model'],
+  resumeText: string,
+  jobDescription: string
+): Promise<{ score?: number; matchedKeywords?: string[]; missingKeywords?: string[]; feedback?: string }> {
   const prompt = `You are an expert ATS (Applicant Tracking System) resume analyzer. Compare the following resume text against the job description and return ONLY valid JSON in this exact format:
-{"score": number (0-100), "missingKeywords": ["string"], "passedKeywords": ["string"], "feedback": "string"}
+{"score": number (0-100), "matchedKeywords": ["string"], "missingKeywords": ["string"], "feedback": "string"}
 
 Job Description:
 ${jobDescription.slice(0, 4000)}
@@ -105,53 +132,22 @@ ${jobDescription.slice(0, 4000)}
 Resume Text:
 ${resumeText.slice(0, 6000)}`;
 
-  const result = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_API_KEY!,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 1000,
-      messages: [{ role: 'user', content: prompt }],
-    }),
+  const result = await generateText({
+    model,
+    prompt,
   });
 
-  if (!result.ok) throw new Error('Claude API error: ' + result.status);
-  const data = await result.json();
-  const text = data.content?.[0]?.text || '';
+  const text = result.text || '';
   const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error('Invalid JSON response from Claude');
-  return JSON.parse(match[0]);
-}
+  if (!match) throw new Error('Invalid JSON response from AI provider');
+  const parsed = JSON.parse(match[0]);
 
-async function analyzeWithGemini(resumeText: string, jobDescription: string) {
-  const prompt = `You are an expert ATS resume analyzer. Compare the following resume text against the job description and return ONLY valid JSON in this exact format:
-{"score": number (0-100), "missingKeywords": ["string"], "passedKeywords": ["string"], "feedback": "string"}
-
-Job Description:
-${jobDescription.slice(0, 4000)}
-
-Resume Text:
-${resumeText.slice(0, 6000)}`;
-
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-  const result = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-    }),
-  });
-
-  if (!result.ok) throw new Error('Gemini API error: ' + result.status);
-  const data = await result.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-  const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error('Invalid JSON response from Gemini');
-  return JSON.parse(match[0]);
+  return {
+    score: typeof parsed.score === 'number' ? parsed.score : undefined,
+    matchedKeywords: Array.isArray(parsed.matchedKeywords) ? parsed.matchedKeywords : undefined,
+    missingKeywords: Array.isArray(parsed.missingKeywords) ? parsed.missingKeywords : undefined,
+    feedback: typeof parsed.feedback === 'string' ? parsed.feedback : undefined,
+  };
 }
 
 export async function POST(request: Request) {
@@ -198,24 +194,40 @@ export async function POST(request: Request) {
 
     let analysis;
     try {
+      const strict = strictKeywordMatchScore(resumeText, jobDescription);
+
       let aiAnalysis = null;
-      if (ANTHROPIC_API_KEY) {
-        aiAnalysis = await analyzeWithClaude(resumeText, jobDescription);
-      } else if (GEMINI_API_KEY) {
-        aiAnalysis = await analyzeWithGemini(resumeText, jobDescription);
+      for (const provider of PROVIDER_MODELS) {
+        if (!provider.key) {
+          continue;
+        }
+
+        try {
+          aiAnalysis = await analyzeWithProvider(provider.model, resumeText, jobDescription);
+          if (aiAnalysis) break;
+        } catch (error) {
+          console.error(`[Analyze Resume] ${provider.name} failed:`, error);
+        }
       }
 
-      const strict = strictKeywordMatchScore(resumeText, jobDescription);
       analysis = {
         ...aiAnalysis,
         ...strict,
       };
-    } catch {
-      analysis = strictKeywordMatchScore(resumeText, jobDescription);
+    } catch (error) {
+      console.error('[Analyze Resume] All providers failed:', error);
+      return NextResponse.json(
+        { error: 'All AI providers are currently unavailable. Please try again later.' },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ success: true, ...analysis }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: 'Analysis failed: ' + ((error as Error).message) }, { status: 500 });
+    console.error('[Analyze Resume] Unexpected error:', error);
+    return NextResponse.json(
+      { error: 'Analysis failed: ' + ((error as Error).message || 'Unknown error') },
+      { status: 500 }
+    );
   }
 }
