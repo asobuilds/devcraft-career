@@ -6,21 +6,21 @@ export const runtime = 'nodejs';
 export const maxDuration = 30;
 
 const applicationSchema = z.object({
-  company_name: z.string().optional(),
-  job_title: z.string().optional(),
-  status: z.string().optional(),
-  salary_range: z.string().optional(),
-  notes: z.string().optional(),
+  company_name: z.string().nullish(),
+  job_title: z.string().nullish(),
+  status: z.string().nullish(),
+  salary_range: z.string().nullish(),
+  notes: z.string().nullish(),
 });
 
 const contextSchema = z.object({
-  page: z.string().optional(),
-  userName: z.string().optional(),
-  userSkills: z.array(z.string()).optional(),
-  jobDescription: z.string().optional(),
-  resumeText: z.string().optional(),
-  coverLetter: z.string().optional(),
-  applications: z.array(applicationSchema).optional(),
+  page: z.string().nullish(),
+  userName: z.string().nullish(),
+  userSkills: z.array(z.string()).nullish(),
+  jobDescription: z.string().nullish(),
+  resumeText: z.string().nullish(),
+  coverLetter: z.string().nullish(),
+  applications: z.array(applicationSchema).nullish(),
 });
 
 const bodySchema = z.object({
@@ -110,16 +110,39 @@ export async function POST(req: Request) {
     );
   }
 
-  let payload: z.infer<typeof bodySchema>;
+  let rawBody: unknown;
   try {
-    const parsed = bodySchema.safeParse(await req.json());
-    if (!parsed.success) {
-      return Response.json({ error: 'Invalid request body.' }, { status: 400 });
-    }
-    payload = parsed.data;
+    rawBody = await req.json();
   } catch {
     return Response.json({ error: 'Invalid JSON body.' }, { status: 400 });
   }
+
+  if (
+    !rawBody ||
+    typeof rawBody !== 'object' ||
+    !Array.isArray((rawBody as { messages?: unknown }).messages)
+  ) {
+    return Response.json(
+      { error: 'Invalid request body: "messages" must be an array.' },
+      { status: 400 }
+    );
+  }
+
+  const parsed = bodySchema.safeParse(rawBody);
+  if (!parsed.success) {
+    return Response.json(
+      {
+        error:
+          'Invalid request body: ' +
+          parsed.error.issues
+            .map((issue) => `${issue.path.join('.') || 'body'}: ${issue.message}`)
+            .join('; '),
+      },
+      { status: 400 }
+    );
+  }
+
+  const payload = parsed.data;
 
   const result = streamText({
     model: openai('gpt-4o-mini'),

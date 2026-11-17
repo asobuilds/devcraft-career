@@ -27,7 +27,17 @@ export default function AIAssistant({
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const [transport] = useState(
-    () => new DefaultChatTransport({ api: '/api/assistant' })
+    () =>
+      new DefaultChatTransport({
+        api: '/api/assistant',
+        prepareSendMessagesRequest: ({ messages, body }) => ({
+          body: {
+            messages,
+            context:
+              (body as { context?: Record<string, unknown> } | undefined)?.context ?? {},
+          },
+        }),
+      })
   );
 
   const { messages, sendMessage, status, error } = useChat({ transport });
