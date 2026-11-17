@@ -19,13 +19,14 @@ interface ApplicationItem {
   created_at?: string;
 }
 
-type BoardStatus = 'lead' | 'applied' | 'interviewing' | 'offered';
+type BoardStatus = 'lead' | 'applied' | 'interviewing' | 'offered' | 'rejected';
 
 const BOARD_COLUMNS: Array<{ key: BoardStatus; label: string; dot: string }> = [
   { key: 'lead', label: 'Wishlist', dot: 'bg-slate-400' },
   { key: 'applied', label: 'Applied', dot: 'bg-sky-400' },
   { key: 'interviewing', label: 'Interviewing', dot: 'bg-amber-400' },
   { key: 'offered', label: 'Offer', dot: 'bg-emerald-400' },
+  { key: 'rejected', label: 'Rejected', dot: 'bg-red-400' },
 ];
 
 function formatAppliedDate(value?: string): string {
@@ -69,6 +70,9 @@ export default function JobTracker() {
   const [company, setCompany] = useState('');
   const [title, setTitle] = useState('');
   const [salary, setSalary] = useState('');
+  const [appliedDate, setAppliedDate] = useState('');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(true);
 
   const [scanning, setScanning] = useState(false);
   const [loadingDemo, setLoadingDemo] = useState(false);
@@ -136,6 +140,7 @@ export default function JobTracker() {
       job_title: title,
       status: 'applied' as const,
       salary_range: salary,
+      created_at: appliedDate ? new Date(appliedDate).toISOString() : new Date().toISOString(),
     };
 
     const { data, error } = await supabase
@@ -149,6 +154,8 @@ export default function JobTracker() {
       setCompany('');
       setTitle('');
       setSalary('');
+      setAppliedDate('');
+      setShowAddModal(false);
       setToast({ type: 'success', message: 'Application added successfully.' });
     } else if (error) {
       setToast({ type: 'error', message: 'Failed to add application. Please try again.' });
@@ -360,8 +367,8 @@ export default function JobTracker() {
             <div className="h-9 flex-1 min-w-[200px] bg-slate-800/60 rounded-xl animate-pulse" />
           </div>
         </div>
-        <div className="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
-          {['Wishlist', 'Applied', 'Interviewing', 'Offer'].map((label, i) => (
+        <div className="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-5 gap-6 items-start">
+          {['Wishlist', 'Applied', 'Interviewing', 'Offer', 'Rejected'].map((label, i) => (
             <div key={i} className="bg-slate-900/20 border border-slate-900 rounded-2xl p-4 flex flex-col gap-4">
               <div className="flex items-center justify-between border-b border-slate-900 pb-2">
                 <div className="h-3 w-24 bg-slate-800 rounded animate-pulse" />
@@ -434,6 +441,13 @@ export default function JobTracker() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all"
+          >
+            <Plus size={14} /> Add Job
+          </button>
+
           {apps.length === 0 && (
             <button
               onClick={handleLoadDemoData}
@@ -452,20 +466,78 @@ export default function JobTracker() {
           >
             <Radar size={14} /> Find Jobs Now
           </button>
-
-          <form onSubmit={handleAddApplication} className="flex flex-wrap items-center gap-2 bg-slate-900/40 border border-slate-800/80 p-3 rounded-xl max-w-2xl w-full">
-            <input type="text" placeholder="Company" value={company} onChange={e => setCompany(e.target.value)} className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-slate-700 flex-1 min-w-[120px]" required />
-            <input type="text" placeholder="Position" value={title} onChange={e => setTitle(e.target.value)} className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-slate-700 flex-1 min-w-[120px]" required />
-            <input type="text" placeholder="Salary" value={salary} onChange={e => setSalary(e.target.value)} className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-slate-700 w-28" />
-            <button type="submit" className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2 rounded-lg transition-all flex items-center gap-1">
-              <Plus size={12} /> Add
-            </button>
-          </form>
         </div>
       </header>
 
+      {showInstructions && (
+        <div className="max-w-7xl mx-auto mb-6 flex items-start gap-3 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 px-4 py-3 text-xs text-slate-400">
+          <Sparkles size={14} className="mt-0.5 shrink-0 text-indigo-400" />
+          <p className="flex-1 leading-relaxed">
+            Drag and drop job cards between columns to track your progress. Start in Wishlist, move to Applied when you submit, and update as you get interviews and offers. If a company rejects you, move the card to Rejected to keep your board clean.
+          </p>
+          <button
+            onClick={() => setShowInstructions(false)}
+            className="shrink-0 text-slate-500 hover:text-slate-300 transition-colors"
+            aria-label="Dismiss instructions"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
+      {showAddModal && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+          onClick={() => setShowAddModal(false)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="add-job-title"
+            className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-950 p-5 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h2 id="add-job-title" className="text-sm font-bold text-white">Add Job Application</h2>
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-800 hover:text-white"
+                aria-label="Close add job form"
+              >
+                <X size={14} />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddApplication} className="space-y-3">
+              <div>
+                <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-400">Company</label>
+                <input type="text" placeholder="e.g. Google" value={company} onChange={e => setCompany(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-indigo-500 focus:outline-none" required />
+              </div>
+              <div>
+                <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-400">Role</label>
+                <input type="text" placeholder="e.g. Frontend Engineer" value={title} onChange={e => setTitle(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-indigo-500 focus:outline-none" required />
+              </div>
+              <div>
+                <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-400">Date</label>
+                <input type="date" value={appliedDate} onChange={e => setAppliedDate(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-white [color-scheme:dark] focus:border-indigo-500 focus:outline-none" />
+              </div>
+              <div>
+                <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-400">Salary <span className="normal-case text-slate-600">(optional)</span></label>
+                <input type="text" placeholder="e.g. ₦900,000 / mo" value={salary} onChange={e => setSalary(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-indigo-500 focus:outline-none" />
+              </div>
+              <button
+                type="submit"
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-indigo-500"
+              >
+                <Plus size={14} /> Add to Board
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       <DragDropContext onDragEnd={handleDragEnd}>
-        <main className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 items-start">
+        <main className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4 items-start">
           {BOARD_COLUMNS.map((column) => {
             const filteredCards = apps.filter((item) => item.status === column.key);
             return (
