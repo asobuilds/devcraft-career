@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, KeyRound, Loader2, Sparkles, CreditCard, ToggleLeft, ToggleRight, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, KeyRound, Loader2, ToggleLeft, ToggleRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AccountSettings() {
@@ -13,11 +13,9 @@ export default function AccountSettings() {
   const [statusMsg, setStatusMsg] = useState(null);
 
   const [userId, setUserId] = useState(null);
-  const [userEmail, setUserEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showDev, setShowDev] = useState(true);
   const [showCV, setShowCV] = useState(true);
-  const [isPremium, setIsPremium] = useState(false);
   const [bgTheme, setBgTheme] = useState('slate-black');
 
   useEffect(() => {
@@ -28,18 +26,16 @@ export default function AccountSettings() {
         return;
       }
       setUserId(user.id);
-      setUserEmail(user.email || '');
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('show_dev_portfolio, show_cv_engine, is_premium, system_theme')
+        .select('show_dev_portfolio, show_cv_engine, system_theme')
         .eq('id', user.id)
         .maybeSingle();
 
       if (profile) {
         setShowDev(profile.show_dev_portfolio ?? true);
         setShowCV(profile.show_cv_engine ?? true);
-        setIsPremium(profile.is_premium ?? false);
         setBgTheme(profile.system_theme || 'slate-black');
       }
       setLoading(false);
@@ -82,8 +78,6 @@ export default function AccountSettings() {
       setStatusMsg('Error: ' + error.message);
     }
   };
-
-  const upgradeLink = 'https://paystack.shop/pay/kqrkkfueyh?email=' + encodeURIComponent(userEmail);
 
   if (loading) {
     return (
@@ -133,34 +127,6 @@ export default function AccountSettings() {
               Cyberpunk Navy
             </button>
           </div>
-        </div>
-
-        <div className="p-5 rounded-xl border border-indigo-500/20 bg-indigo-500/5 space-y-3">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-400 uppercase tracking-wider">
-              <Sparkles size={14} /> Premium
-            </div>
-            <span className={`text-[9px] px-2.5 py-0.5 rounded-md font-mono font-bold uppercase tracking-wider border ${isPremium ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-slate-950 border-slate-800 text-slate-500'}`}>
-              {isPremium ? 'Premium Active' : 'Free Tier'}
-            </span>
-          </div>
-
-          <p className="text-xs leading-relaxed text-slate-400">
-            {isPremium
-              ? 'Premium is active on your account. Automatic job lead sourcing, email alerts, PDF export, and printing are all unlocked.'
-              : 'Upgrade to unlock automatic job lead sourcing across 11+ sources, email alerts, real PDF export, printing, and 2 extra templates.'}
-          </p>
-
-          {!isPremium && (
-            <a
-              href={upgradeLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 border border-transparent shadow-md"
-            >
-              <CreditCard size={14} /> Upgrade to Premium
-            </a>
-          )}
         </div>
 
         <div className="p-5 rounded-xl border bg-slate-950/20 space-y-4">

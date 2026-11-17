@@ -65,7 +65,6 @@ export default function JobTracker() {
   const [apps, setApps] = useState<ApplicationItem[]>([]);
   const [userName, setUserName] = useState('');
   const [userSkills, setUserSkills] = useState<string[]>([]);
-  const [isPremium, setIsPremium] = useState(false);
 
   const [company, setCompany] = useState('');
   const [title, setTitle] = useState('');
@@ -109,13 +108,12 @@ export default function JobTracker() {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('full_name, tech_stack, is_premium')
+        .select('full_name, tech_stack')
         .eq('id', user.id)
         .maybeSingle();
 
       if (profile) {
         setUserName(profile.full_name || '');
-        setIsPremium(Boolean(profile.is_premium));
         setUserSkills(
           typeof profile.tech_stack === 'string'
             ? profile.tech_stack.split(',').map((skill: string) => skill.trim()).filter(Boolean)
@@ -256,7 +254,7 @@ export default function JobTracker() {
       setScanLogIndex(SCAN_LOG_STEPS.length - 1);
 
       if (!result.success) {
-        setScanMessage(result.message || 'Job leads are a Premium feature.');
+        setScanMessage(result.message || 'Could not fetch job leads right now.');
         setTimeout(() => setScanning(false), 1800);
         return;
       }
@@ -500,7 +498,6 @@ export default function JobTracker() {
         context={{ page: 'tracker', applications: apps }}
         userName={userName}
         userSkills={userSkills}
-        isPremium={isPremium}
       />
     </div>
   );

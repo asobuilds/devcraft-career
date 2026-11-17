@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, Save, Trash2, Loader2, Sparkles, CreditCard, Lock } from 'lucide-react';
+import { ArrowLeft, Save, Trash2, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import PortfolioInterviewGuide from './components/PortfolioInterviewGuide';
 import PortfolioMinimal from '@/app/p/components/PortfolioMinimal';
@@ -18,13 +18,11 @@ export default function PortfolioBuilder() {
   const [showGuide, setShowGuide] = useState(false);
 
   const [fullName, setFullName] = useState('');
-  const [profileEmail, setProfileEmail] = useState('');
   const [portfolioTitle, setPortfolioTitle] = useState('My Developer Portfolio');
   const [bio, setBio] = useState('');
   const [techStack, setTechStack] = useState('');
   const [subdomain, setSubdomain] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState('minimal');
-  const [isPremium, setIsPremium] = useState(false);
   const [projects, setProjects] = useState([
     { id: '1', title: '', description: '', liveUrl: '', repoUrl: '', languages: '' }
   ]);
@@ -38,11 +36,9 @@ export default function PortfolioBuilder() {
       }
       setUserId(user.id);
 
-      const { data: profile } = await supabase.from('profiles').select('full_name, email, is_premium').eq('id', user.id).maybeSingle();
+      const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).maybeSingle();
       if (profile) {
         setFullName(profile.full_name || '');
-        setProfileEmail(profile.email || '');
-        setIsPremium(profile.is_premium ?? false);
       }
 
       const { data: portfolio } = await supabase.from('portfolios').select('*').eq('user_id', user.id).maybeSingle();
@@ -89,11 +85,6 @@ export default function PortfolioBuilder() {
 
     const trimmedSubdomain = subdomain ? subdomain.toLowerCase().trim() : '';
 
-    if (trimmedSubdomain && !isPremium) {
-      alert('🔒 A shareable custom subdomain link is a Premium feature. Upgrade to publish your portfolio at your own address.');
-      return;
-    }
-
     setSaving(true);
     const { error } = await supabase.from('portfolios').upsert({
       user_id: userId,
@@ -107,8 +98,6 @@ export default function PortfolioBuilder() {
     setSaving(false);
     alert(!error ? '✅ Portfolio metrics matching catalog saved successfully!' : '❌ Error: ' + error.message);
   };
-
-  const upgradeLink = 'https://paystack.shop/pay/kqrkkfueyh?email=' + encodeURIComponent(profileEmail);
 
   if (loading) {
     return (
@@ -141,18 +130,6 @@ export default function PortfolioBuilder() {
         </div>
       </header>
 
-      {!isPremium && (
-        <div className="bg-gradient-to-r from-indigo-950 to-slate-900 border-b border-indigo-500/20 px-6 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2 text-indigo-300">
-            <Sparkles size={14} className="animate-pulse" />
-            <span><strong>DevCraft Premium Upgrade:</strong> Unlock your custom shareable link, job lead radar, and print/export.</span>
-          </div>
-          <a href={upgradeLink} target="_blank" rel="noopener noreferrer" className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-1.5 rounded-lg flex items-center gap-1.5 shrink-0 self-start sm:self-auto transition-all">
-            <CreditCard size={12} /> Upgrade to Premium
-          </a>
-        </div>
-      )}
-
       <div className="max-w-[1600px] mx-auto grid lg:grid-cols-2 min-h-[calc(100vh-65px)]">
         <div className="p-6 md:p-10 border-r border-slate-900 space-y-6 overflow-y-auto h-[calc(100vh-70px)]">
 
@@ -166,12 +143,8 @@ export default function PortfolioBuilder() {
           <div>
             <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
               Custom Vanity Subdomain Address
-              {!isPremium && <Lock size={10} className="text-indigo-400" />}
             </label>
             <input type="text" value={subdomain} onChange={(e) => setSubdomain(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white" placeholder="my-handle" />
-            {!isPremium && (
-              <p className="text-[10px] text-indigo-400 mt-1">Publishing a shareable link is a Premium feature.</p>
-            )}
           </div>
           <div>
             <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Portfolio Template Theme</label>

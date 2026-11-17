@@ -40,7 +40,6 @@ export default function CoverLetterPage() {
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userSkills, setUserSkills] = useState<string[]>([]);
-  const [isPremium, setIsPremium] = useState(false);
   const [state, setState] = useState<CoverLetterState>({
     resumeId: null,
     skillsInput: '',
@@ -71,14 +70,13 @@ export default function CoverLetterPage() {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('full_name, email, tech_stack, is_premium')
+        .select('full_name, email, tech_stack')
         .eq('id', user.id)
         .maybeSingle();
 
       if (profile) {
         setUserName(profile.full_name || '');
         setUserEmail(profile.email || '');
-        setIsPremium(Boolean(profile.is_premium));
         setUserSkills(
           typeof profile.tech_stack === 'string'
             ? profile.tech_stack.split(',').map((skill: string) => skill.trim()).filter(Boolean)
@@ -332,7 +330,6 @@ export default function CoverLetterPage() {
         }}
         userName={userName}
         userSkills={userSkills}
-        isPremium={isPremium}
       />
     </div>
   );

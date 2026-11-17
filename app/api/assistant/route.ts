@@ -17,7 +17,6 @@ const contextSchema = z.object({
   page: z.string().optional(),
   userName: z.string().optional(),
   userSkills: z.array(z.string()).optional(),
-  isPremium: z.boolean().optional(),
   jobDescription: z.string().optional(),
   resumeText: z.string().optional(),
   coverLetter: z.string().optional(),
@@ -31,7 +30,6 @@ const bodySchema = z.object({
 
 function buildSystemPrompt(context: z.infer<typeof contextSchema>) {
   const userName = context.userName?.trim() || 'General User';
-  const premiumLabel = context.isPremium ? 'Premium' : 'Free';
   const page = context.page || 'career workspace';
   const skills =
     context.userSkills && context.userSkills.length > 0
@@ -43,7 +41,7 @@ function buildSystemPrompt(context: z.infer<typeof contextSchema>) {
     'You are the DevCraft Career AI, an expert ATS (Applicant Tracking System) optimizer and Career Coach.',
     '',
     'USER CONTEXT',
-    `The user's name is ${userName}. They are a ${premiumLabel} user with the following skills: ${skills}.`,
+    `The user's name is ${userName}. They have the following skills: ${skills}.`,
     '',
     'PAGE CONTEXT',
     `They are currently on the ${page} page.`,

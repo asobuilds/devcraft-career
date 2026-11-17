@@ -12,7 +12,6 @@ export interface AIAssistantProps {
   title?: string;
   userName: string;
   userSkills: string[];
-  isPremium: boolean;
 }
 
 export default function AIAssistant({
@@ -22,7 +21,6 @@ export default function AIAssistant({
   title = 'AI Assistant',
   userName,
   userSkills,
-  isPremium,
 }: AIAssistantProps) {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
@@ -51,7 +49,6 @@ export default function AIAssistant({
             ...context,
             userName,
             userSkills,
-            isPremium,
           },
         },
       }

@@ -20,7 +20,6 @@ import Link from 'next/link';
 type Profile = {
   full_name?: string;
   is_admin?: boolean;
-  is_premium?: boolean;
 };
 
 const checklistTasks = [

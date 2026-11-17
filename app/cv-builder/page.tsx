@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import { ArrowLeft, Printer, Plus, Trash2, Loader2, Download, Layers, Lock, Sparkles, CreditCard, Briefcase, Eye, X, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Printer, Plus, Trash2, Loader2, Download, Layers, Sparkles, Briefcase, Eye, X, CheckCircle2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
 import JobMatchesPanel from '@/app/components/jobs/JobMatchesPanel';
@@ -46,7 +46,6 @@ export default function CVBuilder() {
   const [saving, setSaving] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [resumeId, setResumeId] = useState<string | null>(null);
-  const [isPremium, setIsPremium] = useState<boolean>(false);
   const [avatarUrl, setAvatarUrl] = useState<string>('');
   const [allowPhoto, setAllowPhoto] = useState<boolean>(false);
   const [showGuide, setShowGuide] = useState<boolean>(false);
@@ -82,13 +81,12 @@ export default function CVBuilder() {
       setUserId(user.id);
 
       try {
-        const { data: profile } = await supabase.from('profiles').select('full_name, email, phone, website, is_premium').eq('id', user.id).maybeSingle();
+        const { data: profile } = await supabase.from('profiles').select('full_name, email, phone, website').eq('id', user.id).maybeSingle();
         if (profile) {
           setFullName(profile.full_name || '');
           setEmail(profile.email || '');
           setPhone(profile.phone || '');
           setWebsite(profile.website || '');
-          setIsPremium(profile.is_premium === true);
         }
 
         const { data: cv } = await supabase.from('resumes').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
@@ -124,10 +122,6 @@ export default function CVBuilder() {
   };
 
   const exportJSONBackup = () => {
-    if (!isPremium) {
-      setToast({ type: 'info', message: '📄 Exporting your CV is a Premium feature. Upgrade to download and share your documents.' });
-      return;
-    }
     const backupPayload = { profile: { fullName, email, phone, website }, resume: { summary, skills, experience, theme } };
     const blob = new Blob([JSON.stringify(backupPayload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -139,19 +133,10 @@ export default function CVBuilder() {
   };
 
   const handlePrint = () => {
-    if (!isPremium) {
-      setToast({ type: 'info', message: '🖨️ Printing and PDF export is a Premium feature. Upgrade to unlock printing and downloads.' });
-      return;
-    }
     window.print();
   };
 
   const handleThemeChange = (selected: string) => {
-    const premiumThemes = ['creative-teal', 'compact-euro', 'tech-stack', 'graduate'];
-    if (premiumThemes.includes(selected) && !isPremium) {
-      setToast({ type: 'info', message: '🎨 That template is reserved for Premium accounts. Upgrade to unlock more designs.' });
-      return;
-    }
     setTheme(selected);
   };
 
@@ -226,8 +211,6 @@ export default function CVBuilder() {
       setSaving(false);
     }
   };
-
-  const upgradeLink = 'https://paystack.shop/pay/kqrkkfueyh?email=' + encodeURIComponent(email);
 
   if (loading) {
     return (
@@ -327,64 +310,49 @@ export default function CVBuilder() {
                 <option value="modern-indigo">Template: Silicon Tech Indigo</option>
                 <option value="minimalist">Template: Civil Service Minimalist</option>
                 <option value="executive-slate">Template: Executive Slate Grid</option>
-                <option value="creative-teal">{isPremium ? '' : '🔒 '}Template: Creative Teal (Premium)</option>
-                <option value="compact-euro">{isPremium ? '' : '🔒 '}Template: Compact Euro (Premium)</option>
-                <option value="lagos-corporate">{isPremium ? '' : '🔒 '}Template: Lagos Corporate</option>
-                <option value="tech-stack">{isPremium ? '' : '🔒 '}Template: Tech Stack</option>
-                <option value="graduate">{isPremium ? '' : '🔒 '}Template: Graduate</option>
+                <option value="creative-teal">Template: Creative Teal</option>
+                <option value="compact-euro">Template: Compact Euro</option>
+                <option value="lagos-corporate">Template: Lagos Corporate</option>
+                <option value="tech-stack">Template: Tech Stack</option>
+                <option value="graduate">Template: Graduate</option>
               </select>
             </div>
 
           <button onClick={exportJSONBackup} className="inline-flex items-center gap-2 px-3.5 py-2 border border-slate-800 bg-slate-900 text-slate-300 rounded-xl text-xs font-semibold hover:border-slate-700">
-            {isPremium ? <Download size={14} /> : <Lock size={14} />} {"Export Data"}
+            <Download size={14} /> {"Export Data"}
           </button>
-          {isPremium ? (
-            <PDFDownloadLink
-              document={
-                <PdfDocumentRouter
-                  theme={theme}
-                  fullName={fullName}
-                  email={email}
-                  phone={phone}
-                  website={website}
-                  summary={summary}
-                  skills={skills}
-                  experience={experience}
-                />
-              }
-              fileName={resumeTitle.toLowerCase().replace(/\s+/g, '-') + '.pdf'}
-              className="inline-flex items-center gap-2 px-4 py-2 border border-slate-800 bg-slate-900 text-slate-300 rounded-xl text-xs font-semibold hover:border-slate-700"
-            >
-              {({ loading }: { loading: boolean }) =>
-                loading ? (
-                  <React.Fragment><Loader2 size={14} className="animate-spin" /> Preparing...</React.Fragment>
-                ) : (
-                  <React.Fragment><Printer size={14} /> Download PDF</React.Fragment>
-                )
-              }
-            </PDFDownloadLink>
-          ) : (
-            <button onClick={handlePrint} className="inline-flex items-center gap-2 px-4 py-2 border border-slate-800 bg-slate-900 text-slate-300 rounded-xl text-xs font-semibold hover:border-slate-700">
-              <Lock size={14} /> Print / PDF
-            </button>
-          )}
+          <PDFDownloadLink
+            document={
+              <PdfDocumentRouter
+                theme={theme}
+                fullName={fullName}
+                email={email}
+                phone={phone}
+                website={website}
+                summary={summary}
+                skills={skills}
+                experience={experience}
+              />
+            }
+            fileName={resumeTitle.toLowerCase().replace(/\s+/g, '-') + '.pdf'}
+            className="inline-flex items-center gap-2 px-4 py-2 border border-slate-800 bg-slate-900 text-slate-300 rounded-xl text-xs font-semibold hover:border-slate-700"
+          >
+            {({ loading }: { loading: boolean }) =>
+              loading ? (
+                <React.Fragment><Loader2 size={14} className="animate-spin" /> Preparing...</React.Fragment>
+              ) : (
+                <React.Fragment><Download size={14} /> Download PDF</React.Fragment>
+              )
+            }
+          </PDFDownloadLink>
+          <button onClick={handlePrint} className="inline-flex items-center gap-2 px-4 py-2 border border-slate-800 bg-slate-900 text-slate-300 rounded-xl text-xs font-semibold hover:border-slate-700">
+            <Printer size={14} /> Print
+          </button>
           <button onClick={handleSave} disabled={saving} className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl text-xs font-semibold hover:bg-purple-500 disabled:opacity-50">
             {saving ? <Loader2 size={14} className="animate-spin" /> : 'Save Matrix'}
           </button>
         </div>
       </header>
-
-      {!isPremium ? (
-        <div className="bg-gradient-to-r from-purple-950 to-slate-900 border-b border-purple-500/20 px-6 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs print:hidden">
-          <div className="flex items-center gap-2 text-purple-300">
-            <Sparkles size={14} className="animate-pulse" />
-            <span><strong>DevCraft Premium Upgrade:</strong> Unlock printing, PDF export, more templates, and job lead alerts.</span>
-          </div>
-          <a href={upgradeLink} target="_blank" rel="noopener noreferrer" className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-1.5 rounded-lg flex items-center gap-1.5 shrink-0 self-start sm:self-auto transition-all">
-            <CreditCard size={12} /> Upgrade to Premium
-          </a>
-        </div>
-      ) : null}
 
       <div className="max-w-[1600px] mx-auto grid lg:grid-cols-2 min-h-[calc(100vh-65px)] print:block">
 
@@ -535,9 +503,9 @@ export default function CVBuilder() {
               <TemplateMinimalist fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} {...({ allowPhoto } as any)} />
             ) : theme === 'executive-slate' ? (
               <TemplateExecutiveSlate fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} {...({ allowPhoto } as any)} />
-            ) : theme === 'creative-teal' && isPremium ? (
+            ) : theme === 'creative-teal' ? (
               <TemplateCreativeTeal fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} {...({ allowPhoto } as any)} />
-            ) : theme === 'compact-euro' && isPremium ? (
+            ) : theme === 'compact-euro' ? (
               <TemplateCompactEuro fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} {...({ allowPhoto } as any)} />
             ) : theme === 'lagos-corporate' ? (
               <TemplateLagosCorporate fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} allowPhoto={allowPhoto} />

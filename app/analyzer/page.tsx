@@ -17,7 +17,6 @@ export default function ATSAnalyzer() {
   const [userId, setUserId] = useState<string | null>(null);
   const [userName, setUserName] = useState('');
   const [userSkills, setUserSkills] = useState<string[]>([]);
-  const [isPremium, setIsPremium] = useState(false);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -45,13 +44,12 @@ export default function ATSAnalyzer() {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('full_name, tech_stack, is_premium')
+        .select('full_name, tech_stack')
         .eq('id', user.id)
         .maybeSingle();
 
       if (profile) {
         setUserName(profile.full_name || '');
-        setIsPremium(Boolean(profile.is_premium));
         setUserSkills(
           typeof profile.tech_stack === 'string'
             ? profile.tech_stack.split(',').map((skill: string) => skill.trim()).filter(Boolean)
@@ -292,7 +290,6 @@ export default function ATSAnalyzer() {
         context={{ page: 'analyzer', resumeText, jobDescription }}
         userName={userName}
         userSkills={userSkills}
-        isPremium={isPremium}
       />
     </div>
   );
