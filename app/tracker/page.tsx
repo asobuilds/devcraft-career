@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, Plus, Trash2, Loader2, Briefcase, Terminal, ExternalLink, CheckCircle2, Radar, X, AlertCircle, Sparkles, Calendar } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Loader2, Briefcase, Terminal, ExternalLink, CheckCircle2, Radar, X, AlertCircle, Sparkles, Calendar, Search } from 'lucide-react';
 import Link from 'next/link';
 import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd';
 import AIAssistant from '@/app/components/AIAssistant';
@@ -21,12 +21,12 @@ interface ApplicationItem {
 
 type BoardStatus = 'lead' | 'applied' | 'interviewing' | 'offered' | 'rejected';
 
-const BOARD_COLUMNS: Array<{ key: BoardStatus; label: string; dot: string }> = [
-  { key: 'lead', label: 'Wishlist', dot: 'bg-slate-400' },
-  { key: 'applied', label: 'Applied', dot: 'bg-sky-400' },
-  { key: 'interviewing', label: 'Interviewing', dot: 'bg-amber-400' },
-  { key: 'offered', label: 'Offer', dot: 'bg-emerald-400' },
-  { key: 'rejected', label: 'Rejected', dot: 'bg-red-400' },
+const BOARD_COLUMNS: Array<{ key: BoardStatus; label: string; dot: string; subtext: string }> = [
+  { key: 'lead', label: 'Wishlist', dot: 'bg-slate-400', subtext: 'Jobs you want to apply for.' },
+  { key: 'applied', label: 'Applied', dot: 'bg-sky-400', subtext: 'Applications sent.' },
+  { key: 'interviewing', label: 'Interviewing', dot: 'bg-amber-400', subtext: 'Active conversations.' },
+  { key: 'offered', label: 'Offer', dot: 'bg-emerald-400', subtext: 'Congratulations!' },
+  { key: 'rejected', label: 'Rejected', dot: 'bg-red-400', subtext: 'Keep for reference.' },
 ];
 
 function formatAppliedDate(value?: string): string {
@@ -79,6 +79,7 @@ export default function JobTracker() {
   const [scanLogIndex, setScanLogIndex] = useState(0);
   const [scanMessage, setScanMessage] = useState('');
   const [toast, setToast] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
+  const [isAiOpen, setIsAiOpen] = useState(false);
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -437,6 +438,9 @@ export default function JobTracker() {
           <div>
             <h1 className="text-xl font-bold text-white">Your Job Application Tracker</h1>
             <p className="text-xs text-slate-500 mt-0.5">Keep track of every application. From &apos;Applied&apos; to &apos;Interview&apos; to &apos;Offer&apos;. Never lose track of a job lead again.</p>
+            <p className="mt-2 max-w-2xl text-sm text-slate-400 leading-relaxed">
+              Track every application in one place. Drag and drop cards to update your status. Use the AI Copilot to analyze your pipeline and find out where to focus your energy.
+            </p>
           </div>
         </div>
 
@@ -459,13 +463,13 @@ export default function JobTracker() {
             </button>
           )}
 
-          <button
-            onClick={handleFindJobsNow}
-            disabled={scanning}
-            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all disabled:opacity-50"
-          >
-            <Radar size={14} /> Find Jobs Now
-          </button>
+            <button
+              onClick={handleFindJobsNow}
+              disabled={scanning}
+              className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all disabled:opacity-50"
+            >
+              {scanning ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />} Find Jobs Now
+            </button>
         </div>
       </header>
 
@@ -536,22 +540,27 @@ export default function JobTracker() {
         </div>
       )}
 
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <main className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4 items-start">
+      <div className={`flex w-full transition-all duration-300 ${isAiOpen ? 'xl:w-[calc(100%-420px)]' : 'w-full'}`}>
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <main className="w-full overflow-x-auto">
+            <div className="mx-auto grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4 items-start min-w-[1000px] xl:min-w-0 max-w-7xl">
           {BOARD_COLUMNS.map((column) => {
             const filteredCards = apps.filter((item) => item.status === column.key);
             return (
               <Droppable droppableId={column.key} key={column.key}>
                 {(provided, snapshot) => (
                   <div className={`flex flex-col gap-4 rounded-2xl border p-4 transition-colors ${snapshot.isDraggingOver ? 'border-orange-500/40 bg-orange-500/5' : 'border-slate-900 bg-slate-900/20'}`}>
-                    <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-800 bg-slate-950/95 px-2 pb-3 backdrop-blur-md">
-                      <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
-                        <span className={`h-2 w-2 rounded-full ${column.dot}`} />
-                        {column.label}
-                      </span>
-                      <span className="rounded-full border border-orange-500/20 bg-orange-500/10 px-2.5 py-0.5 font-mono text-[10px] font-bold text-orange-300">
-                        {filteredCards.length}
-                      </span>
+                    <div className="sticky top-0 z-10 flex flex-col gap-1 border-b border-slate-800 bg-slate-950/95 px-2 pb-3 backdrop-blur-md">
+                      <div className="flex items-center justify-between">
+                        <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
+                          <span className={`h-2 w-2 rounded-full ${column.dot}`} />
+                          {column.label}
+                        </span>
+                        <span className="rounded-full border border-orange-500/20 bg-orange-500/10 px-2.5 py-0.5 font-mono text-[10px] font-bold text-orange-300">
+                          {filteredCards.length}
+                        </span>
+                      </div>
+                      <p className="pl-4 text-[10px] text-slate-500">{column.subtext}</p>
                     </div>
 
                     <div
@@ -568,7 +577,7 @@ export default function JobTracker() {
                               {...dragProvided.dragHandleProps}
                               style={dragProvided.draggableProps.style}
                             >
-                              <div className={`group relative space-y-3 rounded-xl border p-4 shadow-md transition-all ${dragSnapshot.isDragging ? 'border-orange-500/60 bg-slate-800 shadow-2xl' : 'border-slate-800/80 bg-slate-900/60 hover:border-orange-500/50 hover:shadow-lg'}`}>
+                              <div className={`group relative space-y-3 rounded-xl border p-4 shadow-md backdrop-blur-md transition-all ${dragSnapshot.isDragging ? 'border-orange-500/60 bg-slate-800 shadow-2xl' : 'border-slate-800/80 bg-slate-900/60 hover:border-orange-500/50 hover:shadow-lg'}`}>
                                 <button
                                   onClick={() => handleDeleteApplication(card.id)}
                                   className="absolute top-4 right-4 hidden text-slate-600 transition-colors hover:text-red-400 group-hover:block"
@@ -619,8 +628,10 @@ export default function JobTracker() {
               </Droppable>
             );
           })}
-        </main>
-      </DragDropContext>
+            </div>
+          </main>
+        </DragDropContext>
+      </div>
 
       <AIAssistant
         title="Job Tracker Copilot"
@@ -629,6 +640,7 @@ export default function JobTracker() {
         context={{ page: 'tracker', applications: apps }}
         userName={userName}
         userSkills={userSkills}
+        onOpenChange={setIsAiOpen}
       />
     </div>
   );

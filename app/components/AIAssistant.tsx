@@ -12,6 +12,7 @@ export interface AIAssistantProps {
   title?: string;
   userName: string;
   userSkills: string[];
+  onOpenChange?: (open: boolean) => void;
 }
 
 export default function AIAssistant({
@@ -21,6 +22,7 @@ export default function AIAssistant({
   title = 'AI Assistant',
   userName,
   userSkills,
+  onOpenChange,
 }: AIAssistantProps) {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
@@ -67,6 +69,7 @@ export default function AIAssistant({
 
   const handleOpen = () => {
     setOpen(true);
+    onOpenChange?.(true);
     if (messages.length === 0) {
       send(prompt);
     }
@@ -111,7 +114,10 @@ export default function AIAssistant({
           </div>
           <button
             type="button"
-            onClick={() => setOpen(false)}
+            onClick={() => {
+              setOpen(false);
+              onOpenChange?.(false);
+            }}
             className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
             aria-label="Close assistant"
           >
