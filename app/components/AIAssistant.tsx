@@ -4,6 +4,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import { Bot, Loader2, Send, Sparkles, X } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+
+const MARKDOWN_STYLES =
+  '[&_a]:text-indigo-300 [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:border-slate-600 [&_blockquote]:pl-3 [&_blockquote]:text-slate-300 [&_code]:rounded [&_code]:bg-slate-950/60 [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[11px] [&_h1]:mb-2 [&_h1]:text-base [&_h1]:font-bold [&_h1]:text-white [&_h2]:mb-2 [&_h2]:text-sm [&_h2]:font-bold [&_h2]:text-white [&_h3]:mb-1 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:text-white [&_li]:my-1 [&_li]:pl-1 [&_ol]:mb-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-2 [&_p:last-child]:mb-0 [&_strong]:font-bold [&_strong]:text-white [&_ul]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1';
 
 export interface AIAssistantProps {
   context: Record<string, unknown>;
@@ -142,14 +146,16 @@ export default function AIAssistant({
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
+                className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                   message.role === 'user'
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-slate-800/80 text-slate-100 border border-slate-700/60'
+                    ? 'bg-indigo-600 text-white whitespace-pre-wrap'
+                    : `bg-slate-800/80 text-slate-100 border border-slate-700/60 ${MARKDOWN_STYLES}`
                 }`}
               >
                 {message.parts.map((part, index) =>
-                  part.type === 'text' ? <span key={index}>{part.text}</span> : null
+                  part.type === 'text' ? (
+                    <ReactMarkdown key={index}>{part.text}</ReactMarkdown>
+                  ) : null
                 )}
               </div>
             </div>
