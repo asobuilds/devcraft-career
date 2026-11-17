@@ -56,7 +56,7 @@ function buildSystemPrompt(context: z.infer<typeof contextSchema>) {
 
   if (context.page === 'analyzer') {
     sections.push(
-      "Focus heavily on the jobDescription provided. Suggest which of the user's existing skills match, and warn them about missing keywords without inventing skills they don't have."
+      'If the user is on the Analyzer page, act as an expert ATS optimizer. Review the provided resume text against the job description. Point out exactly which keywords are missing and suggest how to rephrase bullet points to include them naturally.'
     );
   } else if (context.page === 'cover-letter') {
     sections.push(
