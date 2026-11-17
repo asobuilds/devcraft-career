@@ -70,6 +70,8 @@
 | Gemini | `app/api/analyze-resume/route.ts` | main | 2026-11-16T00:30:00Z | active |
 | Gemini | `app/api/analyze-resume/route.ts` | main | 2026-11-16T01:00:00Z | active |
 | Gemini | `supabase/migrations/0015_kanban_tracker.sql` | main | 2026-11-16T01:30:00Z | active |
+| Gemini | `app/analyzer/page.tsx` | main | 2026-11-16T06:30:00Z | active |
+| Gemini | `app/api/assistant/route.ts` | main | 2026-11-16T06:30:00Z | active |
 | Gemini | `app/api/tracker/route.ts` | main | 2026-11-16T01:30:00Z | active |
 | Gemini | `app/api/source-leads/route.js` | main | 2026-11-16T02:00:00Z | active |
 | Gemini | `app/api/cron-scraper/route.js` | main | 2026-11-16T02:00:00Z | active |
@@ -194,6 +196,7 @@
 - `2026-11-16T05:00:00Z` — `OpenCode` — Fixed AI assistant overlap on tracker, added descriptive copy, column subtexts, glassmorphism cards, and horizontal scroll.
 - `2026-11-16T05:30:00Z` — `OpenCode` — Sanitized AI assistant message history for multi-provider compatibility.
 - `2026-11-16T06:00:00Z` — `OpenCode` — Restructured ATS Analyzer layout with AI overlap fix, glassmorphism input cards, and matched/missing keyword badges.
+- `2026-11-16T06:30:00Z` — `Gemini` — Ensured ATS Analyzer AI receives resume and job description context, and added system prompt guidance for missing inputs.
 
 # Resolution & File Claims
 

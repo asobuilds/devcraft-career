@@ -86,6 +86,22 @@ function buildSystemPrompt(context: z.infer<typeof contextSchema>) {
     'Do NOT hallucinate experience. If you suggest adding a skill, tell them they need to acquire it first. Keep responses under 200 words.'
   );
 
+  if (context.page === 'analyzer' && !(context.resumeText || '').trim()) {
+    sections.push(
+      '',
+      'ANALYZER WARNING',
+      'The user is on the Analyzer page but no resume text has been provided yet. Advise them to paste their resume text into the Resume Text box before requesting an analysis.'
+    );
+  }
+
+  if (context.page === 'analyzer' && !(context.jobDescription || '').trim()) {
+    sections.push(
+      '',
+      'ANALYZER WARNING',
+      'The user is on the Analyzer page but no job description has been provided yet. Advise them to paste the target job description into the Job Description box before requesting an analysis.'
+    );
+  }
+
   if (context.jobDescription) {
     sections.push('', 'JOB DESCRIPTION', context.jobDescription);
   }
