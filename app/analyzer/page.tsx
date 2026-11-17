@@ -1,9 +1,15 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Loader2, FileText, Briefcase, Sparkles, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Loader2, FileText, Briefcase, Sparkles, AlertCircle, CheckCircle2, Copy } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import AIAssistant from '@/app/components/AIAssistant';
+
+type CvSuggestion = {
+  original: string;
+  improved: string;
+  reason: string;
+};
 
 export default function ATSAnalyzer() {
   const [resumeText, setResumeText] = useState('');
@@ -13,6 +19,8 @@ export default function ATSAnalyzer() {
   const [missingKeywords, setMissingKeywords] = useState<string[]>([]);
   const [matchedKeywords, setMatchedKeywords] = useState<string[]>([]);
   const [feedback, setFeedback] = useState('');
+  const [suggestions, setSuggestions] = useState<CvSuggestion[]>([]);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [error, setError] = useState('');
   const [isAiOpen, setIsAiOpen] = useState(false);
 
@@ -80,6 +88,8 @@ export default function ATSAnalyzer() {
     setScore(null);
     setMissingKeywords([]);
     setFeedback('');
+    setSuggestions([]);
+    setCopiedIndex(null);
 
     try {
       const res = await fetch('/api/analyze-resume', {
@@ -97,11 +107,23 @@ export default function ATSAnalyzer() {
       const nextMissingKeywords = Array.isArray(data.missingKeywords) ? data.missingKeywords : [];
       const nextMatchedKeywords = Array.isArray(data.matchedKeywords) ? data.matchedKeywords : [];
       const nextFeedback = data.feedback || '';
+      const nextSuggestions = Array.isArray(data.suggestions)
+        ? data.suggestions.filter((suggestion: unknown): suggestion is CvSuggestion => {
+            if (!suggestion || typeof suggestion !== 'object') return false;
+            const item = suggestion as Record<string, unknown>;
+            return (
+              typeof item.original === 'string' &&
+              typeof item.improved === 'string' &&
+              typeof item.reason === 'string'
+            );
+          })
+        : [];
 
       setScore(data.score ?? null);
       setMissingKeywords(nextMissingKeywords);
       setMatchedKeywords(nextMatchedKeywords);
       setFeedback(nextFeedback);
+      setSuggestions(nextSuggestions);
 
       if (userId) {
         const { error: saveError } = await supabase.from('ats_scans').insert({
@@ -121,6 +143,16 @@ export default function ATSAnalyzer() {
       setError(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
       setAnalyzing(false);
+    }
+  };
+
+  const handleCopySuggestion = async (text: string, index: number) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy suggestion:', err);
     }
   };
 
@@ -329,6 +361,65 @@ export default function ATSAnalyzer() {
                             </div>
                           ) : (
                             <p className="text-xs text-emerald-400">All relevant keywords present!</p>
+                          )}
+                        </div>
+
+                        {/* Suggested Fixes */}
+                        <div>
+                          <span className="mb-3 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                            <Sparkles size={12} className="text-orange-400" /> Suggested Fixes ({suggestions.length})
+                          </span>
+                          {suggestions.length > 0 ? (
+                            <div className="space-y-3">
+                              {suggestions.map((suggestion, index) => (
+                                <div
+                                  key={index}
+                                  className="space-y-3 rounded-xl border border-slate-800 bg-slate-950/60 p-4"
+                                >
+                                  <div>
+                                    <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-red-400">
+                                      Original
+                                    </p>
+                                    <p className="rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2 text-xs leading-relaxed text-slate-400 line-through decoration-red-400/50">
+                                      {suggestion.original}
+                                    </p>
+                                  </div>
+                                  <div>
+                                    <div className="mb-1 flex items-center justify-between gap-2">
+                                      <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+                                        Improved
+                                      </p>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleCopySuggestion(suggestion.improved, index)}
+                                        className="flex items-center gap-1 rounded-md border border-slate-700 px-2 py-1 text-[10px] text-slate-300 transition-colors hover:bg-slate-800 hover:text-white"
+                                        aria-label="Copy improved text"
+                                      >
+                                        {copiedIndex === index ? (
+                                          <>
+                                            <CheckCircle2 size={12} className="text-emerald-400" /> Copied
+                                          </>
+                                        ) : (
+                                          <>
+                                            <Copy size={12} /> Copy
+                                          </>
+                                        )}
+                                      </button>
+                                    </div>
+                                    <p className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 text-xs leading-relaxed text-emerald-100">
+                                      {suggestion.improved}
+                                    </p>
+                                  </div>
+                                  <p className="text-[11px] leading-relaxed text-slate-500">
+                                    {suggestion.reason}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-xs text-slate-500">
+                              No suggested fixes were returned for this analysis.
+                            </p>
                           )}
                         </div>
                       </>
