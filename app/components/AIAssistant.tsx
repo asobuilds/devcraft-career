@@ -11,6 +11,7 @@ import ReactMarkdown from 'react-markdown';
 const TOOL_SUCCESS_MESSAGES: Record<string, string> = {
   updateCoverLetter: '✅ Cover letter updated in the database.',
   updateResumeBullets: '✅ Resume bullets updated in the database.',
+  tailorCvToJob: '✅ CV tailored and saved to the database.',
 };
 
 const MARKDOWN_STYLES =

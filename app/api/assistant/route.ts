@@ -1,5 +1,6 @@
 import {
   createUIMessageStream,
+  generateText,
   streamText,
   tool,
 } from 'ai';
@@ -32,6 +33,90 @@ const bodySchema = z.object({
   messages: z.array(z.unknown()),
   context: contextSchema.optional(),
 });
+
+const tailoredResumeSchema = z.object({
+  summary: z.string(),
+  skills: z.array(z.string()),
+  experience: z.array(
+    z.object({
+      id: z.string(),
+      bullets: z.string(),
+    })
+  ),
+});
+
+type ResumeForTailoring = {
+  id: string;
+  summary: string | null;
+  skills: unknown;
+  experience: unknown;
+};
+
+function parseJsonObject(text: string): unknown {
+  let jsonString = text.trim();
+
+  if (jsonString.startsWith('```json')) {
+    jsonString = jsonString.replace(/^```json\n?/, '').replace(/\n?```$/, '');
+  } else if (jsonString.startsWith('```')) {
+    jsonString = jsonString.replace(/^```\n?/, '').replace(/\n?```$/, '');
+  }
+
+  const firstBrace = jsonString.indexOf('{');
+  const lastBrace = jsonString.lastIndexOf('}');
+  if (firstBrace === -1 || lastBrace === -1) {
+    throw new Error('AI did not return JSON');
+  }
+
+  return JSON.parse(jsonString.substring(firstBrace, lastBrace + 1));
+}
+
+async function tailorResumeForJob(resume: ResumeForTailoring, jobDescription: string) {
+  const experience = Array.isArray(resume.experience) ? resume.experience : [];
+  const prompt = `Rewrite this CV for the target job description.
+
+Rules:
+- Rewrite the professional summary so it targets the job's priorities.
+- Rewrite the skills list so the most relevant skills appear first. Only include skills the candidate already has.
+- Rewrite the experience bullets using strong action verbs and measurable outcomes where the resume already supports them. Do NOT invent experience, employers, dates, or metrics.
+- Preserve every experience id exactly as provided. Do not add or remove experience entries.
+
+Return ONLY a valid JSON object with this exact shape:
+{"summary":"string","skills":["string"],"experience":[{"id":"string","bullets":"string"}]}
+Do not include any text before or after the JSON. Do not use markdown code fences.
+
+Current resume:
+${JSON.stringify(
+    {
+      summary: resume.summary ?? '',
+      skills: Array.isArray(resume.skills) ? resume.skills : [],
+      experience,
+    },
+    null,
+    2
+  ).slice(0, 12000)}
+
+Job description:
+${jobDescription.slice(0, 4000)}`;
+
+  for (const provider of PROVIDER_MODELS) {
+    if (!provider.key) continue;
+
+    try {
+      const { text } = await generateText({
+        model: provider.model,
+        system:
+          'You are an expert ATS CV writer. You rewrite resumes truthfully for a specific job without fabricating experience.',
+        prompt,
+      });
+
+      return tailoredResumeSchema.parse(parseJsonObject(text));
+    } catch (error) {
+      console.error(`[AI Assistant] tailorCvToJob ${provider.name} failed:`, error);
+    }
+  }
+
+  throw new Error('All AI providers failed to tailor the CV.');
+}
 
 function buildSystemPrompt(context: z.infer<typeof contextSchema>) {
   const userName = context.userName?.trim() || 'General User';
@@ -68,6 +153,10 @@ function buildSystemPrompt(context: z.infer<typeof contextSchema>) {
       '3. Then draft a 3-paragraph cover letter: opening with interest, middle matching their skills to the job requirements, closing with a call to action.',
       '4. Weave their actual skills into the draft; do not invent experience or skills that are not in the context.'
     );
+  } else if (context.page === 'cv-builder') {
+    sections.push(
+      'You are on the CV Builder page. If the user asks to "tailor my CV for this job", ask them to paste the job description, then use the `tailorCvToJob` tool to rewrite and save their CV.'
+    );
   } else if (context.page === 'tracker') {
     sections.push(
       'The user can see every application card on their board, grouped by status: Wishlist (lead), Applied, Interviewing, Offer, and Rejected.',
@@ -98,6 +187,7 @@ function buildSystemPrompt(context: z.infer<typeof contextSchema>) {
     'You have access to tools that can edit the user\'s data. If the user asks you to "apply this change", "save it", or "update my record", use the appropriate tool to save it to their database.',
     '- Use `updateCoverLetter` to save a new cover letter draft to the cover_letters table.',
     '- Use `updateResumeBullets` to update the bullet points of a specific experience entry in the user\'s latest resume.',
+    '- Use `tailorCvToJob` to rewrite and save the user\'s entire CV (summary, skills, and experience bullets) for a job description.',
     'Always confirm in your response which tool you used and what was saved.'
   );
 
@@ -163,6 +253,10 @@ function buildSystemPrompt(context: z.infer<typeof contextSchema>) {
       return `${index + 1}. ${parts.join(' — ')}`;
     });
     sections.push(`Job applications currently tracked:\n${summarized.join('\n')}`);
+  } else if (context.page === 'cv-builder') {
+    sections.push(
+      'You are on the CV Builder page. If the user asks to "tailor my CV for this job", ask them to paste the job description, then use the `tailorCvToJob` tool to rewrite and save their CV.'
+    );
   } else if (context.page === 'tracker') {
     sections.push(
       'The board is currently empty. Suggest that the user add a job with the "+ Add Job" button or load demo applications to explore the board.'
@@ -339,6 +433,66 @@ export async function POST(req: Request) {
     },
   });
 
+  const tailorCvToJob = tool({
+    description:
+      'Tailor the user\'s latest CV (summary, skills, and experience bullets) to a job description and save it back to the resumes table. Ask the user to paste the job description first if they have not provided it.',
+    inputSchema: z.object({
+      jobDescription: z
+        .string()
+        .min(1)
+        .describe('The full job description to tailor the CV for.'),
+    }),
+    execute: async ({ jobDescription }) => {
+      const { data: resume, error: resumeError } = await supabaseClient
+        .from('resumes')
+        .select('id, summary, skills, experience')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (resumeError || !resume) {
+        throw new Error('No resume found for this user. Please save a CV first.');
+      }
+
+      const tailored = await tailorResumeForJob(resume as ResumeForTailoring, jobDescription);
+      const existingExperience = Array.isArray(resume.experience)
+        ? (resume.experience as Array<Record<string, unknown>>)
+        : [];
+      const bulletsById = new Map(
+        tailored.experience.map((entry) => [entry.id, entry.bullets])
+      );
+
+      const updatedExperience = existingExperience.map((entry, index) => {
+        const id = typeof entry.id === 'string' ? entry.id : '';
+        const bullets = bulletsById.get(id) ?? tailored.experience[index]?.bullets;
+        return bullets ? { ...entry, bullets } : entry;
+      });
+
+      const { error: updateError } = await supabaseClient
+        .from('resumes')
+        .update({
+          summary: tailored.summary,
+          skills: tailored.skills,
+          experience: updatedExperience,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', resume.id);
+
+      if (updateError) {
+        throw new Error('Failed to save tailored CV: ' + updateError.message);
+      }
+
+      return {
+        success: true,
+        resumeId: resume.id,
+        summary: tailored.summary,
+        skills: tailored.skills,
+        experience: updatedExperience,
+      };
+    },
+  });
+
   const systemPrompt = buildSystemPrompt(payload.context ?? {});
 
   const sanitizeMessages = (messages: unknown[]) =>
@@ -381,6 +535,7 @@ export async function POST(req: Request) {
         tools: {
           updateCoverLetter,
           updateResumeBullets,
+          tailorCvToJob,
         },
       });
       return result.toUIMessageStreamResponse();

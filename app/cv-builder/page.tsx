@@ -8,6 +8,7 @@ import { ArrowLeft, Printer, Plus, Trash2, Loader2, Download, Layers, Sparkles, 
 import Link from 'next/link';
 
 import JobMatchesPanel from '@/app/components/jobs/JobMatchesPanel';
+import AIAssistant from '@/app/components/AIAssistant';
 
 import TemplateMinimalist from './components/TemplateMinimalist';
 import TemplateModernIndigo from './components/TemplateModernIndigo';
@@ -107,6 +108,39 @@ export default function CVBuilder() {
     };
     fetchData();
   }, [router]);
+
+  useEffect(() => {
+    const handleAiUpdate = async (event: Event) => {
+      const detail = (event as CustomEvent<{ toolNames?: string[] }>).detail;
+      if (!detail?.toolNames?.includes('tailorCvToJob')) return;
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: cv } = await supabase
+        .from('resumes')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (!cv) return;
+
+      setResumeId(cv.id);
+      setSummary(cv.summary || '');
+      setSkills(Array.isArray(cv.skills) ? cv.skills.join(', ') : '');
+      setExperience(
+        Array.isArray(cv.experience) && cv.experience.length > 0
+          ? (cv.experience as ExperienceItem[])
+          : [{ id: '1', company: '', role: '', dates: '', bullets: '' }]
+      );
+      setToast({ type: 'success', message: 'CV tailored to the job description.' });
+    };
+
+    window.addEventListener('ai-data-updated', handleAiUpdate);
+    return () => window.removeEventListener('ai-data-updated', handleAiUpdate);
+  }, []);
 
   const handleAddExperience = () => {
     setExperience([...experience, { id: Date.now().toString(), company: '', role: '', dates: '', bullets: '' }]);
@@ -538,6 +572,15 @@ export default function CVBuilder() {
         </div>
 
       </div>
+
+      <AIAssistant
+        title="CV Builder Copilot"
+        triggerLabel="Tailor my CV"
+        prompt="Help me tailor my CV to a specific job. Ask me to paste the job description if I have not provided it."
+        context={{ page: 'cv-builder' }}
+        userName={fullName || 'Candidate'}
+        userSkills={techStack}
+      />
     </div>
   );
 }
