@@ -1,12 +1,8 @@
 import { NextResponse } from 'next/server';
-import { PDFParse } from 'pdf-parse';
-import mammoth from 'mammoth';
 import { supabase } from '@/lib/supabase';
 import { generateText } from 'ai';
 import { z } from 'zod';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
-
-export const runtime = 'nodejs';
 
 const groq = createOpenAICompatible({
   name: 'groq',
@@ -44,27 +40,6 @@ const PROVIDER_MODELS = [
   { name: 'Gemini', model: gemini('gemini-2.0-flash'), key: process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY },
   { name: 'Agnes', model: agnes('agnes-3.0-flash'), key: process.env.AGNES_API_KEY },
 ];
-
-async function extractTextFromFile(file: File): Promise<string> {
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-  const fileName = file.name || '';
-  const lowerName = fileName.toLowerCase();
-
-  if (lowerName.endsWith('.pdf')) {
-    const parser = new PDFParse({ data: buffer });
-    const result = await parser.getText();
-    await parser.destroy();
-    return result.text;
-  }
-
-  if (lowerName.endsWith('.docx')) {
-    const result = await mammoth.extractRawText({ buffer: buffer });
-    return result.value;
-  }
-
-  return buffer.toString('utf-8');
-}
 
 const STOP_WORDS = new Set([
   'a', 'an', 'and', 'are', 'as', 'at', 'be', 'been', 'but', 'by', 'can',
@@ -193,34 +168,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    let resumeText = '';
-    let jobDescription = '';
-
-    const contentType = request.headers.get('content-type') || '';
-    if (contentType.includes('multipart/form-data')) {
-      const formData = await request.formData();
-      const file = formData.get('file') as File;
-      jobDescription = (formData.get('jobDescription') as string) || '';
-
-      if (file) {
-        resumeText = await extractTextFromFile(file);
-      }
-      const rawTextParam = formData.get('resumeText') as string;
-      if (!resumeText && rawTextParam) {
-        resumeText = rawTextParam;
-      }
-    } else {
-      const body = await request.json();
-      resumeText = body.resumeText || '';
-      jobDescription = body.jobDescription || '';
-    }
+    const body = await request.json();
+    const resumeText = typeof body.resumeText === 'string' ? body.resumeText : '';
+    const jobDescription = typeof body.jobDescription === 'string' ? body.jobDescription : '';
 
     if (!jobDescription.trim()) {
       return NextResponse.json({ error: 'Job description is required.' }, { status: 400 });
     }
 
     if (!resumeText.trim()) {
-      return NextResponse.json({ error: 'Resume text or file is required.' }, { status: 400 });
+      return NextResponse.json({ error: 'Resume text is required.' }, { status: 400 });
     }
 
     let analysis;

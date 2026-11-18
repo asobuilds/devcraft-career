@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Loader2, FileText, Briefcase, Sparkles, AlertCircle, CheckCircle2, Copy } from 'lucide-react';
+import { Loader2, FileText, Briefcase, Sparkles, AlertCircle, CheckCircle2, Copy, Upload } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import AIAssistant from '@/app/components/AIAssistant';
 
@@ -10,6 +10,47 @@ type CvSuggestion = {
   improved: string;
   reason: string;
 };
+
+async function extractTextFromFile(file: File): Promise<string> {
+  const lowerName = file.name.toLowerCase();
+
+  if (lowerName.endsWith('.pdf')) {
+    const pdfjs = await import('pdfjs-dist');
+    pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+      'pdfjs-dist/build/pdf.worker.min.mjs',
+      import.meta.url
+    ).toString();
+
+    const loadingTask = pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()) });
+    const pdf = await loadingTask.promise;
+    const pages: string[] = [];
+
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+      const page = await pdf.getPage(pageNumber);
+      const content = await page.getTextContent();
+      pages.push(
+        content.items
+          .map((item) => ('str' in item ? item.str + (item.hasEOL ? '\n' : ' ') : ''))
+          .join('')
+      );
+    }
+
+    await loadingTask.destroy();
+    return pages.join('\n');
+  }
+
+  if (lowerName.endsWith('.docx')) {
+    const mammoth = await import('mammoth');
+    const result = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+    return result.value;
+  }
+
+  if (lowerName.endsWith('.txt')) {
+    return file.text();
+  }
+
+  throw new Error('Unsupported file type. Please upload a PDF, DOCX, or TXT file.');
+}
 
 export default function ATSAnalyzer() {
   const [resumeText, setResumeText] = useState('');
@@ -22,6 +63,7 @@ export default function ATSAnalyzer() {
   const [suggestions, setSuggestions] = useState<CvSuggestion[]>([]);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [error, setError] = useState('');
+  const [isParsingFile, setIsParsingFile] = useState(false);
   const [isAiOpen, setIsAiOpen] = useState(false);
 
   const [userId, setUserId] = useState<string | null>(null);
@@ -70,6 +112,27 @@ export default function ATSAnalyzer() {
 
     loadProfile();
   }, []);
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    setError('');
+    setIsParsingFile(true);
+
+    try {
+      const text = await extractTextFromFile(file);
+      if (!text.trim()) {
+        throw new Error('Could not extract any text from this file.');
+      }
+      setResumeText(text);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to read file.');
+    } finally {
+      setIsParsingFile(false);
+    }
+  };
 
   const handleAnalyze = async () => {
     if (!resumeText.trim() || !jobDescription.trim()) {
@@ -197,8 +260,27 @@ export default function ATSAnalyzer() {
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-xs text-white focus:outline-none focus:border-orange-500/50 resize-none leading-relaxed placeholder-slate-600"
                   placeholder="Paste or type your resume content here..."
                 />
-                <div className="mt-2 flex items-center justify-between text-[10px] text-slate-600">
-                  <span>{resumeText.length} characters</span>
+                <div className="mt-2 flex items-center justify-between gap-2 text-[10px] text-slate-600">
+                  <span>
+                    {isParsingFile ? 'Extracting text...' : `${resumeText.length} characters`}
+                  </span>
+                  <label
+                    className={`inline-flex items-center gap-1 rounded-md border border-slate-700 px-2 py-1 text-[10px] text-slate-400 transition-colors ${
+                      isParsingFile
+                        ? 'cursor-not-allowed opacity-50'
+                        : 'cursor-pointer hover:bg-slate-800 hover:text-white'
+                    }`}
+                  >
+                    <Upload size={12} />
+                    {isParsingFile ? 'Loading text...' : 'Upload PDF/DOCX'}
+                    <input
+                      type="file"
+                      accept=".pdf,.docx,.txt"
+                      className="hidden"
+                      onChange={handleFileUpload}
+                      disabled={isParsingFile}
+                    />
+                  </label>
                 </div>
               </div>
 
