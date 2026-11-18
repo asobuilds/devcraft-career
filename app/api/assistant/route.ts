@@ -240,7 +240,12 @@ export async function POST(req: Request) {
   const payload = parsed.data;
 
   const authHeader = req.headers.get('authorization');
-  if (!authHeader) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const token = authHeader.slice(7).trim();
+  if (!token) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -248,7 +253,7 @@ export async function POST(req: Request) {
     process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
   );
-  const { data: { user }, error: authError } = await supabaseClient.auth.getUser(authHeader);
+  const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
   if (authError || !user) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }

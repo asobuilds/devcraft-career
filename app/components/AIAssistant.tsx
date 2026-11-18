@@ -5,6 +5,7 @@ import { useChat } from '@ai-sdk/react';
 import { useRouter } from 'next/navigation';
 import { DefaultChatTransport, getToolName, isToolUIPart } from 'ai';
 import { Bot, Loader2, Send, Sparkles, X, CheckCircle2 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 import ReactMarkdown from 'react-markdown';
 
 const TOOL_SUCCESS_MESSAGES: Record<string, string> = {
@@ -39,6 +40,7 @@ export default function AIAssistant({
   const router = useRouter();
   const [internalOpen, setInternalOpen] = useState(false);
   const [input, setInput] = useState('');
+  const [notice, setNotice] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
   const processedToolCalls = useRef<Set<string>>(new Set());
 
@@ -91,10 +93,21 @@ export default function AIAssistant({
     }
   }, [messages, router]);
 
-  const send = (text: string) => {
-    sendMessage(
+  const send = async (text: string) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+
+    if (!token) {
+      setNotice('You must be logged in to use the AI Assistant.');
+      setTimeout(() => setNotice(''), 4000);
+      return;
+    }
+
+    setNotice('');
+    await sendMessage(
       { text },
       {
+        headers: { Authorization: `Bearer ${token}` },
         body: {
           context: {
             ...context,
@@ -112,15 +125,15 @@ export default function AIAssistant({
       onOpenChange?.(true);
     }
     if (messages.length === 0) {
-      send(prompt);
+      void send(prompt);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const text = input.trim();
     if (!text || isBusy) return;
-    send(text);
+    await send(text);
     setInput('');
   };
 
@@ -241,6 +254,15 @@ export default function AIAssistant({
             </p>
           )}
         </div>
+
+        {notice && (
+          <p
+            role="alert"
+            className="mx-4 mb-2 rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-300"
+          >
+            {notice}
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} className="p-4 border-t border-slate-800 flex items-end gap-2">
           <textarea
