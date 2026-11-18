@@ -94,6 +94,7 @@
 | OpenCode | `app/api/analyze-resume/route.ts` | main | 2026-11-16T07:00:00Z | active |
 | OpenCode | `app/analyzer/page.tsx` | main | 2026-11-16T07:30:00Z | active |
 | OpenCode | `app/components/AIAssistant.tsx` | main | 2026-11-16T07:30:00Z | active |
+| OpenCode | `app/cv-builder/page.tsx` | main | 2026-11-16T10:00:00Z | active |
 | OpenCode | `app/analyzer/page.tsx` | main | 2026-11-16T06:00:00Z | active |
 | OpenCode | `app/api/assistant/route.ts` | main | 2026-11-16T04:30:00Z | active |
 | OpenCode | `package.json` | main | 2026-11-16T04:30:00Z | active |
@@ -210,6 +211,7 @@
 - `2026-11-16T08:00:00Z` — `Gemini` — Enhanced cover-letter AI prompt and passed resume context from the frontend.
 - `2026-11-16T09:00:00Z` — `Gemini` — Added read/write AI tools to the assistant and updated chat UI to confirm data updates.
 - `2026-11-16T09:30:00Z` — `Gemini` — Ensured assistant API validates Bearer token, returns 401 with Invalid session, and tools use the verified user ID.
+- `2026-11-16T10:00:00Z` — `OpenCode` — Added job tailoring UI and mock data preview to CV Builder.
 
 # Resolution & File Claims
 

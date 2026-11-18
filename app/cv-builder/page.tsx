@@ -61,6 +61,9 @@ export default function CVBuilder() {
   ]);
   const [theme, setTheme] = useState<string>('modern-indigo');
   const [activeView, setActiveView] = useState<'preview' | 'jobs'>('preview');
+  const [jobDescription, setJobDescription] = useState('');
+  const [isMockData, setIsMockData] = useState(false);
+  const [isAiOpen, setIsAiOpen] = useState(false);
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -253,6 +256,50 @@ export default function CVBuilder() {
     }
   };
 
+  const MOCK_DATA = {
+    fullName: 'Chinedu Okafor',
+    email: 'chinedu.okafor@example.com',
+    phone: '+2348012345678',
+    website: 'chinedu-dev',
+    summary:
+      'Results-driven Full-Stack Developer with 5+ years of experience building scalable web applications for Nigerian and international startups. Proficient in React, Node.js, and cloud infrastructure. Passionate about clean code, accessibility, and shipping products that solve real problems.',
+    skills: 'React, TypeScript, Node.js, Next.js, PostgreSQL, Docker, AWS, Tailwind CSS, Python',
+    experience: [
+      {
+        id: 'mock-1',
+        company: 'Flutterwave (Contract)',
+        role: 'Full-Stack Developer',
+        dates: '2023 — Present',
+        bullets:
+          'Built a Paystack-like payment gateway clone with React, Node.js, and PostgreSQL, processing over 500 test transactions per day.\nReduced checkout latency by 40% by optimizing database queries and introducing Redis caching.\nCollaborated with design and product teams to ship a mobile-responsive dashboard used by 2,000+ merchants.',
+      },
+      {
+        id: 'mock-2',
+        company: 'Andela',
+        role: 'Frontend Engineer',
+        dates: '2021 — 2023',
+        bullets:
+          'Developed reusable React component library adopted by 5 internal teams, cutting feature build time by 30%.\nImplemented end-to-end testing with Cypress, increasing test coverage from 45% to 85%.\nMentored 3 junior engineers through weekly code reviews and pairing sessions.',
+      },
+      {
+        id: 'mock-3',
+        company: 'Lagos Tech Hub',
+        role: 'Software Engineering Intern',
+        dates: '2020 — 2021',
+        bullets:
+          'Designed and launched a volunteer management platform with Express, React, and Firebase, serving 1,200 users.\nAutomated weekly impact reports using Python scripts and Google Sheets API.',
+      },
+    ] as ExperienceItem[],
+  };
+
+  const previewFullName = isMockData ? MOCK_DATA.fullName : fullName;
+  const previewEmail = isMockData ? MOCK_DATA.email : email;
+  const previewPhone = isMockData ? MOCK_DATA.phone : phone;
+  const previewWebsite = isMockData ? MOCK_DATA.website : website;
+  const previewSummary = isMockData ? MOCK_DATA.summary : summary;
+  const previewSkills = isMockData ? MOCK_DATA.skills : skills;
+  const previewExperience = isMockData ? MOCK_DATA.experience : experience;
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100">
@@ -395,192 +442,294 @@ export default function CVBuilder() {
         </div>
       </header>
 
-      <div className="max-w-[1600px] mx-auto grid lg:grid-cols-2 min-h-[calc(100vh-65px)] print:block">
-
-        <div className="p-6 md:p-10 border-r border-slate-900 space-y-8 overflow-y-auto max-h-[calc(100vh-70px)] print:hidden">
-
-          <button
-            onClick={() => setShowGuide(true)}
-            className="w-full inline-flex items-center justify-center gap-2 bg-indigo-600/10 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-600/20 text-xs font-semibold py-3 rounded-xl transition-colors"
-          >
-            ✨ Start Guided Interview
-          </button>
-
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Full Placement Name</label>
-              <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white" placeholder="Agene Okoh" />
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Verified Contact Email</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white" placeholder="you@example.com" />
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Phone Contact Number</label>
-              <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white" placeholder="+234..." />
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Vanity Portfolio Handle Link</label>
-              <input type="text" value={website} onChange={(e) => setWebsite(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white" placeholder="://devcraft.com" />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Executive Summary Meta Dossier Statement</label>
-            <textarea value={summary} onChange={(e) => setSummary(e.target.value)} rows={4} className="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 text-xs text-white resize-none leading-relaxed" placeholder="State your metrics achievements..." />
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-900 pb-2">
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Work Experience Mapping Matrix</label>
-              <button onClick={handleAddExperience} className="inline-flex items-center gap-1 text-[10px] font-bold text-purple-400"><Plus size={12} /> Add Job Entry</button>
-            </div>
-            {experience.map((exp) => (
-              <div key={exp.id} className="p-4 bg-slate-900/40 border border-slate-800 rounded-xl space-y-3 relative group">
-                <button onClick={() => handleRemoveExperience(exp.id)} className="absolute top-4 right-4 text-slate-600 hover:text-red-400"><Trash2 size={12} /></button>
-                <div className="grid sm:grid-cols-3 gap-3">
-                  <input type="text" placeholder="Institution/Company" value={exp.company} onChange={(e) => handleExperienceChange(exp.id, 'company', e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white" />
-                  <input type="text" placeholder="Official Role Position" value={exp.role} onChange={(e) => handleExperienceChange(exp.id, 'role', e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white" />
-                  <input type="text" placeholder="Dates Frame" value={exp.dates} onChange={(e) => handleExperienceChange(exp.id, 'dates', e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white" />
-                </div>
-                <textarea rows={2} placeholder="Key accomplishments and data volume variables metrics optimized..." value={exp.bullets} onChange={(e) => handleExperienceChange(exp.id, 'bullets', e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white resize-none" />
-
-                {exp.bullets.length > 2 && (
-                  <div className={`p-2 rounded-lg text-[10px] font-medium border ${
-                    exp.bullets.toLowerCase().includes('responsible for') || exp.bullets.toLowerCase().includes('helped with') ? 'bg-red-500/5 border-red-500/20 text-red-400' :
-                    exp.bullets.toLowerCase().includes('managed') || exp.bullets.toLowerCase().includes('led') ? 'bg-yellow-500/5 border-yellow-500/20 text-yellow-400' :
-                    !/\d/.test(exp.bullets) ? 'bg-blue-500/5 border-blue-500/20 text-blue-400' : 'bg-green-500/5 border-green-500/20 text-green-400'
-                  }`}>
-                    {exp.bullets.toLowerCase().includes('responsible for') || exp.bullets.toLowerCase().includes('helped with') ? '⚠️ ATS Alert: Replace passive terms with high-velocity action verbs (e.g. Engineered, Architected).' :
-                     exp.bullets.toLowerCase().includes('managed') || exp.bullets.toLowerCase().includes('led') ? '🚀 Tip: Maximize your score by explicitly detailing the volume metrics of the squads or resources led.' :
-                     !/\d/.test(exp.bullets) ? '💡 Metrics Missing: Government and private selectors look for exact numeric parameters values.' : '✨ Compliance Check: Bullet format satisfies high-impact performance scanning screening metrics rules perfectly!'}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Technical Skill Keywords Matrix (Comma-Separated)</label>
-            <input type="text" value={skills} onChange={(e) => setSkills(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white" placeholder="React, TypeScript, SQL, PostgreSQL, Linux, Docker, AWS" />
-          </div>
-
-          <div className="flex items-center justify-between border border-slate-800 bg-slate-900/40 rounded-xl p-4">
-            <div className="space-y-0.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Include Profile Photo (Creative roles only)</label>
-              <p className="text-[9px] text-slate-500">Enable for creative/portfolio-focused resumes. ATS-safe templates render without photos.</p>
-            </div>
+      <div className={`flex w-full transition-all duration-300 ${isAiOpen ? 'xl:w-[calc(100%-420px)]' : 'w-full'}`}>
+        <div className="max-w-[1600px] mx-auto grid lg:grid-cols-2 min-h-[calc(100vh-65px)] print:block w-full">
+          <div className="p-6 md:p-10 border-r border-slate-900 space-y-8 overflow-y-auto max-h-[calc(100vh-70px)] print:hidden">
             <button
-              onClick={() => setAllowPhoto((prev) => !prev)}
-              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${allowPhoto ? 'bg-indigo-600' : 'bg-slate-700'}`}
-              role="switch"
-              aria-checked={allowPhoto}
-              aria-label="Include Profile Photo"
-              type="button"
+              onClick={() => setShowGuide(true)}
+              className="w-full inline-flex items-center justify-center gap-2 bg-indigo-600/10 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-600/20 text-xs font-semibold py-3 rounded-xl transition-colors"
             >
-              <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white transform transition-transform ${allowPhoto ? 'translate-x-4' : 'translate-x-1'}`} />
+              ✨ Start Guided Interview
             </button>
-          </div>
 
-          <CertificateUploader
-            supabase={supabase}
-            userId={userId}
-            attachments={attachments}
-            onAttachmentsChange={setAttachments}
-          />
-
-          <ProfilePhotoUploader
-            avatarUrl={avatarUrl}
-            setAvatarUrl={setAvatarUrl}
-            allowPhoto={allowPhoto}
-          />
-        </div>
-
-        <div className="p-6 md:p-12 bg-slate-900/10 flex flex-col items-center overflow-y-auto max-h-[calc(100vh-70px)] print:max-h-none print:p-0 print:bg-white">
-          <div className="mb-4 flex w-full justify-center print:hidden">
-            <div className="inline-flex items-center gap-1 rounded-xl border border-slate-800 bg-slate-950 p-1" role="tablist" aria-label="CV builder view">
+            <div className="rounded-2xl border border-orange-500/20 bg-orange-500/5 p-5 space-y-3">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-orange-300">🎯 Tailor to a Specific Job</h3>
+              <textarea
+                value={jobDescription}
+                onChange={(e) => setJobDescription(e.target.value)}
+                rows={4}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white resize-none leading-relaxed placeholder-slate-600"
+                placeholder="Paste the job description you want to target..."
+              />
               <button
-                type="button"
-                role="tab"
-                id="cv-preview-tab"
-                aria-selected={activeView === 'preview'}
-                aria-controls="cv-preview-panel"
-                onClick={() => setActiveView('preview')}
-                className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-colors sm:px-3.5 ${
-                  activeView === 'preview'
-                    ? 'bg-slate-800 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
+                onClick={async () => {
+                  setIsAiOpen(true);
+                  const { data: { session } } = await supabase.auth.getSession();
+                  const token = session?.access_token || '';
+                  fetch('/api/assistant', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                      messages: [{ role: 'user', parts: [{ type: 'text', text: `Tailor my CV for this job: ${jobDescription}` }] }],
+                      context: {
+                        page: 'cv-builder',
+                        resumeText: [fullName, email, phone, website, summary, skills, experience.map((e) => `${e.role} at ${e.company}: ${e.bullets}`).join('\n')].filter(Boolean).join('\n'),
+                        jobDescription,
+                      },
+                    }),
+                  });
+                }}
+                disabled={!jobDescription.trim()}
+                className="w-full inline-flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-400 disabled:opacity-50 text-white font-semibold text-xs py-3 rounded-xl transition-all"
               >
-                <Eye size={13} />
-                Preview
-              </button>
-              <button
-                type="button"
-                role="tab"
-                id="cv-jobs-tab"
-                aria-selected={activeView === 'jobs'}
-                aria-controls="cv-jobs-panel"
-                onClick={() => setActiveView('jobs')}
-                className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-colors sm:px-3.5 ${
-                  activeView === 'jobs'
-                    ? 'bg-slate-800 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <Briefcase size={13} />
-                Job Matches
+                <Sparkles size={14} /> Tailor CV with AI
               </button>
             </div>
+
+            <div className="flex items-center justify-between border border-slate-800 bg-slate-900/40 rounded-xl p-4">
+              <div className="space-y-0.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Show Mock Data Preview</label>
+                <p className="text-[9px] text-slate-500">Populate the preview with a full sample Nigerian CV.</p>
+              </div>
+              <button
+                onClick={() => setIsMockData((prev) => !prev)}
+                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${isMockData ? 'bg-orange-500' : 'bg-slate-700'}`}
+                role="switch"
+                aria-checked={isMockData}
+                aria-label="Show mock data preview"
+                type="button"
+              >
+                <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white transform transition-transform ${isMockData ? 'translate-x-4' : 'translate-x-1'}`} />
+              </button>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Full Placement Name</label>
+                <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white" placeholder="Agene Okoh" />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Verified Contact Email</label>
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white" placeholder="you@example.com" />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Phone Contact Number</label>
+                <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white" placeholder="+234..." />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Vanity Portfolio Handle Link</label>
+                <input type="text" value={website} onChange={(e) => setWebsite(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white" placeholder="://devcraft.com" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Executive Summary Meta Dossier Statement</label>
+              <textarea value={summary} onChange={(e) => setSummary(e.target.value)} rows={4} className="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 text-xs text-white resize-none leading-relaxed" placeholder="State your metrics achievements..." />
+              <button
+                onClick={async () => {
+                  setIsAiOpen(true);
+                  const { data: { session } } = await supabase.auth.getSession();
+                  const token = session?.access_token || '';
+                  fetch('/api/assistant', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                      messages: [{ role: 'user', parts: [{ type: 'text', text: 'Rewrite my executive summary to sound more professional and impactful.' }] }],
+                      context: {
+                        page: 'cv-builder',
+                        resumeText: [fullName, email, phone, website, summary, skills, experience.map((e) => `${e.role} at ${e.company}: ${e.bullets}`).join('\n')].filter(Boolean).join('\n'),
+                      },
+                    }),
+                  });
+                }}
+                className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-orange-400 hover:text-orange-300 transition-colors"
+              >
+                <Sparkles size={10} /> Get AI Suggestions
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-900 pb-2">
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Work Experience Mapping Matrix</label>
+                <button onClick={handleAddExperience} className="inline-flex items-center gap-1 text-[10px] font-bold text-purple-400"><Plus size={12} /> Add Job Entry</button>
+              </div>
+              {experience.map((exp) => (
+                <div key={exp.id} className="p-4 bg-slate-900/40 border border-slate-800 rounded-xl space-y-3 relative group">
+                  <button onClick={() => handleRemoveExperience(exp.id)} className="absolute top-4 right-4 text-slate-600 hover:text-red-400"><Trash2 size={12} /></button>
+                  <div className="grid sm:grid-cols-3 gap-3">
+                    <input type="text" placeholder="Institution/Company" value={exp.company} onChange={(e) => handleExperienceChange(exp.id, 'company', e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white" />
+                    <input type="text" placeholder="Official Role Position" value={exp.role} onChange={(e) => handleExperienceChange(exp.id, 'role', e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white" />
+                    <input type="text" placeholder="Dates Frame" value={exp.dates} onChange={(e) => handleExperienceChange(exp.id, 'dates', e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white" />
+                  </div>
+                  <textarea rows={2} placeholder="Key accomplishments and data volume variables metrics optimized..." value={exp.bullets} onChange={(e) => handleExperienceChange(exp.id, 'bullets', e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white resize-none" />
+
+                  {exp.bullets.length > 2 && (
+                    <div className={`p-2 rounded-lg text-[10px] font-medium border ${
+                      exp.bullets.toLowerCase().includes('responsible for') || exp.bullets.toLowerCase().includes('helped with') ? 'bg-red-500/5 border-red-500/20 text-red-400' :
+                      exp.bullets.toLowerCase().includes('managed') || exp.bullets.toLowerCase().includes('led') ? 'bg-yellow-500/5 border-yellow-500/20 text-yellow-400' :
+                      !/\d/.test(exp.bullets) ? 'bg-blue-500/5 border-blue-500/20 text-blue-400' : 'bg-green-500/5 border-green-500/20 text-green-400'
+                    }`}>
+                      {exp.bullets.toLowerCase().includes('responsible for') || exp.bullets.toLowerCase().includes('helped with') ? '⚠️ ATS Alert: Replace passive terms with high-velocity action verbs (e.g. Engineered, Architected).' :
+                       exp.bullets.toLowerCase().includes('managed') || exp.bullets.toLowerCase().includes('led') ? '🚀 Tip: Maximize your score by explicitly detailing the volume metrics of the squads or resources led.' :
+                       !/\d/.test(exp.bullets) ? '💡 Metrics Missing: Government and private selectors look for exact numeric parameters values.' : '✨ Compliance Check: Bullet format satisfies high-impact performance scanning screening metrics rules perfectly!'}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Technical Skill Keywords Matrix (Comma-Separated)</label>
+              <input type="text" value={skills} onChange={(e) => setSkills(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white" placeholder="React, TypeScript, SQL, PostgreSQL, Linux, Docker, AWS" />
+            </div>
+
+            <div className="flex items-center justify-between border border-slate-800 bg-slate-900/40 rounded-xl p-4">
+              <div className="space-y-0.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Include Profile Photo (Creative roles only)</label>
+                <p className="text-[9px] text-slate-500">Enable for creative/portfolio-focused resumes. ATS-safe templates render without photos.</p>
+              </div>
+              <button
+                onClick={() => setAllowPhoto((prev) => !prev)}
+                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${allowPhoto ? 'bg-indigo-600' : 'bg-slate-700'}`}
+                role="switch"
+                aria-checked={allowPhoto}
+                aria-label="Include Profile Photo"
+                type="button"
+              >
+                <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white transform transition-transform ${allowPhoto ? 'translate-x-4' : 'translate-x-1'}`} />
+              </button>
+            </div>
+
+            <CertificateUploader
+              supabase={supabase}
+              userId={userId}
+              attachments={attachments}
+              onAttachmentsChange={setAttachments}
+            />
+
+            <ProfilePhotoUploader
+              avatarUrl={avatarUrl}
+              setAvatarUrl={setAvatarUrl}
+              allowPhoto={allowPhoto}
+            />
           </div>
 
-          <div
-            id="cv-preview-panel"
-            role="tabpanel"
-            aria-labelledby="cv-preview-tab"
-            className={`w-full justify-center ${activeView === 'preview' ? 'flex' : 'hidden print:flex'}`}
-          >
-            {theme === 'minimalist' ? (
-              <TemplateMinimalist fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} {...({ allowPhoto } as any)} />
-            ) : theme === 'executive-slate' ? (
-              <TemplateExecutiveSlate fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} {...({ allowPhoto } as any)} />
-            ) : theme === 'creative-teal' ? (
-              <TemplateCreativeTeal fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} {...({ allowPhoto } as any)} />
-            ) : theme === 'compact-euro' ? (
-              <TemplateCompactEuro fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} avatarUrl={avatarUrl} {...({ allowPhoto } as any)} />
-            ) : theme === 'lagos-corporate' ? (
-              <TemplateLagosCorporate fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} allowPhoto={allowPhoto} />
-            ) : theme === 'tech-stack' ? (
-              <TemplateTechStack fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} allowPhoto={allowPhoto} />
-            ) : theme === 'graduate' ? (
-              <TemplateGraduate fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} allowPhoto={allowPhoto} />
-            ) : (
-              <TemplateModernIndigo fullName={fullName} email={email} phone={phone} website={website} summary={summary} skills={skills} experience={experience} />
-            )}
-          </div>
+          <div className="p-6 md:p-12 bg-slate-900/10 flex flex-col items-center overflow-y-auto max-h-[calc(100vh-70px)] print:max-h-none print:p-0 print:bg-white">
+            <div className="mb-4 flex w-full justify-center print:hidden">
+              <div className="inline-flex items-center gap-1 rounded-xl border border-slate-800 bg-slate-950 p-1" role="tablist" aria-label="CV builder view">
+                <button
+                  type="button"
+                  role="tab"
+                  id="cv-preview-tab"
+                  aria-selected={activeView === 'preview'}
+                  aria-controls="cv-preview-panel"
+                  onClick={() => setActiveView('preview')}
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-colors sm:px-3.5 ${
+                    activeView === 'preview'
+                      ? 'bg-slate-800 text-white shadow-sm'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <Eye size={13} />
+                  Preview
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  id="cv-jobs-tab"
+                  aria-selected={activeView === 'jobs'}
+                  aria-controls="cv-jobs-panel"
+                  onClick={() => setActiveView('jobs')}
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-colors sm:px-3.5 ${
+                    activeView === 'jobs'
+                      ? 'bg-slate-800 text-white shadow-sm'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <Briefcase size={13} />
+                  Job Matches
+                </button>
+              </div>
+            </div>
 
-          {activeView === 'jobs' ? (
             <div
-              id="cv-jobs-panel"
+              id="cv-preview-panel"
               role="tabpanel"
-              aria-labelledby="cv-jobs-tab"
-              className="w-full max-w-4xl print:hidden"
+              aria-labelledby="cv-preview-tab"
+              className={`w-full justify-center ${activeView === 'preview' ? 'flex' : 'hidden print:flex'}`}
             >
-              <JobMatchesPanel techStack={techStack} />
+              {theme === 'minimalist' ? (
+                <TemplateMinimalist fullName={previewFullName} email={previewEmail} phone={previewPhone} website={previewWebsite} summary={previewSummary} skills={previewSkills} experience={previewExperience} avatarUrl={avatarUrl} {...({ allowPhoto } as any)} />
+              ) : theme === 'executive-slate' ? (
+                <TemplateExecutiveSlate fullName={previewFullName} email={previewEmail} phone={previewPhone} website={previewWebsite} summary={previewSummary} skills={previewSkills} experience={previewExperience} {...({ allowPhoto } as any)} />
+              ) : theme === 'creative-teal' ? (
+                <TemplateCreativeTeal fullName={previewFullName} email={previewEmail} phone={previewPhone} website={previewWebsite} summary={previewSummary} skills={previewSkills} experience={previewExperience} avatarUrl={avatarUrl} {...({ allowPhoto } as any)} />
+              ) : theme === 'compact-euro' ? (
+                <TemplateCompactEuro fullName={previewFullName} email={previewEmail} phone={previewPhone} website={previewWebsite} summary={previewSummary} skills={previewSkills} experience={previewExperience} avatarUrl={avatarUrl} {...({ allowPhoto } as any)} />
+              ) : theme === 'lagos-corporate' ? (
+                <TemplateLagosCorporate fullName={previewFullName} email={previewEmail} phone={previewPhone} website={previewWebsite} summary={previewSummary} skills={previewSkills} experience={previewExperience} allowPhoto={allowPhoto} />
+              ) : theme === 'tech-stack' ? (
+                <TemplateTechStack fullName={previewFullName} email={previewEmail} phone={previewPhone} website={previewWebsite} summary={previewSummary} skills={previewSkills} experience={previewExperience} allowPhoto={allowPhoto} />
+              ) : theme === 'graduate' ? (
+                <TemplateGraduate fullName={previewFullName} email={previewEmail} phone={previewPhone} website={previewWebsite} summary={previewSummary} skills={previewSkills} experience={previewExperience} allowPhoto={allowPhoto} />
+              ) : (
+                <TemplateModernIndigo fullName={previewFullName} email={previewEmail} phone={previewPhone} website={previewWebsite} summary={previewSummary} skills={previewSkills} experience={previewExperience} />
+              )}
             </div>
-          ) : null}
+
+            {activeView === 'jobs' ? (
+              <div
+                id="cv-jobs-panel"
+                role="tabpanel"
+                aria-labelledby="cv-jobs-tab"
+                className="w-full max-w-4xl print:hidden"
+              >
+                <JobMatchesPanel techStack={techStack} />
+              </div>
+            ) : null}
+          </div>
         </div>
 
+        {isAiOpen ? (
+          <div className="w-[400px] shrink-0 hidden xl:block">
+            <AIAssistant
+              title="CV Builder Copilot"
+              triggerLabel="Tailor my CV"
+              prompt="Help me tailor my CV to a specific job. Ask me to paste the job description if I have not provided it."
+              context={{
+                page: 'cv-builder',
+                resumeText: [fullName, email, phone, website, summary, skills, experience.map((e) => `${e.role} at ${e.company}: ${e.bullets}`).join('\n')].filter(Boolean).join('\n'),
+                jobDescription,
+              }}
+              userName={fullName || 'Candidate'}
+              userSkills={techStack}
+              forceOpen
+            />
+          </div>
+        ) : null}
       </div>
 
-      <AIAssistant
-        title="CV Builder Copilot"
-        triggerLabel="Tailor my CV"
-        prompt="Help me tailor my CV to a specific job. Ask me to paste the job description if I have not provided it."
-        context={{ page: 'cv-builder' }}
-        userName={fullName || 'Candidate'}
-        userSkills={techStack}
-      />
+      {!isAiOpen ? (
+        <AIAssistant
+          title="CV Builder Copilot"
+          triggerLabel="Tailor my CV"
+          prompt="Help me tailor my CV to a specific job. Ask me to paste the job description if I have not provided it."
+          context={{
+            page: 'cv-builder',
+            resumeText: [fullName, email, phone, website, summary, skills, experience.map((e) => `${e.role} at ${e.company}: ${e.bullets}`).join('\n')].filter(Boolean).join('\n'),
+            jobDescription,
+          }}
+          userName={fullName || 'Candidate'}
+          userSkills={techStack}
+          onOpenChange={setIsAiOpen}
+        />
+      ) : null}
     </div>
   );
 }
