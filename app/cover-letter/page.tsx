@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 import {
   ArrowLeft,
   Briefcase,
@@ -15,6 +16,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import AIAssistant from '@/app/components/AIAssistant';
+import CoverLetterPdf from '@/app/components/CoverLetterPdf';
 
 interface Resume {
   id: string;
@@ -58,23 +60,12 @@ function buildResumeContext(resumes: Resume[], userName: string, userEmail: stri
   return parts.join('\n');
 }
 
-function escapeHtml(value: string): string {
-  return value.replace(/[&<>"']/g, (character) => {
-    const entities: Record<string, string> = {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;',
-    };
-    return entities[character];
-  });
-}
-
 export default function CoverLetterPage() {
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
+  const [userPhone, setUserPhone] = useState('');
+  const [userWebsite, setUserWebsite] = useState('');
   const [userSkills, setUserSkills] = useState<string[]>([]);
   const [isAiOpen, setIsAiOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
@@ -108,13 +99,15 @@ export default function CoverLetterPage() {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('full_name, email, tech_stack')
+        .select('full_name, email, phone, website, tech_stack')
         .eq('id', user.id)
         .maybeSingle();
 
       if (profile) {
         setUserName(profile.full_name || '');
         setUserEmail(profile.email || '');
+        setUserPhone(profile.phone || '');
+        setUserWebsite(profile.website || '');
         setUserSkills(
           typeof profile.tech_stack === 'string'
             ? profile.tech_stack.split(',').map((skill: string) => skill.trim()).filter(Boolean)
@@ -201,47 +194,6 @@ export default function CoverLetterPage() {
       setState((prev) => ({ ...prev, isGenerating: false }));
     }
   }, [state, resumes, userName, userEmail]);
-
-  const handleDownloadPdf = useCallback(() => {
-    const { generatedCoverLetter } = state;
-    if (!generatedCoverLetter) return;
-
-    const existingFrame = document.getElementById('cover-letter-print-frame');
-    if (existingFrame) existingFrame.remove();
-
-    const frame = document.createElement('iframe');
-    frame.id = 'cover-letter-print-frame';
-    frame.style.position = 'fixed';
-    frame.style.right = '0';
-    frame.style.bottom = '0';
-    frame.style.width = '0';
-    frame.style.height = '0';
-    frame.style.border = '0';
-
-    frame.onload = () => {
-      frame.contentWindow?.focus();
-      frame.contentWindow?.print();
-      window.setTimeout(() => frame.remove(), 1000);
-    };
-
-    document.body.appendChild(frame);
-
-    const printDocument = frame.contentWindow?.document;
-    if (!printDocument) {
-      frame.remove();
-      return;
-    }
-
-    printDocument.open();
-    printDocument.write(
-      '<!doctype html><html><head><title>Cover Letter</title><style>' +
-        "@page { margin: 1in; } body { font-family: Georgia, 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; color: #111; white-space: pre-wrap; }" +
-        '</style></head><body>' +
-        escapeHtml(generatedCoverLetter) +
-        '</body></html>'
-    );
-    printDocument.close();
-  }, [state]);
 
   const handleSkillsChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setState((prev) => ({ ...prev, skillsInput: e.target.value }));
@@ -375,13 +327,33 @@ export default function CoverLetterPage() {
                     <h2 className="font-semibold text-slate-200">Generated Cover Letter</h2>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <button
-                      onClick={handleDownloadPdf}
-                      disabled={!state.generatedCoverLetter}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
+                    <PDFDownloadLink
+                      document={
+                        <CoverLetterPdf
+                          generatedLetter={state.generatedCoverLetter}
+                          fullName={userName}
+                          email={userEmail}
+                          phone={userPhone}
+                          website={userWebsite}
+                        />
+                      }
+                      fileName={`${(userName || 'cover-letter')
+                        .replace(/[^a-z0-9]+/gi, '-')
+                        .replace(/^-+|-+$/g, '')
+                        .toLowerCase()}-cover-letter.pdf`}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-indigo-500"
                     >
-                      <Download size={14} /> Download PDF
-                    </button>
+                      {({ loading }) => (
+                        <>
+                          {loading ? (
+                            <Loader2 size={14} className="animate-spin" />
+                          ) : (
+                            <Download size={14} />
+                          )}
+                          {loading ? 'Preparing PDF...' : 'Download PDF'}
+                        </>
+                      )}
+                    </PDFDownloadLink>
                     <button
                       onClick={handleCopy}
                       className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-1.5 text-xs font-semibold text-slate-300 transition-colors hover:bg-slate-800 hover:text-white"
