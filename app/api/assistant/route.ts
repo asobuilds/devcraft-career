@@ -1,9 +1,11 @@
 import {
   createUIMessageStream,
   streamText,
+  tool,
 } from 'ai';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { z } from 'zod';
+import { createClient } from '@supabase/supabase-js';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -88,6 +90,15 @@ function buildSystemPrompt(context: z.infer<typeof contextSchema>) {
     '',
     'CONSTRAINTS',
     'Do NOT hallucinate experience. If you suggest adding a skill, tell them they need to acquire it first. Keep responses under 200 words.'
+  );
+
+  sections.push(
+    '',
+    'TOOLS',
+    'You have access to tools that can edit the user\'s data. If the user asks you to "apply this change", "save it", or "update my record", use the appropriate tool to save it to their database.',
+    '- Use `updateCoverLetter` to save a new cover letter draft to the cover_letters table.',
+    '- Use `updateResumeBullets` to update the bullet points of a specific experience entry in the user\'s latest resume.',
+    'Always confirm in your response which tool you used and what was saved.'
   );
 
   if (context.page === 'analyzer' && !(context.resumeText || '').trim()) {
@@ -227,6 +238,100 @@ export async function POST(req: Request) {
   }
 
   const payload = parsed.data;
+
+  const authHeader = req.headers.get('authorization');
+  if (!authHeader) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const supabaseClient = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
+  );
+  const { data: { user }, error: authError } = await supabaseClient.auth.getUser(authHeader);
+  if (authError || !user) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const updateCoverLetter = tool({
+    description:
+      'Update the user\'s saved cover letter in the cover_letters table. Use this when the user asks to apply or save a new cover letter draft.',
+    inputSchema: z.object({
+      newText: z.string().describe('The full text of the new cover letter.'),
+    }),
+    execute: async ({ newText }) => {
+      const { data, error } = await supabaseClient
+        .from('cover_letters')
+        .upsert(
+          {
+            user_id: user.id,
+            content: newText,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id' }
+        )
+        .select('id, user_id, content, created_at, updated_at');
+
+      if (error) {
+        throw new Error('Failed to update cover letter: ' + error.message);
+      }
+
+      return { success: true, record: data?.[0] ?? null };
+    },
+  });
+
+  const updateResumeBullets = tool({
+    description:
+      'Update the bullet points for a specific experience entry in the user\'s latest resume. Use this when the user asks to improve or rewrite a resume bullet.',
+    inputSchema: z.object({
+      experienceId: z.string().describe('The id of the experience entry to update.'),
+      newBullets: z.string().describe('The new bullet text, one entry per line.'),
+    }),
+    execute: async ({ experienceId, newBullets }) => {
+      const { data: resume, error: resumeError } = await supabaseClient
+        .from('resumes')
+        .select('id, experience')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (resumeError || !resume) {
+        throw new Error('No resume found for this user.');
+      }
+
+      const experiences = Array.isArray(resume.experience) ? resume.experience : [];
+      const index = experiences.findIndex(
+        (entry: Record<string, unknown>) => entry.id === experienceId
+      );
+
+      if (index === -1) {
+        throw new Error('Experience entry not found in resume.');
+      }
+
+      const updatedExperience = experiences.map(
+        (entry: Record<string, unknown>, i: number) =>
+          i === index
+            ? { ...entry, bullets: newBullets }
+            : entry
+      ) as Array<Record<string, unknown>>;
+
+      const { error: updateError } = await supabaseClient
+        .from('resumes')
+        .update({
+          experience: updatedExperience,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', resume.id);
+
+      if (updateError) {
+        throw new Error('Failed to update resume: ' + updateError.message);
+      }
+
+      return { success: true, resumeId: resume.id };
+    },
+  });
+
   const systemPrompt = buildSystemPrompt(payload.context ?? {});
 
   const sanitizeMessages = (messages: unknown[]) =>
@@ -266,6 +371,10 @@ export async function POST(req: Request) {
         model: provider.model,
         system: systemPrompt,
         messages: sanitizedMessages as Array<{ role: 'user' | 'assistant'; content: string }>,
+        tools: {
+          updateCoverLetter,
+          updateResumeBullets,
+        },
       });
       return result.toUIMessageStreamResponse();
     } catch (error) {

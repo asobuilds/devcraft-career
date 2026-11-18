@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
-import { Bot, Loader2, Send, Sparkles, X } from 'lucide-react';
+import { Bot, Loader2, Send, Sparkles, X, CheckCircle2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
 const MARKDOWN_STYLES =
@@ -160,11 +160,23 @@ export default function AIAssistant({
                     : `bg-slate-800/80 text-slate-100 border border-slate-700/60 ${MARKDOWN_STYLES}`
                 }`}
               >
-                {message.parts.map((part, index) =>
-                  part.type === 'text' ? (
-                    <ReactMarkdown key={index}>{part.text}</ReactMarkdown>
-                  ) : null
-                )}
+                {message.parts.map((part, index) => {
+                  if (part.type === 'text') {
+                    return <ReactMarkdown key={index}>{part.text}</ReactMarkdown>;
+                  }
+                  if (
+                    part.type === 'tool-invocation' &&
+                    (part.state === 'output-available' || part.state === 'output-error')
+                  ) {
+                    return (
+                      <div key={index} className="mt-2 flex items-center gap-1.5 text-xs text-emerald-400">
+                        <CheckCircle2 size={12} />
+                        <span>✅ Data updated</span>
+                      </div>
+                    );
+                  }
+                  return null;
+                })}
               </div>
             </div>
           ))}
