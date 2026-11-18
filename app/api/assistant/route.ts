@@ -60,7 +60,11 @@ function buildSystemPrompt(context: z.infer<typeof contextSchema>) {
     );
   } else if (context.page === 'cover-letter') {
     sections.push(
-      'Adjust the tone to be persuasive and professional, weaving in their skills.'
+      'Act as a cover-letter writing coach. If the user asks for help writing or improving a cover letter:',
+      '1. First check the context for resume details (skills, summary, experience) and the job description.',
+      '2. If the resume context is missing, ask the user to share their resume details or select a resume from the left panel.',
+      '3. Then draft a 3-paragraph cover letter: opening with interest, middle matching their skills to the job requirements, closing with a call to action.',
+      '4. Weave their actual skills into the draft; do not invent experience or skills that are not in the context.'
     );
   } else if (context.page === 'tracker') {
     sections.push(

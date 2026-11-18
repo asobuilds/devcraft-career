@@ -33,6 +33,31 @@ interface CoverLetterState {
   isGenerating: boolean;
 }
 
+function buildResumeContext(resumes: Resume[], userName: string, userEmail: string, userSkills: string[], state: CoverLetterState): string {
+  const selectedResume = state.resumeId ? resumes.find((resume) => resume.id === state.resumeId) : undefined;
+
+  const skills = state.resumeId
+    ? selectedResume?.skills?.join(', ') || userSkills.join(', ')
+    : state.skillsInput;
+
+  const experienceLines = selectedResume?.experience
+    ? selectedResume.experience.map((entry) => {
+        const item = entry as Record<string, unknown>;
+        return `${String(item.role ?? item.title ?? '')} at ${String(item.company ?? '')}: ${String(item.bullets ?? item.description ?? '')}`;
+      })
+    : [];
+
+  const parts = [
+    `Name: ${selectedResume ? userName || 'Candidate' : userName || 'Candidate'}`,
+    `Email: ${userEmail}`,
+    selectedResume?.summary ? `Summary: ${selectedResume.summary}` : '',
+    skills ? `Skills: ${skills}` : '',
+    experienceLines.length > 0 ? `Experience:\n${experienceLines.join('\n')}` : '',
+  ].filter(Boolean);
+
+  return parts.join('\n');
+}
+
 function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (character) => {
     const entities: Record<string, string> = {
@@ -403,6 +428,7 @@ export default function CoverLetterPage() {
                 page: 'cover-letter',
                 jobDescription: state.jobDescription,
                 coverLetter: state.generatedCoverLetter ?? '',
+                resumeText: buildResumeContext(resumes, userName, userEmail, userSkills, state),
               }}
               userName={userName}
               userSkills={userSkills}
@@ -421,6 +447,7 @@ export default function CoverLetterPage() {
             page: 'cover-letter',
             jobDescription: state.jobDescription,
             coverLetter: state.generatedCoverLetter ?? '',
+            resumeText: buildResumeContext(resumes, userName, userEmail, userSkills, state),
           }}
           userName={userName}
           userSkills={userSkills}
