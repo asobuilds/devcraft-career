@@ -241,12 +241,12 @@ export async function POST(req: Request) {
 
   const authHeader = req.headers.get('authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    return Response.json({ error: 'Invalid session' }, { status: 401 });
   }
 
   const token = authHeader.slice(7).trim();
   if (!token) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    return Response.json({ error: 'Invalid session' }, { status: 401 });
   }
 
   const supabaseClient = createClient(
@@ -255,8 +255,10 @@ export async function POST(req: Request) {
   );
   const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
   if (authError || !user) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    return Response.json({ error: 'Invalid session' }, { status: 401 });
   }
+
+  const userId = user.id;
 
   const updateCoverLetter = tool({
     description:
@@ -269,7 +271,7 @@ export async function POST(req: Request) {
         .from('cover_letters')
         .upsert(
           {
-            user_id: user.id,
+            user_id: userId,
             content: newText,
             updated_at: new Date().toISOString(),
           },
@@ -296,7 +298,7 @@ export async function POST(req: Request) {
       const { data: resume, error: resumeError } = await supabaseClient
         .from('resumes')
         .select('id, experience')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();
