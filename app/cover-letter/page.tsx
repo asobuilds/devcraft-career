@@ -119,6 +119,30 @@ export default function CoverLetterPage() {
     loadProfile();
   }, []);
 
+  useEffect(() => {
+    const handleAiUpdate = async (event: Event) => {
+      const detail = (event as CustomEvent<{ toolNames?: string[] }>).detail;
+      if (!detail?.toolNames?.includes('updateCoverLetter')) return;
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from('cover_letters')
+        .select('content')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (typeof data?.content === 'string') {
+        setIsCopied(false);
+        setState((prev) => ({ ...prev, generatedCoverLetter: data.content }));
+      }
+    };
+
+    window.addEventListener('ai-data-updated', handleAiUpdate);
+    return () => window.removeEventListener('ai-data-updated', handleAiUpdate);
+  }, []);
+
   const handleGenerate = useCallback(async () => {
     const { resumeId, skillsInput, jobDescription } = state;
 

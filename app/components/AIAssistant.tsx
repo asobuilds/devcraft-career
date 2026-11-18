@@ -2,9 +2,15 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useChat } from '@ai-sdk/react';
-import { DefaultChatTransport } from 'ai';
+import { useRouter } from 'next/navigation';
+import { DefaultChatTransport, getToolName, isToolUIPart } from 'ai';
 import { Bot, Loader2, Send, Sparkles, X, CheckCircle2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+
+const TOOL_SUCCESS_MESSAGES: Record<string, string> = {
+  updateCoverLetter: '✅ Cover letter updated in the database.',
+  updateResumeBullets: '✅ Resume bullets updated in the database.',
+};
 
 const MARKDOWN_STYLES =
   '[&_a]:text-indigo-300 [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:border-slate-600 [&_blockquote]:pl-3 [&_blockquote]:text-slate-300 [&_code]:rounded [&_code]:bg-slate-950/60 [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[11px] [&_h1]:mb-2 [&_h1]:text-base [&_h1]:font-bold [&_h1]:text-white [&_h2]:mb-2 [&_h2]:text-sm [&_h2]:font-bold [&_h2]:text-white [&_h3]:mb-1 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:text-white [&_li]:my-1 [&_li]:pl-1 [&_ol]:mb-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-2 [&_p:last-child]:mb-0 [&_strong]:font-bold [&_strong]:text-white [&_ul]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1';
@@ -30,9 +36,11 @@ export default function AIAssistant({
   onOpenChange,
   forceOpen,
 }: AIAssistantProps) {
+  const router = useRouter();
   const [internalOpen, setInternalOpen] = useState(false);
   const [input, setInput] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
+  const processedToolCalls = useRef<Set<string>>(new Set());
 
   const open = forceOpen ?? internalOpen;
 
@@ -59,6 +67,29 @@ export default function AIAssistant({
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, open]);
+
+  useEffect(() => {
+    const updatedToolNames = new Set<string>();
+
+    for (const message of messages) {
+      for (const part of message.parts) {
+        if (!isToolUIPart(part) || part.state !== 'output-available') continue;
+        if (processedToolCalls.current.has(part.toolCallId)) continue;
+
+        processedToolCalls.current.add(part.toolCallId);
+        updatedToolNames.add(getToolName(part));
+      }
+    }
+
+    if (updatedToolNames.size > 0) {
+      router.refresh();
+      window.dispatchEvent(
+        new CustomEvent('ai-data-updated', {
+          detail: { toolNames: Array.from(updatedToolNames) },
+        })
+      );
+    }
+  }, [messages, router]);
 
   const send = (text: string) => {
     sendMessage(
@@ -164,16 +195,32 @@ export default function AIAssistant({
                   if (part.type === 'text') {
                     return <ReactMarkdown key={index}>{part.text}</ReactMarkdown>;
                   }
-                  if (
-                    part.type === 'tool-invocation' &&
-                    (part.state === 'output-available' || part.state === 'output-error')
-                  ) {
-                    return (
-                      <div key={index} className="mt-2 flex items-center gap-1.5 text-xs text-emerald-400">
-                        <CheckCircle2 size={12} />
-                        <span>✅ Data updated</span>
-                      </div>
-                    );
+                  if (isToolUIPart(part)) {
+                    if (part.state === 'output-available') {
+                      const toolName = getToolName(part);
+                      return (
+                        <div
+                          key={index}
+                          className="mt-2 flex items-center gap-1.5 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-2 text-xs text-emerald-300"
+                        >
+                          <CheckCircle2 size={12} />
+                          <span>
+                            {TOOL_SUCCESS_MESSAGES[toolName] ?? '✅ Data updated in the database.'}
+                          </span>
+                        </div>
+                      );
+                    }
+
+                    if (part.state === 'output-error') {
+                      return (
+                        <div
+                          key={index}
+                          className="mt-2 flex items-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/10 px-2.5 py-2 text-xs text-red-300"
+                        >
+                          <span>⚠️ Could not update your data. Please try again.</span>
+                        </div>
+                      );
+                    }
                   }
                   return null;
                 })}
