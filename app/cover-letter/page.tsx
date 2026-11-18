@@ -2,6 +2,17 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import {
+  ArrowLeft,
+  Briefcase,
+  CheckCircle2,
+  Copy,
+  Download,
+  FileText,
+  Loader2,
+  RefreshCw,
+  Sparkles,
+} from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import AIAssistant from '@/app/components/AIAssistant';
 
@@ -40,6 +51,8 @@ export default function CoverLetterPage() {
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userSkills, setUserSkills] = useState<string[]>([]);
+  const [isAiOpen, setIsAiOpen] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
   const [state, setState] = useState<CoverLetterState>({
     resumeId: null,
     skillsInput: '',
@@ -133,6 +146,7 @@ export default function CoverLetterPage() {
           experience: [],
         };
 
+    setIsCopied(false);
     setState((prev) => ({ ...prev, isGenerating: true, generatedCoverLetter: null }));
 
     try {
@@ -219,118 +233,200 @@ export default function CoverLetterPage() {
     setState((prev) => ({ ...prev, resumeId, skillsInput }));
   }, [resumes]);
 
+  const handleCopy = useCallback(async () => {
+    if (!state.generatedCoverLetter) return;
+
+    try {
+      await navigator.clipboard.writeText(state.generatedCoverLetter);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy cover letter:', err);
+      alert('Could not copy to clipboard. Please try selecting and copying the text manually.');
+    }
+  }, [state.generatedCoverLetter]);
+
   return (
-    <div className="bg-slate-950 text-slate-100">
-      <header className="border-b border-slate-900 bg-slate-900/40 backdrop-blur-md sticky top-0 z-40 px-6 py-4 flex items-center justify-between print:hidden">
-        <div className="flex items-center gap-4">
-          <Link href="/dashboard" className="p-2 rounded-lg bg-slate-900 text-slate-400 hover:text-white border border-slate-800">
-            <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-          </Link>
-          <div>
-            <h1 className="font-bold text-xl text-white">Generate a Winning Cover Letter</h1>
-            <p className="text-xs text-slate-500 mt-1">Don&apos;t send a generic &quot;I am writing to apply&quot; letter. Use AI to write a compelling, tailored letter that highlights your specific skills for the job.</p>
-          </div>
-        </div>
-      </header>
-
-      <section className="max-w-[1600px] mx-auto p-6 md:p-10">
-
-        {/* Resume Selection Section */}
-        <div className="mb-6 rounded-xl border border-slate-800 bg-slate-900 p-6">
-          <h2 className="font-semibold text-slate-200 mb-4">Select Resume</h2>
-          <select
-            onChange={(e) => handleResumeChange(e)}
-            className="bg-slate-900 border border-slate-700 rounded-md w-full text-slate-100 py-2 px-3"
-          >
-            <option value="">Paste skills manually</option>
-            {resumes.map((resume) => (
-              <option key={resume.id} value={resume.id}>
-                {resume.resume_title || 'Untitled Resume'}
-              </option>
-            ))}
-          </select>
-          <p className="mt-2 text-xs text-slate-500">
-            Or paste your skills manually below
-          </p>
-          <textarea
-            value={state.skillsInput}
-            onChange={handleSkillsChange}
-            rows={3}
-            className="mt-2 w-full bg-slate-900 border border-slate-700 rounded-md p-3 text-slate-100"
-            placeholder="e.g. React, TypeScript, SQL, AWS"
-          ></textarea>
-        </div>
-
-        {/* Job Description Section */}
-        <div className="mb-6 rounded-xl border border-slate-800 bg-slate-900 p-6">
-          <h2 className="font-semibold text-slate-200 mb-4">Job Description</h2>
-          <textarea
-            value={state.jobDescription}
-            onChange={handleJobDescriptionChange}
-            rows={5}
-            className="w-full bg-slate-900 border border-slate-700 rounded-md p-3 text-slate-100 resize-none"
-            placeholder="Paste the job description here..."
-          ></textarea>
-        </div>
-
-        {/* Generate Button */}
-        <div className="mb-6">
-          <button
-            onClick={handleGenerate}
-            disabled={state.isGenerating || !state.jobDescription.trim()}
-            className="w-full inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none bg-indigo-600 text-white hover:bg-indigo-500 disabled:bg-indigo-400/20 disabled:text-indigo-300/50 py-2 px-4"
-          >
-            {state.isGenerating ? (
-              <span>
-                <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg> Generating...
-              </span>
-            ) : (
-              'Generate Cover Letter'
-            )}
-          </button>
-        </div>
-
-        {/* Generated Cover Letter */}
-        {state.generatedCoverLetter && (
-          <div className="mb-6 rounded-xl border border-slate-800 bg-slate-900 p-6">
-            <h2 className="font-semibold text-slate-200 mb-4">Generated Cover Letter</h2>
-            <textarea
-              value={state.generatedCoverLetter}
-              onChange={(e) => setState((prev) => ({ ...prev, generatedCoverLetter: e.target.value }))}
-              rows={8}
-              className="w-full bg-slate-900 border border-purple-500 rounded-md p-3 text-slate-100 resize-none"
-            ></textarea>
-            <div className="mt-4 flex gap-2">
-              <button onClick={handleDownloadPdf} disabled={!state.generatedCoverLetter} className="inline-flex items-center justify-center rounded-sm text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-indigo-600 text-white hover:bg-indigo-500 disabled:bg-indigo-400/20 disabled:text-indigo-300/50 py-1 px-2">
-                <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                  <polyline points="12 5 19 12 5 19"></polyline>
-                </svg> Download PDF
-              </button>
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">
+      <div className="flex w-full min-h-[calc(100vh-3rem)] gap-0">
+        <div
+          className={
+            isAiOpen
+              ? 'flex-1 xl:w-[calc(100%-420px)] transition-all duration-300 pr-4'
+              : 'flex-1 transition-all duration-300 pr-4'
+          }
+        >
+          <header className="border-b border-slate-900 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40 px-6 py-4 print:hidden">
+            <div className="flex items-center gap-4">
+              <Link
+                href="/dashboard"
+                className="rounded-lg border border-slate-800 bg-slate-900 p-2 text-slate-400 transition-colors hover:text-white"
+                aria-label="Back to dashboard"
+              >
+                <ArrowLeft size={16} />
+              </Link>
+              <div>
+                <h1 className="text-xl font-bold text-white">Generate a Winning Cover Letter</h1>
+                <p className="mt-1 max-w-3xl text-xs text-slate-500">
+                  Don&apos;t send a generic &quot;I am writing to apply&quot; letter. Use AI to write a
+                  compelling, tailored letter that highlights your specific skills for the job.
+                </p>
+              </div>
             </div>
+          </header>
+
+          <section className="mx-auto max-w-[1600px] space-y-6 p-6 md:p-10">
+            <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-xs text-slate-400">
+              <span className="font-bold text-amber-400">💡 Pro Tip:</span>{' '}
+              The best cover letters are 3 paragraphs: The Hook (why you love the company), The Proof
+              (your top achievement), and The Close (call to action).
+            </div>
+
+            {/* Resume Selection Section */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur-md">
+              <div className="mb-4 flex items-center gap-2">
+                <FileText size={16} className="text-orange-400" />
+                <h2 className="font-semibold text-slate-200">Select Resume</h2>
+              </div>
+              <select
+                onChange={handleResumeChange}
+                className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2.5 text-sm text-slate-100 focus:border-orange-500/50 focus:outline-none"
+              >
+                <option value="">Paste skills manually</option>
+                {resumes.map((resume) => (
+                  <option key={resume.id} value={resume.id}>
+                    {resume.resume_title || 'Untitled Resume'}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-3 text-xs text-slate-500">Or paste your skills manually below</p>
+              <textarea
+                value={state.skillsInput}
+                onChange={handleSkillsChange}
+                rows={3}
+                className="mt-2 w-full resize-none rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm text-slate-100 placeholder-slate-600 focus:border-orange-500/50 focus:outline-none"
+                placeholder="e.g. React, TypeScript, SQL, AWS"
+              ></textarea>
+            </div>
+
+            {/* Job Description Section */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur-md">
+              <div className="mb-4 flex items-center gap-2">
+                <Briefcase size={16} className="text-emerald-400" />
+                <h2 className="font-semibold text-slate-200">Job Description</h2>
+              </div>
+              <textarea
+                value={state.jobDescription}
+                onChange={handleJobDescriptionChange}
+                rows={6}
+                className="w-full resize-none rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm text-slate-100 placeholder-slate-600 focus:border-emerald-500/50 focus:outline-none"
+                placeholder="Paste the job description here..."
+              ></textarea>
+            </div>
+
+            {/* Generate Button */}
+            <button
+              onClick={handleGenerate}
+              disabled={state.isGenerating || !state.jobDescription.trim()}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-indigo-500 disabled:pointer-events-none disabled:opacity-50"
+            >
+              {state.isGenerating ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" /> Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles size={16} /> Generate Cover Letter
+                </>
+              )}
+            </button>
+
+            {/* Generated Cover Letter */}
+            {state.generatedCoverLetter && (
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur-md">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <Sparkles size={16} className="text-indigo-400" />
+                    <h2 className="font-semibold text-slate-200">Generated Cover Letter</h2>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      onClick={handleDownloadPdf}
+                      disabled={!state.generatedCoverLetter}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
+                    >
+                      <Download size={14} /> Download PDF
+                    </button>
+                    <button
+                      onClick={handleCopy}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-1.5 text-xs font-semibold text-slate-300 transition-colors hover:bg-slate-800 hover:text-white"
+                    >
+                      {isCopied ? (
+                        <>
+                          <CheckCircle2 size={14} className="text-emerald-400" /> Copied
+                        </>
+                      ) : (
+                        <>
+                          <Copy size={14} /> Copy to Clipboard
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={handleGenerate}
+                      disabled={state.isGenerating}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-1.5 text-xs font-semibold text-slate-300 transition-colors hover:bg-slate-800 hover:text-white disabled:opacity-50"
+                    >
+                      <RefreshCw size={14} className={state.isGenerating ? 'animate-spin' : ''} /> Regenerate
+                    </button>
+                  </div>
+                </div>
+                <textarea
+                  value={state.generatedCoverLetter}
+                  onChange={(e) =>
+                    setState((prev) => ({ ...prev, generatedCoverLetter: e.target.value }))
+                  }
+                  rows={12}
+                  className="w-full resize-none rounded-xl border border-slate-800 bg-slate-950 p-4 text-sm leading-relaxed text-slate-100 focus:border-indigo-500/50 focus:outline-none"
+                ></textarea>
+              </div>
+            )}
+          </section>
+        </div>
+
+        {isAiOpen ? (
+          <div className="hidden w-[420px] shrink-0 xl:block">
+            <AIAssistant
+              title="Cover Letter Copilot"
+              triggerLabel="Make it more professional"
+              prompt="Rewrite my cover letter to sound more professional and tailored to this job."
+              context={{
+                page: 'cover-letter',
+                jobDescription: state.jobDescription,
+                coverLetter: state.generatedCoverLetter ?? '',
+              }}
+              userName={userName}
+              userSkills={userSkills}
+              forceOpen
+            />
           </div>
-        )}
+        ) : null}
+      </div>
 
-      </section>
-
-      <AIAssistant
-        title="Cover Letter Copilot"
-        triggerLabel="Make it more professional"
-        prompt="Rewrite my cover letter to sound more professional and tailored to this job."
-        context={{
-          page: 'cover-letter',
-          jobDescription: state.jobDescription,
-          coverLetter: state.generatedCoverLetter ?? '',
-        }}
-        userName={userName}
-        userSkills={userSkills}
-      />
+      {!isAiOpen ? (
+        <AIAssistant
+          title="Cover Letter Copilot"
+          triggerLabel="Make it more professional"
+          prompt="Rewrite my cover letter to sound more professional and tailored to this job."
+          context={{
+            page: 'cover-letter',
+            jobDescription: state.jobDescription,
+            coverLetter: state.generatedCoverLetter ?? '',
+          }}
+          userName={userName}
+          userSkills={userSkills}
+          onOpenChange={setIsAiOpen}
+        />
+      ) : null}
     </div>
   );
 }
