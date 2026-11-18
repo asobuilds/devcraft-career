@@ -1,8 +1,11 @@
-import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 import { generateText } from 'ai';
 import { z } from 'zod';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 const groq = createOpenAICompatible({
   name: 'groq',
@@ -156,19 +159,37 @@ ${resumeText.slice(0, 6000)}`;
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
+    const authHeader = req.headers.get('authorization');
+    console.log(
+      '[Analyze Resume] Auth header:',
+      authHeader ? `${authHeader.slice(0, 12)}...` : 'missing'
+    );
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader);
+    const token = authHeader.slice(7).trim();
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    console.log(
+      '[Analyze Resume] User:',
+      user?.id ?? 'none',
+      'Error:',
+      authError?.message ?? 'none'
+    );
+
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await request.json();
+    const body = await req.json();
     const resumeText = typeof body.resumeText === 'string' ? body.resumeText : '';
     const jobDescription = typeof body.jobDescription === 'string' ? body.jobDescription : '';
 
