@@ -299,6 +299,20 @@ export async function POST(req: Request) {
 
   const userId = user.id;
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceRoleKey) {
+    console.error('[AI Assistant] Missing Supabase service role configuration.');
+    return Response.json(
+      { error: 'Server is missing Supabase service role credentials.' },
+      { status: 500 }
+    );
+  }
+
+  const adminSupabase = createClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
   const updateCoverLetter = tool({
     description:
       'Update the user\'s saved cover letter in the cover_letters table. Use this when the user asks to apply or save a new cover letter draft.',
@@ -395,7 +409,7 @@ export async function POST(req: Request) {
       ),
     }),
     execute: async ({ updates }) => {
-      const { data: resume, error: resumeError } = await supabaseClient
+      const { data: resume, error: resumeError } = await adminSupabase
         .from('resumes')
         .select('id, summary, skills, experience')
         .eq('user_id', userId)
@@ -486,15 +500,18 @@ export async function POST(req: Request) {
         });
       }
 
-      console.log('Upserting CV data:', upsertPayload);
+      console.log(
+        '[tailorCvToJob] Upserting CV payload:',
+        JSON.stringify(upsertPayload, null, 2)
+      );
 
-      const { data: upsertedRow, error: updateError } = await supabaseClient
+      const { data: upsertedRow, error: updateError } = await adminSupabase
         .from('resumes')
         .upsert(upsertPayload, { onConflict: 'user_id' })
         .select('id, user_id, created_at, updated_at');
 
       if (updateError) {
-        console.error('Supabase error:', updateError);
+        console.error('[tailorCvToJob] Supabase upsert error:', updateError);
         throw new Error(updateError.message);
       }
 
