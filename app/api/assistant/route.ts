@@ -85,7 +85,10 @@ function buildSystemPrompt(context: z.infer<typeof contextSchema>) {
     );
   } else if (context.page === 'cv-builder') {
     sections.push(
-      'You are a CV Co-Editor. If the user asks you to tailor, rewrite, or improve their CV for a job, use the tailorCvToJob tool to update the database. Provide the updated summary, skills, and experience bullets. Always confirm with the user before saving if it\'s a major change.'
+      'You are a CV Co-Editor. If the user asks you to tailor, rewrite, or improve their CV for a job, use the tailorCvToJob tool to update the database. Provide the updated summary, skills, and experience bullets. Always confirm with the user before saving if it\'s a major change. ' +
+        'When calling `tailorCvToJob`, you MUST provide the `updates` object with the exact fields: `summary` (string), `skills` (array of strings), and `experience` (array of objects with `company`, `role`, `dates`, `bullets`). ' +
+        'Do NOT send partial data. If you are only updating the summary, only include the `summary` field. ' +
+        'If you are adding a skill, send the FULL updated skills array, not just the new skill.'
     );
   } else if (context.page === 'tracker') {
     sections.push(
@@ -194,7 +197,10 @@ function buildSystemPrompt(context: z.infer<typeof contextSchema>) {
     sections.push(`Job applications currently tracked:\n${summarized.join('\n')}`);
   } else if (context.page === 'cv-builder') {
     sections.push(
-      'You are a CV Co-Editor. If the user asks you to tailor, rewrite, or improve their CV for a job, use the tailorCvToJob tool to update the database. Provide the updated summary, skills, and experience bullets. Always confirm with the user before saving if it\'s a major change.'
+      'You are a CV Co-Editor. If the user asks you to tailor, rewrite, or improve their CV for a job, use the tailorCvToJob tool to update the database. Provide the updated summary, skills, and experience bullets. Always confirm with the user before saving if it\'s a major change. ' +
+        'When calling `tailorCvToJob`, you MUST provide the `updates` object with the exact fields: `summary` (string), `skills` (array of strings), and `experience` (array of objects with `company`, `role`, `dates`, `bullets`). ' +
+        'Do NOT send partial data. If you are only updating the summary, only include the `summary` field. ' +
+        'If you are adding a skill, send the FULL updated skills array, not just the new skill.'
     );
   } else if (context.page === 'tracker') {
     sections.push(
@@ -374,7 +380,11 @@ export async function POST(req: Request) {
 
   const tailorCvToJob = tool({
     description:
-      'Write, update, or delete parts of the user\'s latest CV (summary, skills, and experience) and save it to the resumes table. Use this when the user asks to tailor, rewrite, or improve their CV. Omit a field to leave it unchanged; providing `experience` replaces the full list, so include every entry that should be kept.',
+      'Write, update, or delete parts of the user\'s latest CV (summary, skills, and experience) and save it to the resumes table. Use this when the user asks to tailor, rewrite, or improve their CV. ' +
+      'When calling `tailorCvToJob`, you MUST provide the `updates` object with the exact fields: `summary` (string), `skills` (array of strings), and `experience` (array of objects with `company`, `role`, `dates`, `bullets`). ' +
+      'Do NOT send partial data. If you are only updating the summary, only include the `summary` field. ' +
+      'If you are adding a skill, send the FULL updated skills array, not just the new skill. ' +
+      'Providing `experience` replaces the full list, so include every entry that should be kept.',
     inputSchema: z.object({
       jobDescription: z
         .string()
@@ -408,25 +418,51 @@ export async function POST(req: Request) {
         throw new Error('No resume found for this user. Please save a CV first.');
       }
 
+      if (updates.experience !== undefined && !Array.isArray(updates.experience)) {
+        console.error(
+          '[tailorCvToJob] experience field is not an array, got:',
+          typeof updates.experience
+        );
+        throw new Error(
+          'Invalid experience data: expected an array, got ' +
+            typeof updates.experience
+        );
+      }
+
+      const hasSummary = updates.summary !== undefined && updates.summary !== '';
+      const hasSkills =
+        updates.skills !== undefined && updates.skills.length > 0;
+      const hasExperience =
+        updates.experience !== undefined && updates.experience.length > 0;
+
+      if (!hasSummary && !hasSkills && !hasExperience) {
+        throw new Error('No changes to save. Please provide specific updates.');
+      }
+
       const upsertPayload: Record<string, unknown> = {
         user_id: userId,
         updated_at: new Date().toISOString(),
       };
 
-      if (updates.summary !== undefined) {
+      if (hasSummary) {
         upsertPayload.summary = updates.summary;
       }
 
-      if (updates.skills !== undefined) {
+      if (hasSkills) {
         upsertPayload.skills = updates.skills;
       }
 
-      if (updates.experience !== undefined) {
+      if (hasExperience) {
         const existingExperience = Array.isArray(resume.experience)
           ? (resume.experience as Array<Record<string, unknown>>)
           : [];
 
-        upsertPayload.experience = updates.experience.map((entry, index) => {
+        upsertPayload.experience = (updates.experience as Array<{
+          company: string;
+          role: string;
+          dates: string;
+          bullets: string;
+        }>).map((entry, index) => {
           const match =
             existingExperience.find(
               (existing) =>
@@ -450,13 +486,15 @@ export async function POST(req: Request) {
         });
       }
 
+      console.log('Upserting CV data:', upsertPayload);
+
       const { data: upsertedRow, error: updateError } = await supabaseClient
         .from('resumes')
         .upsert(upsertPayload, { onConflict: 'user_id' })
         .select('id, user_id, created_at, updated_at');
 
       if (updateError) {
-        console.error('Supabase upsert error:', updateError);
+        console.error('Supabase error:', updateError);
         throw new Error(updateError.message);
       }
 
