@@ -47,6 +47,7 @@
 | Gemini | `supabase/migrations/0010_final_rls_fix.sql` | main | 2026-11-15T21:30:00Z | active |
 | Gemini | `supabase/migrations/0011_comprehensive_profiles_recon_fix.sql` | main | 2026-11-15T21:45:00Z | active |
 | Gemini | `supabase/migrations/0012_force_profiles_rebuild.sql` | main | 2026-11-15T22:30:00Z | active |
+| Gemini | `supabase/migrations/0018_certificates_storage_rls.sql` | main | 2026-11-19T10:00:00Z | active |
 | Gemini | `app/components/Sidebar.tsx` | main | 2026-11-15T19:45:00Z | active |
 | Gemini | `app/components/Sidebar.tsx` | main | 2026-11-15T23:30:00Z | active |
 | Gemini | `app/dashboard/page.tsx` | main | 2026-11-15T23:30:00Z | active |
@@ -202,6 +203,7 @@
 - `2026-11-16T03:00:00Z` — `Gemini` — Seeded public directory with 5 demo candidate profiles.
 - `2026-11-16T04:00:00Z` — `Gemini` — Added AI assistant fallback stream when OPENAI_API_KEY is missing and logged Zod validation errors.
 - `2026-11-16T04:30:00Z` — `OpenCode` — Implemented multi-provider AI failover with Groq, Gemini, and Agnes via `@ai-sdk/openai-compatible`.
+- `2026-11-19T10:00:00Z` — `Gemini` — Created migration 0018 for certificates storage RLS policies (`storage.objects` INSERT, SELECT, DELETE for authenticated users with `auth.uid() = owner`).
 - `2026-11-16T05:00:00Z` — `OpenCode` — Fixed AI assistant overlap on tracker, added descriptive copy, column subtexts, glassmorphism cards, and horizontal scroll.
 - `2026-11-16T05:30:00Z` — `OpenCode` — Sanitized AI assistant message history for multi-provider compatibility.
 - `2026-11-16T06:00:00Z` — `OpenCode` — Restructured ATS Analyzer layout with AI overlap fix, glassmorphism input cards, and matched/missing keyword badges.
