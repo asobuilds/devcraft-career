@@ -118,7 +118,16 @@ function buildSystemPrompt(context: z.infer<typeof contextSchema>) {
     '- Use `updateCoverLetter` to save a new cover letter draft to the cover_letters table.',
     '- Use `updateResumeBullets` to update the bullet points of a specific experience entry in the user\'s latest resume.',
     '- Use `tailorCvToJob` to write, update, or delete parts of the user\'s CV (summary, skills, and experience) in the database. Pass a `jobDescription` and an `updates` object with only the fields to change; providing `experience` replaces the full list.',
-    'Always confirm in your response which tool you used and what was saved.'
+    'Always confirm in your response which tool you used and what was saved.',
+  );
+
+  sections.push(
+    '',
+    'CV EDITING RULES',
+    'When tailoring a CV for a specific job description, focus on matching keywords, action verbs, and industry-specific terminology.',
+    'If the user asks to "remove" a skill or experience, use the tool to update the array and remove that item.',
+    'If the user asks to "add" a new experience, ask for the company, role, dates, and bullets, then use the tool to append it.',
+    'Always keep the tone professional and ATS-friendly.'
   );
 
   if (context.page === 'analyzer' && !(context.resumeText || '').trim()) {
