@@ -442,8 +442,8 @@ export default function CVBuilder() {
         </div>
       </header>
 
-      <div className={`flex w-full transition-all duration-300 ${isAiOpen ? 'xl:w-[calc(100%-420px)]' : 'w-full'}`}>
-        <div className="max-w-[1600px] mx-auto grid lg:grid-cols-2 min-h-[calc(100vh-65px)] print:block w-full">
+      <div className="max-w-[1600px] mx-auto w-full">
+        <div className={`grid grid-cols-1 gap-6 min-h-[calc(100vh-65px)] print:block ${isAiOpen ? 'xl:grid-cols-[1fr_1fr_auto]' : 'xl:grid-cols-2'}`}>
           <div className="p-6 md:p-10 border-r border-slate-900 space-y-8 overflow-y-auto max-h-[calc(100vh-70px)] print:hidden">
             <button
               onClick={() => setShowGuide(true)}
@@ -620,7 +620,7 @@ export default function CVBuilder() {
             />
           </div>
 
-          <div className="p-6 md:p-12 bg-slate-900/10 flex flex-col items-center overflow-y-auto max-h-[calc(100vh-70px)] print:max-h-none print:p-0 print:bg-white">
+          <div className="min-w-0 xl:min-w-[400px] p-6 md:p-12 bg-slate-900/10 flex flex-col items-center overflow-y-auto max-h-[calc(100vh-70px)] print:max-h-none print:p-0 print:bg-white">
             <div className="mb-4 flex w-full justify-center print:hidden">
               <div className="inline-flex items-center gap-1 rounded-xl border border-slate-800 bg-slate-950 p-1" role="tablist" aria-label="CV builder view">
                 <button
@@ -694,25 +694,27 @@ export default function CVBuilder() {
               </div>
             ) : null}
           </div>
-        </div>
 
-        {isAiOpen ? (
-          <div className="w-[400px] shrink-0 hidden xl:block">
-            <AIAssistant
-              title="CV Builder Copilot"
-              triggerLabel="Tailor my CV"
-              prompt="Help me tailor my CV to a specific job. Ask me to paste the job description if I have not provided it."
-              context={{
-                page: 'cv-builder',
-                resumeText: [fullName, email, phone, website, summary, skills, experience.map((e) => `${e.role} at ${e.company}: ${e.bullets}`).join('\n')].filter(Boolean).join('\n'),
-                jobDescription,
-              }}
-              userName={fullName || 'Candidate'}
-              userSkills={techStack}
-              forceOpen
-            />
-          </div>
-        ) : null}
+          {isAiOpen ? (
+            <div className="min-w-0 xl:w-[400px] xl:shrink-0">
+              <AIAssistant
+                title="CV Builder Copilot"
+                triggerLabel="Tailor my CV"
+                prompt="Help me tailor my CV to a specific job. Ask me to paste the job description if I have not provided it."
+                context={{
+                  page: 'cv-builder',
+                  resumeText: [fullName, email, phone, website, summary, skills, experience.map((e) => `${e.role} at ${e.company}: ${e.bullets}`).join('\n')].filter(Boolean).join('\n'),
+                  jobDescription,
+                }}
+                userName={fullName || 'Candidate'}
+                userSkills={techStack}
+                inline
+                forceOpen
+                onOpenChange={setIsAiOpen}
+              />
+            </div>
+          ) : null}
+        </div>
       </div>
 
       {!isAiOpen ? (

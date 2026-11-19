@@ -26,6 +26,7 @@ export interface AIAssistantProps {
   userSkills: string[];
   onOpenChange?: (open: boolean) => void;
   forceOpen?: boolean;
+  inline?: boolean;
 }
 
 export default function AIAssistant({
@@ -37,6 +38,7 @@ export default function AIAssistant({
   userSkills,
   onOpenChange,
   forceOpen,
+  inline = false,
 }: AIAssistantProps) {
   const router = useRouter();
   const [internalOpen, setInternalOpen] = useState(false);
@@ -153,7 +155,11 @@ export default function AIAssistant({
 
       <div
         aria-hidden={!open}
-        className={`fixed inset-y-0 right-0 z-[60] w-full sm:w-[420px] bg-slate-900 border-l border-slate-800 shadow-2xl flex flex-col transition-transform duration-300 ${
+        className={`${
+          inline
+            ? 'fixed inset-0 z-[60] w-full xl:static xl:z-auto xl:h-[calc(100vh-65px)] xl:w-[400px] xl:shrink-0'
+            : 'fixed inset-y-0 right-0 z-[60] w-full sm:w-[420px]'
+        } bg-slate-900 border-l border-slate-800 shadow-2xl flex flex-col transition-transform duration-300 ${
           open ? 'translate-x-0' : 'translate-x-full pointer-events-none'
         }`}
       >
@@ -170,10 +176,8 @@ export default function AIAssistant({
           <button
             type="button"
             onClick={() => {
-              if (!forceOpen) {
-                setInternalOpen(false);
-                onOpenChange?.(false);
-              }
+              setInternalOpen(false);
+              onOpenChange?.(false);
             }}
             className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
             aria-label="Close assistant"
