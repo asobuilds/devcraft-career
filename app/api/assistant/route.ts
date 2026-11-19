@@ -397,16 +397,17 @@ export async function POST(req: Request) {
         throw new Error('No resume found for this user. Please save a CV first.');
       }
 
-      const updatePayload: Record<string, unknown> = {
+      const upsertPayload: Record<string, unknown> = {
+        user_id: userId,
         updated_at: new Date().toISOString(),
       };
 
       if (updates.summary !== undefined) {
-        updatePayload.summary = updates.summary;
+        upsertPayload.summary = updates.summary;
       }
 
       if (updates.skills !== undefined) {
-        updatePayload.skills = updates.skills;
+        upsertPayload.skills = updates.skills;
       }
 
       if (updates.experience !== undefined) {
@@ -414,7 +415,7 @@ export async function POST(req: Request) {
           ? (resume.experience as Array<Record<string, unknown>>)
           : [];
 
-        updatePayload.experience = updates.experience.map((entry, index) => {
+        upsertPayload.experience = updates.experience.map((entry, index) => {
           const match =
             existingExperience.find(
               (existing) =>
@@ -438,19 +439,35 @@ export async function POST(req: Request) {
         });
       }
 
-      const { error: updateError } = await supabaseClient
+      const { data: upsertedRow, error: updateError } = await supabaseClient
         .from('resumes')
-        .update(updatePayload)
-        .eq('id', resume.id);
+        .upsert(upsertPayload, { onConflict: 'user_id' })
+        .select('id, user_id, created_at, updated_at');
 
       if (updateError) {
+        console.error(
+          '[tailorCvToJob] Supabase upsert failed:',
+          updateError.message,
+          updateError.code,
+          updateError.hint ?? '',
+          upsertPayload
+        );
+        if (
+          updateError.message.includes('duplicate key value violates unique constraint')
+        ) {
+          console.error(
+            '[tailorCvToJob] Duplicate key constraint violation on user_id. Ensure onConflict: "user_id" is set and a unique constraint exists on the resumes.user_id column.'
+          );
+        }
         throw new Error('Failed to save CV updates: ' + updateError.message);
       }
 
       return {
         success: true,
-        resumeId: resume.id,
-        updatedFields: Object.keys(updatePayload).filter((key) => key !== 'updated_at'),
+        resumeId: upsertedRow?.[0]?.id ?? resume.id,
+        updatedFields: Object.keys(upsertPayload).filter(
+          (key) => key !== 'updated_at' && key !== 'user_id'
+        ),
       };
     },
   });
