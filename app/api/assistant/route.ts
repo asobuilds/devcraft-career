@@ -393,7 +393,18 @@ export async function POST(req: Request) {
         .limit(1)
         .maybeSingle();
 
-      if (resumeError || !resume) {
+      if (resumeError) {
+        console.error(
+          '[tailorCvToJob] Supabase resume lookup error:',
+          resumeError
+        );
+        throw new Error('Failed to fetch resume: ' + resumeError.message);
+      }
+      if (!resume) {
+        console.error(
+          '[tailorCvToJob] No resume found for user:',
+          userId
+        );
         throw new Error('No resume found for this user. Please save a CV first.');
       }
 
@@ -445,21 +456,8 @@ export async function POST(req: Request) {
         .select('id, user_id, created_at, updated_at');
 
       if (updateError) {
-        console.error(
-          '[tailorCvToJob] Supabase upsert failed:',
-          updateError.message,
-          updateError.code,
-          updateError.hint ?? '',
-          upsertPayload
-        );
-        if (
-          updateError.message.includes('duplicate key value violates unique constraint')
-        ) {
-          console.error(
-            '[tailorCvToJob] Duplicate key constraint violation on user_id. Ensure onConflict: "user_id" is set and a unique constraint exists on the resumes.user_id column.'
-          );
-        }
-        throw new Error('Failed to save CV updates: ' + updateError.message);
+        console.error('Supabase upsert error:', updateError);
+        throw new Error(updateError.message);
       }
 
       return {
