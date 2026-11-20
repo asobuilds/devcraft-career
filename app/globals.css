@@ -24,3 +24,24 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes toolkit-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-toolkit-in {
+  animation: toolkit-fade-up 0.5s ease-out backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-toolkit-in {
+    animation: none;
+  }
+}
