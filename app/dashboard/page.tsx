@@ -256,7 +256,13 @@ export default function Dashboard() {
       </div>
 
       {/* Job-Ready Checklist */}
-      <section className="mb-8 rounded-2xl border border-slate-800 bg-slate-900/50 p-6 md:p-8">
+      <section className="relative mb-8 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50 p-6 md:p-8">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
+          style={{ backgroundImage: "url('/hero-bg.jpg')" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 to-slate-950/50" />
+        <div className="relative z-10">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between mb-5">
           <div>
             <h2 className="text-xl md:text-2xl font-bold text-white">Your Job-Ready Checklist</h2>
@@ -310,6 +316,7 @@ export default function Dashboard() {
             );
           })}
         </ul>
+        </div>
       </section>
 
       {/* Next Step Hero */}
