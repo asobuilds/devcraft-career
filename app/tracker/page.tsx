@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, Plus, Trash2, Loader2, Briefcase, Terminal, ExternalLink, CheckCircle2, Radar, X, AlertCircle, Sparkles, Calendar, Search } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Loader2, Briefcase, Terminal, ExternalLink, CheckCircle2, X, AlertCircle, Sparkles, Calendar, Search } from 'lucide-react';
 import Link from 'next/link';
 import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd';
 import AIAssistant from '@/app/components/AIAssistant';
