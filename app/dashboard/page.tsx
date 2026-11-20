@@ -31,20 +31,11 @@ const checklistTasks = [
 
 const toolkit = [
   {
-    title: 'Build CV',
-    href: '/cv-builder',
-    icon: FileText,
-    accent: 'text-orange-400 bg-orange-500/10',
-    howTo: 'Choose from 8 ATS-friendly templates.',
-    featured: true,
-  },
-  {
     title: 'Beat the ATS',
     href: '/analyzer',
     icon: ScanSearch,
     accent: 'text-emerald-400 bg-emerald-500/10',
     howTo: 'Paste a job description to see missing keywords.',
-    featured: false,
   },
   {
     title: 'Write Cover Letter',
@@ -52,7 +43,6 @@ const toolkit = [
     icon: PenLine,
     accent: 'text-orange-400 bg-orange-500/10',
     howTo: 'Generate a tailored letter in seconds.',
-    featured: false,
   },
   {
     title: 'Job Tracker',
@@ -60,7 +50,6 @@ const toolkit = [
     icon: ListChecks,
     accent: 'text-orange-400 bg-orange-500/10',
     howTo: 'Log applications and track interviews.',
-    featured: false,
   },
   {
     title: 'My Portfolio',
@@ -68,7 +57,6 @@ const toolkit = [
     icon: Globe,
     accent: 'text-orange-400 bg-orange-500/10',
     howTo: 'Create a shareable link for recruiters.',
-    featured: false,
   },
   {
     title: 'Find Talent',
@@ -76,7 +64,6 @@ const toolkit = [
     icon: Users,
     accent: 'text-emerald-400 bg-emerald-500/10',
     howTo: 'Browse other candidates in the directory.',
-    featured: false,
   },
 ];
 
@@ -353,28 +340,19 @@ export default function Dashboard() {
           <h2 className="text-xl md:text-2xl font-bold text-white">Your Career Toolkit</h2>
           <p className="text-xs text-slate-500 mt-1">Every tool, with a quick guide on how to use it.</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {toolkit.map((tool, index) => {
             const Icon = tool.icon;
-            const isHero = tool.featured;
             return (
               <Link
                 key={tool.title}
                 href={tool.href}
                 style={{ animationDelay: `${(index + 1) * 50}ms` }}
-                className={`animate-toolkit-in group relative flex flex-col overflow-hidden rounded-2xl p-6 transition-all duration-300 ${
-                  isHero
-                    ? 'md:col-span-2 border border-orange-500/20 bg-gradient-to-br from-orange-500/20 to-transparent hover:-translate-y-1 hover:border-orange-500/40 hover:shadow-[0_0_30px_rgba(249,115,22,0.18)]'
-                    : 'border border-slate-800 bg-slate-900/40 backdrop-blur-sm hover:-translate-y-1 hover:border-orange-500/30 hover:bg-slate-800/60 hover:shadow-[0_0_20px_rgba(249,115,22,0.15)]'
-                }`}
+                className="animate-toolkit-in group relative flex flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-orange-500/30 hover:bg-slate-800/60 hover:shadow-[0_0_20px_rgba(249,115,22,0.15)]"
               >
                 <span
                   aria-hidden="true"
-                  className={
-                    isHero
-                      ? 'pointer-events-none absolute -right-1 -top-8 select-none text-[140px] font-black leading-none text-white/[0.04]'
-                      : 'pointer-events-none absolute right-5 top-5 select-none font-mono text-[11px] font-bold tracking-widest text-slate-700'
-                  }
+                  className="pointer-events-none absolute right-5 top-5 select-none font-mono text-[11px] font-bold tracking-widest text-slate-700"
                 >
                   {String(index + 1).padStart(2, '0')}
                 </span>
@@ -384,7 +362,7 @@ export default function Dashboard() {
                   >
                     <Icon size={22} />
                   </div>
-                  <h3 className={`font-bold text-white ${isHero ? 'text-xl md:text-2xl' : 'text-base'}`}>
+                  <h3 className="text-base font-bold text-white">
                     {tool.title}
                   </h3>
                   <p className="mt-2 text-sm text-slate-400">
