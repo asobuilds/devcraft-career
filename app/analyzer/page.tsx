@@ -498,11 +498,11 @@ export default function ATSAnalyzer() {
                                 </div>
                               ))}
                             </div>
-                          ) : (
-                            <p className="text-xs text-slate-500">
-                              No suggested fixes were returned for this analysis.
-                            </p>
-                          )}
+                           ) : (
+                             <p className="text-xs text-slate-500">
+                               No specific fixes needed. Your CV looks great!
+                             </p>
+                           )}
                         </div>
                       </>
                     );
