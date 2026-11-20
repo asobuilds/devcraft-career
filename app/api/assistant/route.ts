@@ -411,7 +411,7 @@ export async function POST(req: Request) {
     execute: async ({ updates }) => {
       const { data: resume, error: resumeError } = await adminSupabase
         .from('resumes')
-        .select('id, summary, skills, experience')
+        .select('id, resume_title, summary, skills, experience')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(1)
@@ -453,52 +453,52 @@ export async function POST(req: Request) {
         throw new Error('No changes to save. Please provide specific updates.');
       }
 
+      const existingExperience = Array.isArray(resume.experience)
+        ? (resume.experience as Array<Record<string, unknown>>)
+        : [];
+
+      const mergedExperience = hasExperience
+        ? (updates.experience as Array<{
+            company: string;
+            role: string;
+            dates: string;
+            bullets: string;
+          }>).map((entry, index) => {
+            const match =
+              existingExperience.find(
+                (existing) =>
+                  existing.company === entry.company &&
+                  existing.role === entry.role &&
+                  existing.dates === entry.dates
+              ) ?? existingExperience[index];
+
+            const id =
+              typeof match?.id === 'string' && match.id
+                ? match.id
+                : `exp-${Date.now()}-${index}`;
+
+            return {
+              id,
+              company: entry.company,
+              role: entry.role,
+              dates: entry.dates,
+              bullets: entry.bullets,
+            };
+          })
+        : existingExperience;
+
       const upsertPayload: Record<string, unknown> = {
         user_id: userId,
+        resume_title: resume.resume_title || 'My Tailored CV',
+        summary: hasSummary ? updates.summary : (resume.summary ?? ''),
+        skills: hasSkills
+          ? updates.skills
+          : Array.isArray(resume.skills)
+            ? resume.skills
+            : [],
+        experience: mergedExperience,
         updated_at: new Date().toISOString(),
       };
-
-      if (hasSummary) {
-        upsertPayload.summary = updates.summary;
-      }
-
-      if (hasSkills) {
-        upsertPayload.skills = updates.skills;
-      }
-
-      if (hasExperience) {
-        const existingExperience = Array.isArray(resume.experience)
-          ? (resume.experience as Array<Record<string, unknown>>)
-          : [];
-
-        upsertPayload.experience = (updates.experience as Array<{
-          company: string;
-          role: string;
-          dates: string;
-          bullets: string;
-        }>).map((entry, index) => {
-          const match =
-            existingExperience.find(
-              (existing) =>
-                existing.company === entry.company &&
-                existing.role === entry.role &&
-                existing.dates === entry.dates
-            ) ?? existingExperience[index];
-
-          const id =
-            typeof match?.id === 'string' && match.id
-              ? match.id
-              : `exp-${Date.now()}-${index}`;
-
-          return {
-            id,
-            company: entry.company,
-            role: entry.role,
-            dates: entry.dates,
-            bullets: entry.bullets,
-          };
-        });
-      }
 
       console.log(
         '[tailorCvToJob] Upserting CV payload:',
@@ -518,8 +518,8 @@ export async function POST(req: Request) {
       return {
         success: true,
         resumeId: upsertedRow?.[0]?.id ?? resume.id,
-        updatedFields: Object.keys(upsertPayload).filter(
-          (key) => key !== 'updated_at' && key !== 'user_id'
+        updatedFields: Object.keys(updates).filter(
+          (key) => updates[key as keyof typeof updates] !== undefined
         ),
       };
     },
