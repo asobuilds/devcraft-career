@@ -150,6 +150,7 @@ export default function ATSAnalyzer() {
     setAnalyzing(true);
     setScore(null);
     setMissingKeywords([]);
+    setMatchedKeywords([]);
     setFeedback('');
     setSuggestions([]);
     setCopiedIndex(null);
@@ -462,7 +463,7 @@ export default function ATSAnalyzer() {
                                     <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-red-400">
                                       Original
                                     </p>
-                                    <p className="rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2 text-xs leading-relaxed text-slate-400 line-through decoration-red-400/50">
+                                    <p className="whitespace-pre-wrap break-words rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2 text-xs leading-relaxed text-slate-400 line-through decoration-red-400/50">
                                       {suggestion.original}
                                     </p>
                                   </div>
@@ -488,7 +489,7 @@ export default function ATSAnalyzer() {
                                         )}
                                       </button>
                                     </div>
-                                    <p className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 text-xs leading-relaxed text-emerald-100">
+                                    <p className="whitespace-pre-wrap break-words rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 text-xs leading-relaxed text-emerald-100">
                                       {suggestion.improved}
                                     </p>
                                   </div>
