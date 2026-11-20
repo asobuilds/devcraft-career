@@ -1,8 +1,5 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+import React from 'react';
+import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import PortfolioMinimal from '@/app/p/components/PortfolioMinimal';
 import PortfolioDeveloper from '@/app/p/components/PortfolioDeveloper';
@@ -37,65 +34,43 @@ function renderTemplate(
   }
 }
 
-export default function PublicPortfolioView() {
-  const params = useParams<{ subdomain?: string | string[] }>();
-  const rawSubdomain = Array.isArray(params?.subdomain)
-    ? params.subdomain[0]
-    : params?.subdomain;
-  const subdomainSlug = (rawSubdomain ? String(rawSubdomain) : '')
+export default async function PublicPortfolioView({
+  params,
+}: {
+  params: Promise<{ subdomain?: string | string[] }>;
+}) {
+  const rawSubdomain = (await params)?.subdomain;
+  const subdomainSlug = (Array.isArray(rawSubdomain)
+    ? rawSubdomain[0]
+    : rawSubdomain ?? ''
+  )
+    .toString()
     .toLowerCase()
     .trim();
 
-  const [loading, setLoading] = useState(true);
-  const [portfolio, setPortfolio] = useState<PortfolioRow | null>(null);
-  const [developerName, setDeveloperName] = useState('');
-
-  useEffect(() => {
-    const fetchPublicPortfolio = async () => {
-      if (!subdomainSlug) {
-        setLoading(false);
-        return;
-      }
-
-      const { data: portfolioData } = await supabase
-        .from('portfolios')
-        .select('*')
-        .eq('custom_subdomain', subdomainSlug)
-        .maybeSingle();
-
-      if (portfolioData) {
-        setPortfolio(portfolioData as PortfolioRow);
-
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('full_name')
-          .eq('id', portfolioData.user_id)
-          .maybeSingle();
-
-        if (profile) setDeveloperName(profile.full_name || '');
-      }
-      setLoading(false);
-    };
-
-    fetchPublicPortfolio();
-  }, [subdomainSlug]);
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center gap-2 bg-white text-neutral-500">
-        <Loader2 className="animate-spin text-neutral-900" size={20} />
-        <span>Loading portfolio...</span>
-      </div>
-    );
+  if (!subdomainSlug) {
+    notFound();
   }
 
-  if (!portfolio) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-white px-6 text-center text-sm text-neutral-500">
-        The requested portfolio could not be found.
-      </div>
-    );
+  const { data: portfolioData, error: portfolioError } = await supabase
+    .from('portfolios')
+    .select('*')
+    .eq('custom_subdomain', subdomainSlug)
+    .maybeSingle();
+
+  if (portfolioError || !portfolioData) {
+    notFound();
   }
+
+  const portfolio = portfolioData as PortfolioRow;
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('full_name')
+    .eq('id', portfolio.user_id)
+    .maybeSingle();
+
+  const developerName = profile?.full_name || '';
 
   return (
     <main className="min-h-screen">
@@ -103,8 +78,8 @@ export default function PublicPortfolioView() {
         name: developerName || 'DevCraft Engineer',
         title: portfolio.title,
         bio: portfolio.bio,
-        techStack: portfolio.tech_stack,
-        projects: portfolio.projects,
+        techStack: portfolio.tech_stack ?? [],
+        projects: portfolio.projects ?? [],
         subdomain: portfolio.custom_subdomain || subdomainSlug,
       })}
     </main>
