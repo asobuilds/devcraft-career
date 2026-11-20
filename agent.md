@@ -97,6 +97,16 @@ devcraft-career/
 - Job matching: 11 sources + unlimited custom APIs via `.env` + location filtering.
 - `robotsCheck.js` utility, ready for future scraping work.
 - Platform is 100% free; no payment or premium gates.
+- AI Co-Editor (write/update/delete CV summary, skills, and experience via `tailorCvToJob`).
+- ATS Analyzer with structured keyword matching and matched/missing badges.
+- Kanban Tracker with RLS-secured status updates.
+- Portfolio Generator.
+- Naija Modern design system.
+- Multi-provider AI failover (Groq, Gemini, Agnes).
+
+### In Progress
+- Portfolio 404 fix.
+- Dashboard demo data.
 
 ### Paused (deliberately)
 - Puppeteer-based site-specific scraping — needs `puppeteer-core` + `@sparticuz/chromium`, which adds deploy size/cold-start cost on Vercel. Held until there's a specific site to target with a confirmed-compliant robots.txt + Terms of Service.
