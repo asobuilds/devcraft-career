@@ -13,6 +13,10 @@ import {
   ArrowRight,
   Bot,
   CheckCircle2,
+  FileText,
+  Layout,
+  Search,
+  Bell,
 } from 'lucide-react';
 
 const faqData = [
@@ -151,34 +155,59 @@ export default function HomeLandingPage() {
             <h2 className="text-2xl sm:text-3xl font-bold text-white">How It Works</h2>
             <p className="text-slate-400 text-sm">Four simple steps, explained plainly.</p>
           </div>
-          <div className="relative">
+          <div className="relative isolate">
             <div
-              className="pointer-events-none absolute left-[12.5%] right-[12.5%] top-6 hidden h-px lg:block"
+              className="pointer-events-none absolute left-[12.5%] right-[12.5%] top-11 -z-10 hidden h-0.5 animate-timeline bg-gradient-to-r from-orange-500/50 via-emerald-500/50 to-transparent blur-[2px] lg:block"
               aria-hidden="true"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-orange-500/40 to-transparent" />
-              <div className="animate-timeline absolute inset-0 bg-gradient-to-r from-transparent via-orange-400 to-transparent blur-[2px]" />
-            </div>
-            <div className="relative grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="flex flex-col items-center text-center">
-                <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-slate-800 bg-slate-950 text-lg font-bold text-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.15)]">1</div>
-                <h3 className="mt-4 text-sm font-semibold text-white">Build your CV</h3>
-                <p className="mt-2 text-xs text-slate-400 leading-relaxed">Fill in your details, work history, and skills using our simple builder.</p>
+            />
+            <div className="relative grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="relative isolate flex h-full flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-orange-500/30">
+                <span className="pointer-events-none absolute -right-2 -top-4 -z-10 select-none text-8xl font-black leading-none text-white/5" aria-hidden="true">01</span>
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs tracking-[0.2em] text-orange-400">STEP 01</span>
+                  <div className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-orange-500/20 bg-orange-500/10 shadow-[0_0_25px_rgba(249,115,22,0.2)]">
+                    <span className="absolute inset-0 rounded-xl bg-orange-500/20 blur-xl" aria-hidden="true" />
+                    <FileText size={20} className="relative z-10 text-orange-300" />
+                  </div>
+                </div>
+                <h3 className="mt-6 text-sm font-semibold text-white">Build your CV</h3>
+                <p className="mt-2 text-xs leading-relaxed text-slate-400">Fill in your details, work history, and skills using our simple builder.</p>
               </div>
-              <div className="flex flex-col items-center text-center">
-                <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-slate-800 bg-slate-950 text-lg font-bold text-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.15)]">2</div>
-                <h3 className="mt-4 text-sm font-semibold text-white">Pick a template</h3>
-                <p className="mt-2 text-xs text-slate-400 leading-relaxed">Choose a design that fits the Nigerian role you want, with or without a photo.</p>
+              <div className="relative isolate flex h-full flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-orange-500/30">
+                <span className="pointer-events-none absolute -right-2 -top-4 -z-10 select-none text-8xl font-black leading-none text-white/5" aria-hidden="true">02</span>
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs tracking-[0.2em] text-orange-400">STEP 02</span>
+                  <div className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-orange-500/20 bg-orange-500/10 shadow-[0_0_25px_rgba(249,115,22,0.2)]">
+                    <span className="absolute inset-0 rounded-xl bg-orange-500/20 blur-xl" aria-hidden="true" />
+                    <Layout size={20} className="relative z-10 text-orange-300" />
+                  </div>
+                </div>
+                <h3 className="mt-6 text-sm font-semibold text-white">Pick a template</h3>
+                <p className="mt-2 text-xs leading-relaxed text-slate-400">Choose a design that fits the Nigerian role you want, with or without a photo.</p>
               </div>
-              <div className="flex flex-col items-center text-center">
-                <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-slate-800 bg-slate-950 text-lg font-bold text-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.15)]">3</div>
-                <h3 className="mt-4 text-sm font-semibold text-white">We scan Nigerian job boards</h3>
-                <p className="mt-2 text-xs text-slate-400 leading-relaxed">Our system searches local platforms, government portals, and company career pages for matches.</p>
+              <div className="relative isolate flex h-full flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-orange-500/30">
+                <span className="pointer-events-none absolute -right-2 -top-4 -z-10 select-none text-8xl font-black leading-none text-white/5" aria-hidden="true">03</span>
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs tracking-[0.2em] text-orange-400">STEP 03</span>
+                  <div className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-orange-500/20 bg-orange-500/10 shadow-[0_0_25px_rgba(249,115,22,0.2)]">
+                    <span className="absolute inset-0 rounded-xl bg-orange-500/20 blur-xl" aria-hidden="true" />
+                    <Search size={20} className="relative z-10 text-orange-300" />
+                  </div>
+                </div>
+                <h3 className="mt-6 text-sm font-semibold text-white">We scan Nigerian job boards</h3>
+                <p className="mt-2 text-xs leading-relaxed text-slate-400">Our system searches local platforms, government portals, and company career pages for matches.</p>
               </div>
-              <div className="flex flex-col items-center text-center">
-                <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-slate-800 bg-slate-950 text-lg font-bold text-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.15)]">4</div>
-                <h3 className="mt-4 text-sm font-semibold text-white">You get notified</h3>
-                <p className="mt-2 text-xs text-slate-400 leading-relaxed">When a matching role is found, you receive a message with the direct application link.</p>
+              <div className="relative isolate flex h-full flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-orange-500/30">
+                <span className="pointer-events-none absolute -right-2 -top-4 -z-10 select-none text-8xl font-black leading-none text-white/5" aria-hidden="true">04</span>
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs tracking-[0.2em] text-orange-400">STEP 04</span>
+                  <div className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-orange-500/20 bg-orange-500/10 shadow-[0_0_25px_rgba(249,115,22,0.2)]">
+                    <span className="absolute inset-0 rounded-xl bg-orange-500/20 blur-xl" aria-hidden="true" />
+                    <Bell size={20} className="relative z-10 text-orange-300" />
+                  </div>
+                </div>
+                <h3 className="mt-6 text-sm font-semibold text-white">You get notified</h3>
+                <p className="mt-2 text-xs leading-relaxed text-slate-400">When a matching role is found, you receive a message with the direct application link.</p>
               </div>
             </div>
           </div>
