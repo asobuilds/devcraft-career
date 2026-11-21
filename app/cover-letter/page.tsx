@@ -206,9 +206,14 @@ export default function CoverLetterPage() {
         throw new Error(data.error || 'Failed to generate cover letter');
       }
 
+      const letter = typeof data.coverLetter === 'string' ? data.coverLetter : '';
+      if (!letter.trim()) {
+        throw new Error('No cover letter content returned from the API.');
+      }
+
       setState((prev) => ({
         ...prev,
-        generatedCoverLetter: data.coverLetter,
+        generatedCoverLetter: letter,
         isGenerating: false,
       }));
     } catch (err) {
@@ -343,7 +348,7 @@ export default function CoverLetterPage() {
             </button>
 
             {/* Generated Cover Letter */}
-            {state.generatedCoverLetter && (
+            {state.generatedCoverLetter?.trim() && (
               <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur-md">
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-2">

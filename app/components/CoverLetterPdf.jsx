@@ -38,7 +38,8 @@ const styles = StyleSheet.create({
 
 export default function CoverLetterPdf({ generatedLetter = '', fullName, email, phone, website }) {
   const contactParts = [email, phone, website].filter(Boolean);
-  const lines = generatedLetter.split('\n');
+  const text = (generatedLetter || '').trim();
+  const lines = text ? text.split('\n') : [];
 
   return (
     <Document>
@@ -59,6 +60,9 @@ export default function CoverLetterPdf({ generatedLetter = '', fullName, email, 
               </Text>
             )
           )}
+          {lines.length === 0 ? (
+            <Text style={styles.paragraph}>No content available.</Text>
+          ) : null}
         </View>
       </Page>
     </Document>
