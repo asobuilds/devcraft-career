@@ -11,16 +11,13 @@ import {
   Star,
   Send,
   ArrowRight,
-  FileText,
-  Paperclip,
-  Zap,
-  Bell,
-  Building2,
-  Gift,
+  Bot,
+  CheckCircle2,
 } from 'lucide-react';
 
 const faqData = [
   { question: 'What is DevCraft Naija?', answer: "It's a free, Nigeria-focused tool that helps you build a professional CV in minutes, then automatically searches for Nigerian jobs that fit your skills — private, government, or freelance — so you don't have to keep scrolling job boards." },
+  { question: 'Can the AI really edit my CV?', answer: 'Yes, our AI Co-Editor can rewrite summaries, add skills, and tailor your experience to specific job descriptions.' },
   { question: 'How does it find jobs for me?', answer: 'Once your CV or portfolio is ready, the system scans Nigerian job platforms, company career pages, government postings, and freelance networks for roles that match your skills and location. When it finds a strong match, it sends you the application link.' },
   { question: 'Do I need a photo on my CV?', answer: 'No. You can choose a template with a photo or one without, depending on the kind of role you are applying for in Nigeria.' },
   { question: 'Can I attach my NYSC certificate, diplomas, and transcripts?', answer: 'Yes. While building your CV you can upload supporting documents like your NYSC certificate, degree, transcripts, certificates, and other files so they travel with your application.' },
@@ -186,6 +183,16 @@ export default function HomeLandingPage() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
+              <Sparkles size={20} className="text-orange-400 mb-3" />
+              <h3 className="text-sm font-semibold text-white">AI that edits your CV</h3>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Our AI doesn&apos;t just suggest—it writes. Ask it to tailor your CV to any job description and watch it update live.</p>
+            </div>
+            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
+              <Building2 size={20} className="text-emerald-400 mb-3" />
+              <h3 className="text-sm font-semibold text-white">Community Circles</h3>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Join the Lagos Fintech or Tech &amp; Engineering circles. Share leads, ask questions, and grow with other Nigerian job seekers.</p>
+            </div>
+            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
               <FileText size={20} className="text-orange-400 mb-3" />
               <h3 className="text-sm font-semibold text-white">Beat the ATS</h3>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">Our templates are parsed correctly by Nigerian and international ATS systems.</p>
@@ -199,16 +206,6 @@ export default function HomeLandingPage() {
               <Zap size={20} className="text-emerald-400 mb-3" />
               <h3 className="text-sm font-semibold text-white">Jobs That Actually Fit You</h3>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">We scan Nigerian job boards so you only see roles you are qualified for.</p>
-            </div>
-            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
-              <Bell size={20} className="text-amber-400 mb-3" />
-              <h3 className="text-sm font-semibold text-white">Never Miss a Match</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Get pinged the moment a matching role goes live, with the apply link ready.</p>
-            </div>
-            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
-              <Building2 size={20} className="text-purple-400 mb-3" />
-              <h3 className="text-sm font-semibold text-white">Private, Government &amp; Freelance</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">One search covers companies, federal and state agencies, and freelance platforms.</p>
             </div>
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
               <Gift size={20} className="text-emerald-400 mb-3" />
