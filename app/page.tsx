@@ -83,7 +83,7 @@ export default function HomeLandingPage() {
 
       <section
         id="hero"
-        className="relative isolate overflow-hidden scroll-mt-10 border-b border-slate-900 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black"
+        className="relative isolate overflow-hidden scroll-mt-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black"
       >
         <div className="absolute inset-0 z-0">
           <Image
@@ -149,7 +149,11 @@ export default function HomeLandingPage() {
         </div>
       </section>
 
-        <section id="how-it-works" className="max-w-5xl mx-auto px-6 py-16 border-t border-slate-900 scroll-mt-20 bg-black/50">
+        <section id="how-it-works" className="relative isolate max-w-5xl mx-auto px-6 py-16 scroll-mt-20">
+          <div
+            className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-32 bg-gradient-to-b from-transparent via-slate-950/80 to-slate-950"
+            aria-hidden="true"
+          />
           <div className="text-center max-w-xl mx-auto mb-12 space-y-2">
             <span className="text-emerald-400 font-mono text-sm uppercase tracking-widest">The Journey</span>
             <h2 className="text-2xl sm:text-3xl font-bold text-white">How It Works</h2>
