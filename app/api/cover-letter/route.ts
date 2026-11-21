@@ -1,11 +1,5 @@
 import { NextResponse } from 'next/server';
 
-interface GenerateInput {
-  resumeId: string | null;
-  skillsInput: string;
-  jobDescription: string;
-}
-
 interface GenerateOutput {
   coverLetter: string;
 }
@@ -36,13 +30,18 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
-  const skills = resumeId
-    ? getSkillsFromResume(resumeId)
-    : normalizeSkills(skillsInput);
+  try {
+    const skills = resumeId
+      ? getSkillsFromResume(resumeId)
+      : normalizeSkills(skillsInput);
 
-  const coverLetter = generateCoverLetter(skills, jobDescription);
+    const coverLetter = generateCoverLetter(skills, jobDescription);
 
-  return NextResponse.json<GenerateOutput>({ coverLetter });
+    return NextResponse.json<GenerateOutput>({ coverLetter });
+  } catch (err) {
+    console.error('[cover-letter] POST error:', err);
+    return NextResponse.json({ error: 'Failed to generate cover letter' }, { status: 500 });
+  }
 }
 
 function readString(value: unknown, fallback: string): string {
@@ -59,6 +58,7 @@ function normalizeSkills(skillsInput: string): string {
     .join(', ');
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getSkillsFromResume(resumeId: string): string {
   // In a real implementation, this would fetch from Supabase
   // For now, return empty string - the UI allows manual paste fallback
