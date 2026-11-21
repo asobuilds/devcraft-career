@@ -20,6 +20,7 @@ export function proxy(request) {
     path.startsWith('/portfolio-builder') ||
     path.startsWith('/settings') ||   // Open traffic channels cleanly
     path.startsWith('/directory') ||  // Open traffic channels cleanly
+    path.startsWith('/community') ||
     path.startsWith('/cover-letter') ||
     path.startsWith('/resumes') ||
     path.startsWith('/interview-prep') ||
