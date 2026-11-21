@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import ScraperDemoWidget from './components/ScraperDemoWidget';
 import { supabase } from '@/lib/supabase';
@@ -83,6 +84,19 @@ export default function HomeLandingPage() {
         id="hero"
         className="relative isolate overflow-hidden scroll-mt-10 border-b border-slate-900 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black"
       >
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/landing-hero.jpg"
+            alt="Nigerian professionals"
+            fill
+            className="object-cover object-center"
+            preload
+          />
+          {/* The Overlay: Crucial for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent" />
+          <div className="absolute inset-0 bg-slate-950/40" /> {/* Extra darkening for mobile */}
+        </div>
+
         <div
           className="pointer-events-none absolute inset-0 -z-10 opacity-[0.08]"
           style={{
