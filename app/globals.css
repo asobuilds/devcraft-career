@@ -40,8 +40,36 @@ body {
   animation: toolkit-fade-up 0.5s ease-out backwards;
 }
 
+@keyframes timeline-draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes timeline-glow {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-timeline {
+  transform-origin: left;
+  animation: timeline-draw 1.2s ease-out both, timeline-glow 3s ease-in-out 1.2s infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-toolkit-in {
+    animation: none;
+  }
+
+  .animate-timeline {
     animation: none;
   }
 }

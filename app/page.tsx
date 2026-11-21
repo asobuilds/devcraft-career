@@ -132,7 +132,13 @@ export default function HomeLandingPage() {
             <a href="#how-it-works" className="px-6 py-3 rounded-xl border border-white/15 bg-white/5 backdrop-blur-md text-slate-200 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors">
               See how it works
             </a>
-            <p className="w-full text-slate-500 text-xs mt-3">
+            <p className="w-full text-slate-500 text-[11px]">
+              Built for roles at <span className="text-slate-400">Flutterwave</span>,{' '}
+              <span className="text-slate-400">Paystack</span>,{' '}
+              <span className="text-slate-400">Google</span>,{' '}
+              <span className="text-slate-400">Andela</span>, and more.
+            </p>
+            <p className="w-full text-slate-500 text-xs">
               No credit card required • Free forever plan
             </p>
           </div>
@@ -147,9 +153,12 @@ export default function HomeLandingPage() {
           </div>
           <div className="relative">
             <div
-              className="pointer-events-none absolute left-0 right-0 top-6 hidden border-t border-slate-800 lg:block"
+              className="pointer-events-none absolute left-[12.5%] right-[12.5%] top-6 hidden h-px lg:block"
               aria-hidden="true"
-            />
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-orange-500/40 to-transparent" />
+              <div className="animate-timeline absolute inset-0 bg-gradient-to-r from-transparent via-orange-400 to-transparent blur-[2px]" />
+            </div>
             <div className="relative grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
               <div className="flex flex-col items-center text-center">
                 <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-slate-800 bg-slate-950 text-lg font-bold text-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.15)]">1</div>
@@ -175,49 +184,128 @@ export default function HomeLandingPage() {
           </div>
         </section>
 
-        <section id="features" className="max-w-5xl mx-auto px-6 py-16 border-t border-slate-900 scroll-mt-20 bg-slate-950">
+        <section id="features" className="relative max-w-5xl mx-auto overflow-hidden px-6 py-16 border-t border-slate-900 scroll-mt-20 bg-slate-950">
           <div className="text-center max-w-xl mx-auto mb-12 space-y-2">
-            <span className="text-emerald-400 font-mono text-sm uppercase tracking-widest">Features</span>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white">What You Get</h2>
-            <p className="text-slate-400 text-sm">Everything you need to find and land a job, in one place.</p>
+            <span className="text-emerald-400 font-mono text-sm uppercase tracking-widest">The Workspace</span>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white">One dashboard. Your whole job search.</h2>
+            <p className="text-slate-400 text-sm">CV, applications, job matches, and an AI copilot — together.</p>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
-              <Sparkles size={20} className="text-orange-400 mb-3" />
-              <h3 className="text-sm font-semibold text-white">AI that edits your CV</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Our AI doesn&apos;t just suggest—it writes. Ask it to tailor your CV to any job description and watch it update live.</p>
-            </div>
-            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
-              <Building2 size={20} className="text-emerald-400 mb-3" />
-              <h3 className="text-sm font-semibold text-white">Community Circles</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Join the Lagos Fintech or Tech &amp; Engineering circles. Share leads, ask questions, and grow with other Nigerian job seekers.</p>
-            </div>
-            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
-              <FileText size={20} className="text-orange-400 mb-3" />
-              <h3 className="text-sm font-semibold text-white">Beat the ATS</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Our templates are parsed correctly by Nigerian and international ATS systems.</p>
-            </div>
-            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
-              <Paperclip size={20} className="text-cyan-400 mb-3" />
-              <h3 className="text-sm font-semibold text-white">One-Click NYSC &amp; Certificates</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Upload your NYSC discharge certificate, degrees, and results directly to your CV.</p>
-            </div>
-            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
-              <Zap size={20} className="text-emerald-400 mb-3" />
-              <h3 className="text-sm font-semibold text-white">Jobs That Actually Fit You</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">We scan Nigerian job boards so you only see roles you are qualified for.</p>
-            </div>
-            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.35)]">
-              <Gift size={20} className="text-emerald-400 mb-3" />
-              <h3 className="text-sm font-semibold text-white">Free Forever</h3>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Build your CV and get matched at no cost. No credit card, no paywall.</p>
+
+          <div className="relative">
+            <div className="pointer-events-none absolute inset-x-8 top-8 bottom-4 rounded-[2rem] bg-orange-500/20 blur-3xl" />
+            <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/80 shadow-[0_0_50px_rgba(249,115,22,0.2)] backdrop-blur-xl transition-transform duration-500 md:-rotate-2 md:hover:rotate-0">
+              <div className="flex items-center gap-2 border-b border-slate-800 bg-slate-950/70 px-4 py-3">
+                <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
+                <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
+                <div className="ml-3 flex-1 rounded-md border border-slate-800 bg-slate-900/70 px-3 py-1 text-[10px] text-slate-500">
+                  app.devcraft.ng/dashboard
+                </div>
+              </div>
+
+              <div className="grid gap-4 p-4 sm:p-6 lg:grid-cols-[1.5fr_1fr]">
+                <div className="space-y-4">
+                  <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-semibold text-white">Job-Ready Checklist</p>
+                      <span className="text-[10px] font-semibold text-orange-300">3 of 5 complete</span>
+                    </div>
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-800">
+                      <div className="h-full w-3/5 rounded-full bg-gradient-to-r from-orange-500 to-emerald-400" />
+                    </div>
+                    <div className="mt-3 grid gap-2 text-[10px] text-slate-400 sm:grid-cols-2">
+                      {['CV uploaded', 'Portfolio linked', 'Skills added'].map((item) => (
+                        <div key={item} className="flex items-center gap-1.5">
+                          <CheckCircle2 size={12} className="text-emerald-400" />
+                          <span>{item}</span>
+                        </div>
+                      ))}
+                      {['Cover letter drafted', 'NYSC certificate attached'].map((item) => (
+                        <div key={item} className="flex items-center gap-1.5">
+                          <span className="h-3 w-3 rounded-full border border-slate-700" />
+                          <span>{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-semibold text-white">Application Tracker</p>
+                      <span className="rounded-full border border-orange-500/20 bg-orange-500/10 px-2 py-0.5 text-[9px] font-semibold text-orange-300">
+                        Live
+                      </span>
+                    </div>
+                    <div className="mt-3 grid grid-cols-2 gap-3">
+                      <div className="rounded-lg border border-slate-800 bg-slate-900/60 p-3">
+                        <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-slate-500">
+                          <span className="h-1.5 w-1.5 rounded-full bg-sky-400" /> Applied
+                        </div>
+                        <div className="mt-2 space-y-2">
+                          <div className="rounded-md border border-slate-800 bg-slate-950/70 p-2">
+                            <p className="text-[11px] font-semibold text-white">Google</p>
+                            <p className="text-[10px] text-slate-500">Frontend Engineer</p>
+                          </div>
+                          <div className="rounded-md border border-slate-800 bg-slate-950/70 p-2">
+                            <p className="text-[11px] font-semibold text-white">Flutterwave</p>
+                            <p className="text-[10px] text-slate-500">React Developer</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="rounded-lg border border-slate-800 bg-slate-900/60 p-3">
+                        <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-slate-500">
+                          <span className="h-1.5 w-1.5 rounded-full bg-amber-400" /> Interviewing
+                        </div>
+                        <div className="mt-2 rounded-md border border-slate-800 bg-slate-950/70 p-2">
+                          <p className="text-[11px] font-semibold text-white">Paystack</p>
+                          <p className="text-[10px] text-slate-500">Product Designer</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col rounded-xl border border-slate-800 bg-slate-950/60 p-4">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-500/10 text-orange-400">
+                      <Bot size={14} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-white">AI Copilot</p>
+                      <p className="text-[9px] text-slate-500">Context-aware assistant</p>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex-1 space-y-3 text-[11px] leading-relaxed">
+                    <div className="ml-auto max-w-[85%] rounded-xl bg-orange-500 px-3 py-2 text-white">
+                      Which job should I prioritize?
+                    </div>
+                    <div className="max-w-[92%] rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-2 text-slate-300">
+                      <p>
+                        <span className="font-semibold text-white">Flutterwave</span> is your strongest fit right now. Your React work lines up with the role and you are already interviewing.
+                      </p>
+                      <div className="mt-2 flex items-center gap-1.5 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-2 py-1.5 text-[10px] text-emerald-300">
+                        <CheckCircle2 size={11} />
+                        <span>87% skill match · Interview stage</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/60 px-3 py-2">
+                    <span className="flex-1 text-[10px] text-slate-600">Ask a follow-up...</span>
+                    <span className="flex h-6 w-6 items-center justify-center rounded-md bg-orange-500 text-white">
+                      <Send size={11} />
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+
+          <p className="mt-10 text-center text-sm font-medium text-slate-400">
+            Your entire job search, <span className="text-white">in one AI-powered workspace.</span>
+          </p>
         </section>
 
-        <div className="shadow-[0_0_30px_rgba(16,185,129,0.15)] border-emerald-500/30">
-          <ScraperDemoWidget />
-        </div>
+        <ScraperDemoWidget />
 
         <section id="faq" className="max-w-3xl mx-auto px-6 py-16 border-t border-slate-900 scroll-mt-20">
           <div className="text-center max-w-xl mx-auto mb-10 space-y-2">

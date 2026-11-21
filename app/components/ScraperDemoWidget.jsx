@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Terminal, Search, Loader2, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Search, Loader2, CheckCircle2, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 const DEMO_LOG_STEPS = [
@@ -71,10 +71,14 @@ export default function ScraperDemoWidget() {
 
       <h3 className="text-center text-sm font-semibold text-emerald-300 mb-3">Try it now. See real jobs.</h3>
 
-      <div className="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-900 bg-slate-900/60">
-          <Terminal size={14} className="text-emerald-400" />
-          <span className="text-xs font-mono text-emerald-400">devcraft-scraper-demo</span>
+      <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 shadow-2xl backdrop-blur-md">
+        <div className="flex items-center gap-2 border-b border-slate-800 bg-slate-950/70 px-4 py-3">
+          <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
+          <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
+          <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
+          <div className="ml-3 flex-1 rounded-md border border-slate-800 bg-slate-900/70 px-3 py-1 text-[10px] text-slate-500">
+            app.devcraft.ng/scraper-demo
+          </div>
         </div>
 
         <div className="p-5 space-y-4">
