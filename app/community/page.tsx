@@ -136,6 +136,17 @@ async function fetchFeed(circleId: string): Promise<FeedPost[]> {
   });
 }
 
+async function getAuthHeaders(): Promise<Record<string, string>> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  return {
+    'Content-Type': 'application/json',
+    ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+  };
+}
+
 function Avatar({
   name,
   src,
@@ -180,6 +191,10 @@ export default function CommunityPage() {
   const [loading, setLoading] = useState(true);
   const [feedLoading, setFeedLoading] = useState(true);
   const [posting, setPosting] = useState(false);
+  const [openCommentPostId, setOpenCommentPostId] = useState<string | null>(null);
+  const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
+  const [commentingPostId, setCommentingPostId] = useState<string | null>(null);
+  const [localComments, setLocalComments] = useState<Record<string, { id: string; content: string }[]>>({});
   const [error, setError] = useState('');
 
   const activeCircle = circles.find((circle) => circle.id === activeCircleId) ?? null;
@@ -270,22 +285,26 @@ export default function CommunityPage() {
     setPosting(true);
     setError('');
 
-    const { error: insertError } = await supabase.from('posts').insert({
-      circle_id: activeCircleId,
-      user_id: userId,
-      content: text,
-    });
+    try {
+      const res = await fetch('/api/community/posts', {
+        method: 'POST',
+        headers: await getAuthHeaders(),
+        body: JSON.stringify({ content: text, circle_id: activeCircleId }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
 
-    if (insertError) {
-      setError(insertError.message);
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to create post.');
+      }
+
+      setContent('');
+      const rows = await fetchFeed(activeCircleId);
+      setPosts(rows);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create post.');
+    } finally {
       setPosting(false);
-      return;
     }
-
-    setContent('');
-    const rows = await fetchFeed(activeCircleId);
-    setPosts(rows);
-    setPosting(false);
   };
 
   const toggleLike = async (postId: string) => {
@@ -307,15 +326,39 @@ export default function CommunityPage() {
       )
     );
 
-    const { error: likeError } = wasLiked
-      ? await supabase
-          .from('likes')
-          .delete()
-          .eq('post_id', postId)
-          .eq('user_id', userId)
-      : await supabase.from('likes').insert({ post_id: postId, user_id: userId });
+    try {
+      const res = await fetch('/api/community/likes', {
+        method: 'POST',
+        headers: await getAuthHeaders(),
+        body: JSON.stringify({ post_id: postId }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        liked?: boolean;
+        likeCount?: number;
+      };
 
-    if (likeError) {
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to update like.');
+      }
+
+      if (typeof data.liked === 'boolean') {
+        const liked = data.liked;
+        setLikedIds((prev) => {
+          const next = new Set(prev);
+          if (liked) next.add(postId);
+          else next.delete(postId);
+          return next;
+        });
+      }
+
+      if (typeof data.likeCount === 'number') {
+        const likeCount = data.likeCount;
+        setPosts((prev) =>
+          prev.map((post) => (post.id === postId ? { ...post, likeCount } : post))
+        );
+      }
+    } catch (err) {
       setLikedIds((prev) => {
         const next = new Set(prev);
         if (wasLiked) next.add(postId);
@@ -329,7 +372,50 @@ export default function CommunityPage() {
             : post
         )
       );
-      setError(likeError.message);
+      setError(err instanceof Error ? err.message : 'Failed to update like.');
+    }
+  };
+
+  const handleComment = async (postId: string) => {
+    const draft = (commentDrafts[postId] ?? '').trim();
+    if (!draft || commentingPostId) return;
+
+    setCommentingPostId(postId);
+    setError('');
+
+    try {
+      const res = await fetch('/api/community/comments', {
+        method: 'POST',
+        headers: await getAuthHeaders(),
+        body: JSON.stringify({ post_id: postId, content: draft }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        id?: string;
+      };
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to add comment.');
+      }
+
+      setCommentDrafts((prev) => ({ ...prev, [postId]: '' }));
+      setLocalComments((prev) => ({
+        ...prev,
+        [postId]: [
+          ...(prev[postId] ?? []),
+          { id: data.id ?? `${postId}-${Date.now()}`, content: draft },
+        ],
+      }));
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId ? { ...post, commentCount: post.commentCount + 1 } : post
+        )
+      );
+      setOpenCommentPostId(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to add comment.');
+    } finally {
+      setCommentingPostId(null);
     }
   };
 
@@ -490,13 +576,68 @@ export default function CommunityPage() {
                           </button>
                           <button
                             type="button"
-                            aria-label="View comments"
-                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 transition-colors hover:text-orange-300"
+                            onClick={() =>
+                              setOpenCommentPostId((current) => (current === post.id ? null : post.id))
+                            }
+                            aria-expanded={openCommentPostId === post.id}
+                            aria-label="Comments"
+                            className={`inline-flex items-center gap-1.5 text-xs font-semibold transition-colors ${
+                              openCommentPostId === post.id
+                                ? 'text-orange-400'
+                                : 'text-slate-400 hover:text-orange-300'
+                            }`}
                           >
                             <MessageCircle size={16} />
                             {post.commentCount}
                           </button>
                         </div>
+                        {openCommentPostId === post.id && (
+                          <div className="mt-3 space-y-2">
+                            {(localComments[post.id] ?? []).map((comment) => (
+                              <p
+                                key={comment.id}
+                                className="rounded-xl border border-slate-800 bg-slate-950/50 px-3 py-2 text-xs text-slate-300"
+                              >
+                                {comment.content}
+                              </p>
+                            ))}
+                            <form
+                              onSubmit={(event) => {
+                                event.preventDefault();
+                                void handleComment(post.id);
+                              }}
+                              className="flex items-center gap-2"
+                            >
+                              <input
+                                type="text"
+                                value={commentDrafts[post.id] ?? ''}
+                                onChange={(event) =>
+                                  setCommentDrafts((prev) => ({
+                                    ...prev,
+                                    [post.id]: event.target.value,
+                                  }))
+                                }
+                                placeholder="Write a comment..."
+                                className="min-w-0 flex-1 rounded-xl border border-slate-800 bg-slate-950/70 px-3 py-2 text-xs text-slate-200 outline-none placeholder:text-slate-600 focus:border-orange-500/50"
+                              />
+                              <button
+                                type="submit"
+                                disabled={
+                                  !(commentDrafts[post.id] ?? '').trim() ||
+                                  commentingPostId === post.id
+                                }
+                                className="inline-flex items-center gap-1.5 rounded-xl bg-orange-500 px-3 py-2 text-xs font-semibold text-slate-950 transition-colors hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-40"
+                              >
+                                {commentingPostId === post.id ? (
+                                  <Loader2 size={14} className="animate-spin" />
+                                ) : (
+                                  <Send size={14} />
+                                )}
+                                Send
+                              </button>
+                            </form>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </article>
