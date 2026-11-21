@@ -8,13 +8,13 @@ Live URL: https://devcraft-career.vercel.app
 
 ## Features
 
-- **AI Co-Editor:** The AI can read, write, and update the CV, Cover Letter, and Kanban board.
-- **ATS Analyzer:** Real-time keyword matching and score ring.
+- **AI Co-Editor:** The AI can read, write, and update the CV and Cover Letter.
+- **ATS Analyzer:** Real-time keyword matching and suggestions.
+- **Community Circles:** A space to connect with other Nigerian job seekers.
 - **Job Tailoring:** Paste a job description and let the AI rewrite your CV to match.
 - **Kanban Tracker:** 5-column drag-and-drop board (Wishlist, Applied, Interviewing, Offer, Rejected).
 - **Portfolio Generator:** Custom subdomains and 3 templates.
 - **Naija Modern Design:** The orange/emerald color palette and localized Nigerian copy.
-- **Community:** Glassdoor-style Circles and Posts feature. Join topic-specific circles (Tech & Engineering, NYSC & Graduate Roles, Lagos Fintech, Remote Opportunities), read and post discussions, comment, and like.
 
 ---
 
@@ -77,11 +77,16 @@ All AI-powered features use a failover chain: **Groq → Gemini → Agnes**. Eac
    git clone https://github.com/your-username/devcraft-career.git
    cd devcraft-career
    ```
-2. Install dependencies:
+2. Run Supabase migrations:
+   ```bash
+   supabase db push
+   ```
+   Or apply them manually via the Supabase SQL Editor in order (migrations in `supabase/migrations/`).
+3. Install dependencies:
    ```bash
    npm install
    ```
-3. Create `.env.local` in the root directory and populate the required environment variables:
+4. Create `.env.local` in the root directory and populate the required environment variables:
    ```env
    NEXT_PUBLIC_SUPABASE_URL=<your-supabase-url>
    NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
@@ -90,11 +95,11 @@ All AI-powered features use a failover chain: **Groq → Gemini → Agnes**. Eac
    GROQ_API_KEY=<your-groq-key>
    GEMINI_API_KEY=<your-gemini-key>
    ```
-4. Run the development server:
+5. Run the development server:
    ```bash
    npm run dev
    ```
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+6. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
