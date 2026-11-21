@@ -554,7 +554,7 @@ export default function JobTracker() {
       <div className={`flex w-full transition-all duration-300 ${isAiOpen ? 'xl:w-[calc(100%-420px)]' : 'w-full'}`}>
         <DragDropContext onDragEnd={handleDragEnd}>
           <main className="w-full overflow-x-auto">
-            <div className="mx-auto grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4 items-start min-w-[1000px] xl:min-w-0 max-w-7xl">
+            <div className="mx-auto grid grid-cols-5 gap-4 items-start min-w-[1000px] xl:min-w-0 max-w-7xl">
           {BOARD_COLUMNS.map((column) => {
             const filteredCards = apps.filter((item) => item.status === column.key);
             return (

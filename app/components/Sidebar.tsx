@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
@@ -45,6 +45,17 @@ export default function Sidebar() {
   // Mobile: hidden drawer with hamburger menu (handled by isMenuOpen state)
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  useEffect(() => {
+    if (!isMenuOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsMenuOpen(false);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isMenuOpen]);
+
   const handleSignOut = async () => {
     if (supabase) {
       await supabase.auth.signOut();
@@ -66,6 +77,8 @@ export default function Sidebar() {
           className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white transition-colors"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           aria-label="Toggle menu"
+          aria-expanded={isMenuOpen}
+          aria-controls="mobile-sidebar-drawer"
         >
           {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
@@ -74,9 +87,17 @@ export default function Sidebar() {
       {/* Mobile Slide-out Drawer */}
       {isMenuOpen && (
         <div
-          className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md md:hidden flex"
+          className="fixed inset-0 z-50 flex bg-slate-950/80 backdrop-blur-md md:hidden"
+          onClick={() => setIsMenuOpen(false)}
         >
-          <div className="flex flex-col h-full w-72 bg-slate-900 border-r border-slate-800 p-6 shadow-2xl animate-in slide-in-from-left duration-200">
+          <div
+            id="mobile-sidebar-drawer"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Navigation menu"
+            className="flex h-full w-72 flex-col border-r border-slate-800 bg-slate-900 p-6 shadow-2xl animate-in slide-in-from-left duration-200"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
               <div className="flex items-center gap-3">
                 <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-xs">

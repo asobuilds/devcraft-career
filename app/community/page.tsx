@@ -444,10 +444,10 @@ export default function CommunityPage() {
           </p>
         )}
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[220px_minmax(0,1fr)_300px]">
+        <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[220px_minmax(0,1fr)_300px]">
           {/* Left sidebar */}
-          <aside className="hidden lg:block">
-            <div className="sticky top-6 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 backdrop-blur-md">
+          <aside>
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 backdrop-blur-md lg:sticky lg:top-6">
               <h2 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
                 <Sparkles size={13} className="text-orange-400" /> Circles
               </h2>
@@ -477,27 +477,6 @@ export default function CommunityPage() {
 
           {/* Main feed */}
           <main className="min-w-0 space-y-4">
-            {/* Mobile circle selector */}
-            <div className="flex gap-2 overflow-x-auto pb-1 lg:hidden">
-              {circles.map((circle) => {
-                const isActive = circle.id === activeCircleId;
-                return (
-                  <button
-                    key={circle.id}
-                    type="button"
-                    onClick={() => handleSelectCircle(circle.id)}
-                    className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
-                      isActive
-                        ? 'border-orange-500/30 bg-orange-500/10 text-orange-300'
-                        : 'border-slate-800 bg-slate-900/60 text-slate-300'
-                    }`}
-                  >
-                    {circle.name}
-                  </button>
-                );
-              })}
-            </div>
-
             {/* Composer */}
             <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-md">
               <div className="flex gap-3">
@@ -647,7 +626,7 @@ export default function CommunityPage() {
           </main>
 
           {/* Right sidebar */}
-          <aside className="hidden space-y-5 xl:block">
+          <aside className="space-y-5 lg:hidden xl:block">
             <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-md">
               <h2 className="flex items-center gap-2 text-sm font-bold text-white">
                 <TrendingUp size={16} className="text-orange-400" /> Trending Circles
