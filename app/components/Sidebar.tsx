@@ -33,7 +33,7 @@ const navItems: NavItem[] = [
   { name: 'Write Cover Letter', href: '/cover-letter', icon: Folder, isNew: true },
   { name: 'Beat the ATS', href: '/analyzer', icon: FileSearch, isNew: true },
   { name: 'Job Tracker', href: '/tracker', icon: ListChecks },
-  { name: 'Find Talent', href: '/directory', icon: Users },
+  { name: 'Community', href: '/community', icon: Users },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
