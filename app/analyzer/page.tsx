@@ -516,7 +516,7 @@ export default function ATSAnalyzer() {
         </div>
 
         {isAiOpen ? (
-          <div className="w-[400px] shrink-0 hidden lg:block">
+          <div className="w-0 shrink-0 lg:w-[400px]">
             <AIAssistant
               title="ATS Analyzer Copilot"
               triggerLabel="Ask AI for Advice"
@@ -525,6 +525,7 @@ export default function ATSAnalyzer() {
               userName={userName}
               userSkills={userSkills}
               forceOpen
+              onOpenChange={setIsAiOpen}
             />
           </div>
         ) : null}

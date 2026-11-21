@@ -458,7 +458,7 @@ export default function JobTracker() {
         <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all"
+            className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-400 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all"
           >
             <Plus size={14} /> Add Job
           </button>
@@ -477,7 +477,7 @@ export default function JobTracker() {
             <button
               onClick={handleFindJobsNow}
               disabled={scanning}
-              className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all disabled:opacity-50"
+              className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-400 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all disabled:opacity-50"
             >
               {scanning ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />} Find Jobs Now
             </button>
@@ -526,23 +526,23 @@ export default function JobTracker() {
             <form onSubmit={handleAddApplication} className="space-y-3">
               <div>
                 <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-400">Company</label>
-                <input type="text" placeholder="e.g. Google" value={company} onChange={e => setCompany(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-indigo-500 focus:outline-none" required />
+                <input type="text" placeholder="e.g. Google" value={company} onChange={e => setCompany(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-orange-500 focus:outline-none" required />
               </div>
               <div>
                 <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-400">Role</label>
-                <input type="text" placeholder="e.g. Frontend Engineer" value={title} onChange={e => setTitle(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-indigo-500 focus:outline-none" required />
+                <input type="text" placeholder="e.g. Frontend Engineer" value={title} onChange={e => setTitle(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-orange-500 focus:outline-none" required />
               </div>
               <div>
                 <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-400">Date</label>
-                <input type="date" value={appliedDate} onChange={e => setAppliedDate(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-white [color-scheme:dark] focus:border-indigo-500 focus:outline-none" />
+                <input type="date" value={appliedDate} onChange={e => setAppliedDate(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-white [color-scheme:dark] focus:border-orange-500 focus:outline-none" />
               </div>
               <div>
                 <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-400">Salary <span className="normal-case text-slate-600">(optional)</span></label>
-                <input type="text" placeholder="e.g. ₦900,000 / mo" value={salary} onChange={e => setSalary(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-indigo-500 focus:outline-none" />
+                <input type="text" placeholder="e.g. ₦900,000 / mo" value={salary} onChange={e => setSalary(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-orange-500 focus:outline-none" />
               </div>
               <button
                 type="submit"
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-indigo-500"
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-orange-400"
               >
                 <Plus size={14} /> Add to Board
               </button>
@@ -560,7 +560,7 @@ export default function JobTracker() {
             return (
               <Droppable droppableId={column.key} key={column.key}>
                 {(provided, snapshot) => (
-                  <div className={`flex flex-col gap-4 rounded-2xl border p-4 transition-colors ${snapshot.isDraggingOver ? 'border-orange-500/40 bg-orange-500/5' : 'border-slate-900 bg-slate-900/20'}`}>
+                  <div className={`flex flex-col gap-4 rounded-2xl border p-4 backdrop-blur-md transition-colors ${snapshot.isDraggingOver ? 'border-orange-500/40 bg-orange-500/5' : 'border-slate-800 bg-slate-900/60'}`}>
                     <div className="sticky top-0 z-10 flex flex-col gap-1 border-b border-slate-800 bg-slate-950/95 px-2 pb-3 backdrop-blur-md">
                       <div className="flex items-center justify-between">
                         <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
@@ -588,7 +588,7 @@ export default function JobTracker() {
                               {...dragProvided.dragHandleProps}
                               style={dragProvided.draggableProps.style}
                             >
-                              <div className={`group relative space-y-3 rounded-xl border p-4 shadow-md backdrop-blur-md transition-all ${dragSnapshot.isDragging ? 'border-orange-500/60 bg-slate-800 shadow-2xl' : 'border-slate-800/80 bg-slate-900/60 hover:border-orange-500/50 hover:shadow-lg'}`}>
+                              <div className={`group relative space-y-3 rounded-xl border p-4 shadow-md backdrop-blur-md transition-all ${dragSnapshot.isDragging ? 'border-orange-500/60 bg-slate-800 shadow-2xl' : 'border-slate-800 bg-slate-900/60 hover:border-orange-500/50 hover:shadow-lg'}`}>
                                 <button
                                   onClick={() => handleDeleteApplication(card.id)}
                                   className="absolute top-4 right-4 hidden text-slate-600 transition-colors hover:text-red-400 group-hover:block"
@@ -617,7 +617,7 @@ export default function JobTracker() {
                                 {column.key === 'lead' && card.apply_url ? (
                                   <button
                                     onClick={() => handleApplyClick(card)}
-                                    className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-600/10 py-2 text-[10px] font-semibold text-emerald-300 transition-colors hover:bg-emerald-600/20"
+                                    className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-orange-500/30 bg-orange-500/10 py-2 text-[10px] font-semibold text-orange-300 transition-colors hover:bg-orange-500/20"
                                   >
                                     <ExternalLink size={11} /> Apply &amp; Move to Applied
                                   </button>

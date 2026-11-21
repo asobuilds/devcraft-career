@@ -146,26 +146,41 @@ export default function AIAssistant({
         <button
           type="button"
           onClick={handleOpen}
-          className="fixed bottom-6 right-6 z-[60] inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-4 py-3 rounded-full shadow-2xl transition-all"
+          className="fixed bottom-6 right-6 z-[60] inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-400 text-white text-sm font-semibold px-4 py-3 rounded-full shadow-2xl transition-all"
         >
           <Sparkles size={16} />
           {triggerLabel}
         </button>
       )}
 
+      {open && !inline && (
+        <button
+          type="button"
+          aria-label="Close assistant"
+          onClick={() => {
+            setInternalOpen(false);
+            onOpenChange?.(false);
+          }}
+          className="fixed inset-0 z-[55] cursor-default bg-slate-950/60 backdrop-blur-sm"
+        />
+      )}
+
       <div
         aria-hidden={!open}
+        role="dialog"
+        aria-modal={open ? true : undefined}
+        aria-label={title}
         className={`${
           inline
             ? 'fixed inset-0 z-[60] w-full xl:static xl:z-auto xl:h-[calc(100vh-65px)] xl:w-[400px] xl:shrink-0'
-            : 'fixed inset-y-0 right-0 z-[60] w-full sm:w-[420px]'
+            : 'fixed inset-0 z-[60] w-full sm:inset-y-0 sm:right-0 sm:left-auto sm:w-[420px]'
         } bg-slate-900 border-l border-slate-800 shadow-2xl flex flex-col transition-transform duration-300 ${
           open ? 'translate-x-0' : 'translate-x-full pointer-events-none'
         }`}
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800">
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+            <div className="h-8 w-8 rounded-lg bg-orange-500/10 text-orange-400 flex items-center justify-center">
               <Bot size={18} />
             </div>
             <div>
@@ -248,7 +263,7 @@ export default function AIAssistant({
 
           {isBusy && (
             <div className="flex items-center gap-2 text-xs text-slate-400">
-              <Loader2 size={14} className="animate-spin text-indigo-400" />
+              <Loader2 size={14} className="animate-spin text-orange-400" />
               Thinking...
             </div>
           )}
@@ -281,12 +296,12 @@ export default function AIAssistant({
             }}
             rows={2}
             placeholder="Ask a follow-up..."
-            className="flex-1 resize-none bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500"
+            className="flex-1 resize-none bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-orange-500"
           />
           <button
             type="submit"
             disabled={isBusy || !input.trim()}
-            className="h-10 w-10 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center transition-colors"
+            className="h-10 w-10 rounded-xl bg-orange-500 hover:bg-orange-400 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center transition-colors"
             aria-label="Send message"
           >
             <Send size={16} />

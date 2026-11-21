@@ -334,7 +334,7 @@ export default function CoverLetterPage() {
             <button
               onClick={handleGenerate}
               disabled={state.isGenerating || !state.jobDescription.trim()}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-indigo-500 disabled:pointer-events-none disabled:opacity-50"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-orange-400 disabled:pointer-events-none disabled:opacity-50"
             >
               {state.isGenerating ? (
                 <>
@@ -352,7 +352,7 @@ export default function CoverLetterPage() {
               <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur-md">
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <Sparkles size={16} className="text-indigo-400" />
+                    <Sparkles size={16} className="text-orange-400" />
                     <h2 className="font-semibold text-slate-200">Generated Cover Letter</h2>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -370,7 +370,7 @@ export default function CoverLetterPage() {
                         .replace(/[^a-z0-9]+/gi, '-')
                         .replace(/^-+|-+$/g, '')
                         .toLowerCase()}-cover-letter.pdf`}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-indigo-500"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-orange-400"
                     >
                       {({ loading }) => (
                         <>
@@ -420,7 +420,7 @@ export default function CoverLetterPage() {
         </div>
 
         {isAiOpen ? (
-          <div className="hidden w-[420px] shrink-0 xl:block">
+          <div className="w-0 shrink-0 xl:w-[420px]">
             <AIAssistant
               title="Cover Letter Copilot"
               triggerLabel="Make it more professional"
@@ -434,6 +434,7 @@ export default function CoverLetterPage() {
               userName={userName}
               userSkills={userSkills}
               forceOpen
+              onOpenChange={setIsAiOpen}
             />
           </div>
         ) : null}

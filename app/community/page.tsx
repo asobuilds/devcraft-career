@@ -508,12 +508,12 @@ export default function CommunityPage() {
 
             {/* Feed */}
             {feedLoading ? (
-              <div className="flex items-center justify-center gap-2 rounded-2xl border border-slate-800 bg-slate-900/60 py-12 text-sm text-slate-400">
+              <div className="flex items-center justify-center gap-2 rounded-2xl border border-slate-800 bg-slate-900/60 py-12 text-sm text-slate-400 backdrop-blur-md">
                 <Loader2 size={18} className="animate-spin text-orange-400" />
                 Loading posts...
               </div>
             ) : posts.length === 0 ? (
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/60 py-12 text-center">
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/60 py-12 text-center backdrop-blur-md">
                 <p className="text-sm font-medium text-slate-300">No posts in this circle yet.</p>
                 <p className="mt-1 text-xs text-slate-500">Be the first to share something.</p>
               </div>
