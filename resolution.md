@@ -216,6 +216,7 @@
 - `2026-11-16T09:30:00Z` — `Gemini` — Ensured assistant API validates Bearer token, returns 401 with Invalid session, and tools use the verified user ID.
 - `2026-11-16T10:00:00Z` — `OpenCode` — Added job tailoring UI and mock data preview to CV Builder.
 - `2026-11-20T06:45:00Z` — `Gemini` — Completed AI Co-Editor tools, ATS Analyzer structured output, Kanban tracker RLS, and Naija Modern design system.
+- `2026-11-21T00:00:00Z` — `Gemini` — Created Community feature: migration 0020 (circles, posts, comments, likes tables with RLS), migration 0021 (5 demo posts across circles), and API routes `app/api/community/posts/route.ts` (GET/POST) and `app/api/community/circles/route.ts` (GET). Updated README with Community and Multi-Provider AI sections.
 
 # Resolution & File Claims
 

@@ -103,10 +103,10 @@ devcraft-career/
 - Portfolio Generator.
 - Naija Modern design system.
 - Multi-provider AI failover (Groq, Gemini, Agnes).
+- Community Feed: Circles, Posts, Comments, and Likes with RLS (migrations 0020–0021, API routes in `app/api/community/`).
 
 ### In Progress
-- Portfolio 404 fix.
-- Dashboard demo data.
+- Community frontend page (UI for the API routes already built).
 
 ### Paused (deliberately)
 - Puppeteer-based site-specific scraping — needs `puppeteer-core` + `@sparticuz/chromium`, which adds deploy size/cold-start cost on Vercel. Held until there's a specific site to target with a confirmed-compliant robots.txt + Terms of Service.

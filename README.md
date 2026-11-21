@@ -14,6 +14,25 @@ Live URL: https://devcraft-career.vercel.app
 - **Kanban Tracker:** 5-column drag-and-drop board (Wishlist, Applied, Interviewing, Offer, Rejected).
 - **Portfolio Generator:** Custom subdomains and 3 templates.
 - **Naija Modern Design:** The orange/emerald color palette and localized Nigerian copy.
+- **Community:** Glassdoor-style Circles and Posts feature. Join topic-specific circles (Tech & Engineering, NYSC & Graduate Roles, Lagos Fintech, Remote Opportunities), read and post discussions, comment, and like.
+
+---
+
+## Community
+
+A public feed of job-seeker discussions organized into **Circles**. Each Circle is a topic-specific space (e.g., Lagos Fintech, Remote Opportunities) where users can:
+
+- Read and post discussions with comments
+- Like posts to signal helpfulness
+- Discover peers facing similar hiring challenges
+
+Powered by Supabase tables `circles`, `posts`, `comments`, and `likes` with full RLS.
+
+---
+
+## Multi-Provider AI
+
+All AI-powered features use a failover chain: **Groq → Gemini → Agnes**. Each provider is wrapped with `@ai-sdk/openai-compatible`; if the first provider is unavailable (missing API key or request failure), the next one in the chain is tried automatically. No user-facing error is surfaced unless all three providers are down, in which case a fallback stream message is returned.
 
 ---
 
