@@ -167,27 +167,37 @@ export default function JobTracker() {
     if (!userId || loadingDemo) return;
     setLoadingDemo(true);
 
+    const now = Date.now();
     const demoApplications = [
       {
         user_id: userId,
         company_name: 'Google',
         job_title: 'Frontend Engineer',
-        status: 'lead',
+        status: 'applied',
         salary_range: '₦1,200,000 / mo',
+        apply_url: 'https://careers.google.com',
+        notes: 'Lagos, Nigeria · Hybrid',
+        created_at: new Date(now - 6 * 24 * 60 * 60 * 1000).toISOString(),
       },
       {
         user_id: userId,
         company_name: 'Flutterwave',
         job_title: 'React Developer',
-        status: 'applied',
+        status: 'interviewing',
         salary_range: '₦900,000 / mo',
+        apply_url: 'https://flutterwave.com/careers',
+        notes: 'Lagos, Nigeria · Remote-friendly',
+        created_at: new Date(now - 3 * 24 * 60 * 60 * 1000).toISOString(),
       },
       {
         user_id: userId,
         company_name: 'Paystack',
         job_title: 'Product Designer',
-        status: 'interviewing',
+        status: 'lead',
         salary_range: '₦850,000 / mo',
+        apply_url: 'https://paystack.com/careers',
+        notes: 'Lagos, Nigeria · Full-time',
+        created_at: new Date(now).toISOString(),
       },
     ];
 
@@ -202,7 +212,8 @@ export default function JobTracker() {
     const { data } = await supabase
       .from('job_applications')
       .select('*')
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
 
     if (data) setApps(data as ApplicationItem[]);
     setToast({ type: 'success', message: 'Demo applications loaded.' });
