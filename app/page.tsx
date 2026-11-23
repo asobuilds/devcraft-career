@@ -96,6 +96,7 @@ export default function HomeLandingPage() {
           {/* The Overlay: Crucial for text readability */}
           <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent" />
           <div className="absolute inset-0 bg-slate-950/40" /> {/* Extra darkening for mobile */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-slate-950" />
         </div>
 
         <div
@@ -151,10 +152,11 @@ export default function HomeLandingPage() {
 
         <section id="how-it-works" className="relative isolate max-w-5xl mx-auto px-6 py-16 scroll-mt-20">
           <div
-            className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-32 bg-gradient-to-b from-transparent via-slate-950/80 to-slate-950"
+            className="pointer-events-none absolute inset-x-0 -top-24 h-24 md:-top-32 md:h-32 bg-gradient-to-b from-transparent via-slate-950/35 to-slate-950 z-0"
             aria-hidden="true"
           />
-          <div className="text-center max-w-xl mx-auto mb-12 space-y-2">
+          <div className="relative z-10">
+            <div className="text-center max-w-xl mx-auto mb-12 space-y-2">
             <span className="text-emerald-400 font-mono text-sm uppercase tracking-widest">The Journey</span>
             <h2 className="text-2xl sm:text-3xl font-bold text-white">How It Works</h2>
             <p className="text-slate-400 text-sm">Four simple steps, explained plainly.</p>
@@ -214,6 +216,7 @@ export default function HomeLandingPage() {
                 <p className="mt-2 text-xs leading-relaxed text-slate-400">When a matching role is found, you receive a message with the direct application link.</p>
               </div>
             </div>
+          </div>
           </div>
         </section>
 
