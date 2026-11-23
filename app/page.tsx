@@ -17,6 +17,9 @@ import {
   Layout,
   Search,
   Bell,
+  BadgeCheck,
+  MousePointerClick,
+  MapPin,
 } from 'lucide-react';
 
 const faqData = [
@@ -394,36 +397,90 @@ export default function HomeLandingPage() {
             })}
           </div>
 
-          <div className="max-w-lg mx-auto p-6 rounded-2xl border border-slate-800 bg-slate-900/40">
-            <h3 className="text-sm font-semibold text-white mb-4">Leave Your Feedback</h3>
+          <div className="max-w-2xl mx-auto rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur-md p-6 md:p-8">
+            <p className="text-xs font-semibold tracking-widest text-emerald-400 block mb-4">FEEDBACK</p>
+            <h3 className="text-center text-xl md:text-2xl font-bold text-white mb-2">
+              How is DevCraft working for you?
+            </h3>
+            <p className="text-center text-sm text-slate-400 mb-6">
+              Takes 30 seconds — your feedback shapes what we build next.
+            </p>
             {feedbackSubmitted === true ? (
-              <p className="text-sm text-green-400">Thank you for your feedback!</p>
+              <p className="text-center text-sm text-emerald-400">Thank you for your feedback!</p>
             ) : (
-              <form onSubmit={handleFeedbackSubmit} className="space-y-3">
-                <div className="flex gap-1">
-                  <button type="button" onClick={() => setRating(1)}><Star size={20} className={rating >= 1 ? 'text-amber-400' : 'text-slate-600'} fill={rating >= 1 ? 'currentColor' : 'none'} /></button>
-                  <button type="button" onClick={() => setRating(2)}><Star size={20} className={rating >= 2 ? 'text-amber-400' : 'text-slate-600'} fill={rating >= 2 ? 'currentColor' : 'none'} /></button>
-                  <button type="button" onClick={() => setRating(3)}><Star size={20} className={rating >= 3 ? 'text-amber-400' : 'text-slate-600'} fill={rating >= 3 ? 'currentColor' : 'none'} /></button>
-                  <button type="button" onClick={() => setRating(4)}><Star size={20} className={rating >= 4 ? 'text-amber-400' : 'text-slate-600'} fill={rating >= 4 ? 'currentColor' : 'none'} /></button>
-                  <button type="button" onClick={() => setRating(5)}><Star size={20} className={rating >= 5 ? 'text-amber-400' : 'text-slate-600'} fill={rating >= 5 ? 'currentColor' : 'none'} /></button>
+              <form onSubmit={handleFeedbackSubmit}>
+                <div className="flex justify-center gap-1.5 mb-6">
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => setRating(n)}
+                      className="transition-transform hover:scale-110"
+                    >
+                      <Star size={28} className={rating >= n ? 'text-amber-400' : 'text-slate-600'} fill={rating >= n ? 'currentColor' : 'none'} />
+                    </button>
+                  ))}
                 </div>
-                <textarea value={feedbackText} onChange={(e) => setFeedbackText(e.target.value)} required placeholder="Tell us what you think..." className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-white resize-none h-24 focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
-                {feedbackError ? <p className="text-xs text-red-400">{feedbackError}</p> : null}
-                <button type="submit" className="flex items-center gap-2 bg-orange-500 hover:bg-orange-400 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
-                  <Send size={14} />
-                  <span>Submit</span>
-                </button>
+                <textarea
+                  value={feedbackText}
+                  onChange={(e) => setFeedbackText(e.target.value)}
+                  required
+                  placeholder="Tell us what you think..."
+                  className="w-full min-h-[110px] rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-500/60 focus:outline-none focus:ring-1 focus:ring-emerald-500/40 resize-none"
+                />
+                {feedbackError ? <p className="text-xs text-red-400 mt-2">{feedbackError}</p> : null}
+                <div className="flex flex-col-reverse gap-3 mt-4 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-xs text-slate-500">Logged-in users only</p>
+                  <button
+                    type="submit"
+                    className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-orange-600 w-full sm:w-auto justify-center shadow-lg shadow-orange-500/20"
+                  >
+                    <Send size={14} />
+                    <span>Submit</span>
+                  </button>
+                </div>
               </form>
             )}
           </div>
         </section>
 
         <section id="about" className="max-w-3xl mx-auto px-6 py-16 border-t border-slate-900 scroll-mt-20 text-center">
-          <span className="text-emerald-400 font-mono text-sm uppercase tracking-widest block mb-4">About</span>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">About This Project</h2>
-          <p className="text-slate-400 text-sm leading-relaxed">
-            DevCraft Naija was built by Aso, a programmer and solution builder from Abuja, Nigeria, with a simple goal: make it easier for every Nigerian professional to build a world-class CV and find real job opportunities, without expensive tools or connections.
+          <span className="text-xs font-semibold tracking-widest text-emerald-400 block mb-4">
+            WHY DEVCRAFT EXISTS
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-6">100% free. Zero gatekeeping. Built for your career.</h2>
+          <p className="text-slate-300 text-sm leading-relaxed max-w-3xl mx-auto mb-10">
+            DevCraft Naija exists for one simple reason: world-class career tools should not cost a kobo. Every feature — the CV Builder, ATS Analyzer, Cover Letter writer, Job Tracker, and Community — is completely free, easy to use, and designed around how Nigerians actually search for work. No trials, no paywalls, no premium tiers hiding the good templates.
           </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto">
+            <div className="rounded-xl border border-slate-800 bg-slate-900/60 backdrop-blur-md p-5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400 mb-3">
+                <BadgeCheck size={16} />
+              </div>
+              <p className="text-sm font-semibold text-white mb-1">Free, Forever</p>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Every template, every AI feature, every tool. No card details, no expiry dates.
+              </p>
+            </div>
+            <div className="rounded-xl border border-slate-800 bg-slate-900/60 backdrop-blur-md p-5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-orange-500/10 text-orange-400 mb-3">
+                <MousePointerClick size={16} />
+              </div>
+              <p className="text-sm font-semibold text-white mb-1">Easy by Design</p>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Build a professional, ATS-ready CV in minutes. If you can use WhatsApp, you can use DevCraft.
+              </p>
+            </div>
+            <div className="rounded-xl border border-slate-800 bg-slate-900/60 backdrop-blur-md p-5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400 mb-3">
+                <MapPin size={16} />
+              </div>
+              <p className="text-sm font-semibold text-white mb-1">Made for Naija</p>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Local copy, Nigerian demo profiles, and a community that understands the local job market.
+              </p>
+            </div>
+          </div>
         </section>
 
         <footer className="border-t border-orange-500/20 bg-black px-6 py-8 text-center">
