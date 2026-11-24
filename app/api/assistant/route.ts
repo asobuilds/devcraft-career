@@ -33,6 +33,13 @@ const bodySchema = z.object({
   context: contextSchema.optional(),
 });
 
+type VaultDocumentRow = {
+  file_name: string | null;
+  file_type: string | null;
+  storage_path: string | null;
+  extracted_text: string | null;
+};
+
 const cvUpdateSchema = z.object({
   summary: z.string().optional(),
   skills: z.array(z.string()).optional(),
@@ -118,6 +125,7 @@ function buildSystemPrompt(context: z.infer<typeof contextSchema>) {
     '',
     'TOOLS',
     'You have access to tools that can edit the user\'s data. If the user asks you to "apply this change", "save it", or "update my record", use the appropriate tool to save it to their database.',
+    'You have access to the user\'s Career Vault. If they ask to use a specific document (e.g., \'Use my NYSC certificate\'), call `fetchUserDocuments` to retrieve it.',
     '- Use `updateCoverLetter` to save a new cover letter draft to the cover_letters table.',
     '- Use `updateResumeBullets` to update the bullet points of a specific experience entry in the user\'s latest resume.',
     '- Use `tailorCvToJob` to write, update, or delete parts of the user\'s CV (summary, skills, and experience) in the database. Pass a `jobDescription` and an `updates` object with only the fields to change; providing `experience` replaces the full list.',
@@ -525,6 +533,65 @@ export async function POST(req: Request) {
     },
   });
 
+  const fetchUserDocuments = tool({
+    description:
+      'Retrieve the user\'s Career Vault documents of a given type and return their extracted text. For image documents, return a temporary, signed file URL instead.',
+    inputSchema: z.object({
+      documentType: z
+        .enum(['cv', 'nysc', 'passport', 'certificate'])
+        .describe('The type of Career Vault document to retrieve.'),
+    }),
+    execute: async ({ documentType }) => {
+      const { data, error } = await adminSupabase
+        .from('documents')
+        .select('file_name, file_type, storage_path, extracted_text')
+        .eq('user_id', userId)
+        .eq('file_type', documentType)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (error) {
+        console.error('[fetchUserDocuments] Supabase query error:', error);
+        throw new Error('Failed to fetch documents: ' + error.message);
+      }
+
+      const documents = await Promise.all(
+        ((data ?? []) as VaultDocumentRow[]).map(async (doc) => {
+          const isImage = /\.(png|jpe?g|webp|gif|heic|heif|avif|bmp)$/i.test(
+            doc.storage_path ?? ''
+          );
+          let fileUrl: string | null = null;
+
+          if (isImage && doc.storage_path) {
+            const { data: signedData, error: signedError } = await adminSupabase.storage
+              .from('vault')
+              .createSignedUrl(doc.storage_path, 60 * 60);
+
+            if (signedError) {
+              console.error('[fetchUserDocuments] Signed URL error:', signedError);
+            } else {
+              fileUrl = signedData?.signedUrl ?? null;
+            }
+          }
+
+          return {
+            fileName: doc.file_name ?? 'Untitled document',
+            fileType: doc.file_type ?? documentType,
+            extractedText: doc.extracted_text?.trim() || null,
+            fileUrl,
+          };
+        })
+      );
+
+      return {
+        success: true,
+        documentType,
+        count: documents.length,
+        documents,
+      };
+    },
+  });
+
   const systemPrompt = buildSystemPrompt(payload.context ?? {});
 
   const sanitizeMessages = (messages: unknown[]) =>
@@ -568,6 +635,7 @@ export async function POST(req: Request) {
           updateCoverLetter,
           updateResumeBullets,
           tailorCvToJob,
+          fetchUserDocuments,
         },
       });
       return result.toUIMessageStreamResponse();
