@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server';
 
+// The aggregator runs up to a 12s overall budget; make sure a platform default
+// 10s function limit cannot terminate it mid-scan.
+export const maxDuration = 30;
+
 // DevCraft landing-page demo job aggregator.
 //
 // Abuse / contact: https://devcraft-career.vercel.app (see USER_AGENT below).
@@ -19,18 +23,40 @@ import { NextResponse } from 'next/server';
 //
 // International boards (RemoteOK, Arbeitnow, Remotive) remain as a fallback so the
 // demo never renders empty when the Nigerian sources have no match.
+//
+// Diagnostics: POST /api/demo-scraper?debug=1 returns a `sources` array describing
+// each upstream (attempted / ok / jobsFound / error / timing / itemsScanned). The
+// normal response shape is unchanged when the param is absent.
 
 const USER_AGENT = 'DevCraftDemoBot/1.0 (+https://devcraft-career.vercel.app)';
+// Nigerian sources are heavier (a ~600-item RSS feed and a full HTML listing) and
+// were observed taking 6s+ from slow networks. Aborting them at 8s silently starved
+// the demo of Nigerian results, so they get a slightly larger slice of the budget.
+const NG_PER_SOURCE_TIMEOUT_MS = 10000;
 const PER_SOURCE_TIMEOUT_MS = 8000;
 const OVERALL_BUDGET_MS = 12000;
 const CACHE_TTL_MS = 10 * 60 * 1000;
+// If every Nigerian source failed, only hold the (international-only) result briefly
+// so a poisoned/empty-Nigerian entry can't mask a recovered upstream for 10 minutes.
+const FAILED_NG_CACHE_TTL_MS = 60 * 1000;
+// Raw upstream payloads (RSS/HTML/JSON) are cached by URL so searching many different
+// keywords does not re-hit the boards every time (they are not keyword-addressable).
+const SOURCE_CACHE_TTL_MS = 10 * 60 * 1000;
 const MAX_CACHE_ENTRIES = 100;
+const MAX_SOURCE_CACHE_ENTRIES = 60;
 const MAX_RESULTS = 12;
 const MAX_PER_SOURCE = 8;
 const MAX_KEYWORD = 60;
 const MAX_TITLE = 120;
 const MAX_COMPANY = 80;
 const MAX_LOCATION = 80;
+
+// Keyword-based cache. Key is the normalized keyword that was actually searched
+// (trimmed, lowercased, capped at MAX_KEYWORD). A fresh deploy / cold instance
+// starts with an empty Map (module scope).
+const cache = new Map();
+// Raw-payload cache keyed by upstream URL.
+const sourceCache = new Map();
 
 const NIGERIAN_STATES = [
   'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue',
@@ -47,10 +73,6 @@ const STATE_PATTERN = new RegExp(
     ')\\b',
   'i',
 );
-
-// Simple module-level, per-keyword cache. On a warm server instance this prevents the
-// public demo from hammering the upstream boards on every click.
-const cache = new Map();
 
 function safeCodePoint(code) {
   if (!Number.isFinite(code) || code < 0 || code > 0x10ffff) return '';
@@ -182,43 +204,87 @@ function finalizeJobs(nigerianJobs, internationalJobs) {
 function getCached(keyword) {
   const entry = cache.get(keyword);
   if (!entry) return null;
-  if (Date.now() - entry.ts > CACHE_TTL_MS) {
+  if (Date.now() - entry.ts > entry.ttl) {
     cache.delete(keyword);
     return null;
   }
   return entry.jobs;
 }
 
-function setCached(keyword, jobs) {
+function setCached(keyword, jobs, ttl) {
   if (cache.size >= MAX_CACHE_ENTRIES) {
     const oldest = cache.keys().next().value;
     if (oldest !== undefined) cache.delete(oldest);
   }
-  cache.set(keyword, { ts: Date.now(), jobs });
+  cache.set(keyword, { ts: Date.now(), ttl: ttl || CACHE_TTL_MS, jobs });
 }
 
-async function fetchText(url, accept) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), PER_SOURCE_TIMEOUT_MS);
-  try {
-    const response = await fetch(url, {
-      signal: controller.signal,
-      redirect: 'follow',
-      cache: 'no-store',
-      headers: {
-        'User-Agent': USER_AGENT,
-        Accept: accept || '*/*',
-      },
-    });
-    if (!response.ok) throw new Error('HTTP ' + response.status);
-    return await response.text();
-  } finally {
-    clearTimeout(timer);
+function isNetworkError(error) {
+  if (!error) return false;
+  if (error instanceof TypeError) return true;
+  return /fetch failed|network|ECONN|ENOTFOUND|EAI_AGAIN|socket|connection/i.test(
+    String(error.message),
+  );
+}
+
+async function fetchText(url, accept, timeoutMs) {
+  const limit = timeoutMs || PER_SOURCE_TIMEOUT_MS;
+  let lastError = null;
+
+  // One retry for transient connection resets ("fetch failed"), which were observed
+  // intermittently on Jobzilla. Timeouts and HTTP errors are not retried: retrying a
+  // timeout would just burn the overall budget.
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), limit);
+    try {
+      const response = await fetch(url, {
+        signal: controller.signal,
+        redirect: 'follow',
+        cache: 'no-store',
+        headers: {
+          'User-Agent': USER_AGENT,
+          Accept: accept || '*/*',
+        },
+      });
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      return await response.text();
+    } catch (error) {
+      lastError = error;
+      if (error && (error.name === 'AbortError' || /abort/i.test(String(error.message)))) {
+        throw new Error('Timed out after ' + limit + 'ms');
+      }
+      if (attempt === 0 && isNetworkError(error)) {
+        await new Promise((resolve) => setTimeout(resolve, 400));
+        continue;
+      }
+      throw error;
+    } finally {
+      clearTimeout(timer);
+    }
   }
+
+  throw lastError || new Error('Request failed');
 }
 
-async function fetchJson(url) {
-  return JSON.parse(await fetchText(url, 'application/json'));
+async function fetchCachedText(url, accept, bypassCache, timeoutMs) {
+  if (!bypassCache) {
+    const entry = sourceCache.get(url);
+    if (entry && Date.now() - entry.ts < SOURCE_CACHE_TTL_MS) return entry.text;
+  }
+  const text = await fetchText(url, accept, timeoutMs);
+  if (!bypassCache) {
+    if (sourceCache.size >= MAX_SOURCE_CACHE_ENTRIES) {
+      const oldest = sourceCache.keys().next().value;
+      if (oldest !== undefined) sourceCache.delete(oldest);
+    }
+    sourceCache.set(url, { ts: Date.now(), text });
+  }
+  return text;
+}
+
+async function fetchCachedJson(url, bypassCache, timeoutMs) {
+  return JSON.parse(await fetchCachedText(url, 'application/json', bypassCache, timeoutMs));
 }
 
 function xmlTag(block, tag) {
@@ -233,235 +299,265 @@ function matchesKeyword(haystack, keyword) {
 }
 
 // ---------------------------------------------------------------------------
-// Nigerian sources
+// Nigerian sources. Each returns { jobs, itemsScanned } and throws on failure so
+// the debug report can distinguish "fetch failed" from "fetched, 0 matches".
+// RSS feeds are not keyword-addressable, so we scan the entire feed (not a prefix)
+// before filtering locally. Observed depth: Hot Nigerian Jobs ~600 items, Jobzilla
+// ~200 items — both well above the 100-item minimum.
 // ---------------------------------------------------------------------------
 
-async function fetchHotNigerianJobs(keyword) {
-  try {
-    const xml = await fetchText(
-      'https://www.hotnigerianjobs.com/feed/',
-      'application/rss+xml,application/xml,text/xml',
-    );
-    const items = xml.match(/<item>[\s\S]*?<\/item>/gi) || [];
-    const jobs = [];
-    for (const item of items) {
-      const rawTitle = xmlTag(item, 'title');
-      const link = xmlTag(item, 'link');
-      const description = xmlTag(item, 'description');
-      const searchable = stripTags(rawTitle) + ' ' + stripTags(description);
-      if (!matchesKeyword(searchable, keyword)) continue;
-      const parts = splitTitleCompany(rawTitle);
-      const job = buildJob({
-        source: 'Hot Nigerian Jobs',
-        title: parts.title,
-        company: parts.company,
-        location: extractLocation(description),
-        url: link.trim(),
-      });
-      if (job) jobs.push(job);
-      if (jobs.length >= MAX_PER_SOURCE) break;
-    }
-    return jobs;
-  } catch (error) {
-    console.error('Hot Nigerian Jobs source failed: ' + error.message);
-    return [];
+const HOT_NIGERIAN_JOBS_FEED = 'https://www.hotnigerianjobs.com/feed/';
+const JOBZILLA_FEED = 'https://www.jobzilla.ng/feed/';
+const MYJOBMAG_LISTING = 'https://www.myjobmag.com/jobs-by-date/today';
+
+async function fetchHotNigerianJobs(keyword, bypassCache) {
+  const xml = await fetchCachedText(
+    HOT_NIGERIAN_JOBS_FEED,
+    'application/rss+xml,application/xml,text/xml',
+    bypassCache,
+    NG_PER_SOURCE_TIMEOUT_MS,
+  );
+  const items = xml.match(/<item>[\s\S]*?<\/item>/gi) || [];
+  if (!items.length) {
+    const looksLikeRss = /<rss[\s>]|<feed[\s>]/i.test(xml);
+    throw new Error(looksLikeRss ? 'RSS feed returned 0 items' : 'Unexpected response (not RSS)');
   }
+  const jobs = [];
+  for (const item of items) {
+    const rawTitle = xmlTag(item, 'title');
+    const link = xmlTag(item, 'link');
+    const description = xmlTag(item, 'description');
+    const searchable = stripTags(rawTitle) + ' ' + stripTags(description);
+    if (!matchesKeyword(searchable, keyword)) continue;
+    const parts = splitTitleCompany(rawTitle);
+    const job = buildJob({
+      source: 'Hot Nigerian Jobs',
+      title: parts.title,
+      company: parts.company,
+      location: extractLocation(description),
+      url: link.trim(),
+    });
+    if (job) jobs.push(job);
+    if (jobs.length >= MAX_PER_SOURCE) break;
+  }
+  return { jobs, itemsScanned: items.length };
 }
 
-async function fetchJobzilla(keyword) {
-  try {
-    const xml = await fetchText(
-      'https://www.jobzilla.ng/feed/',
-      'application/rss+xml,application/xml,text/xml',
-    );
-    const items = xml.match(/<item>[\s\S]*?<\/item>/gi) || [];
-    const jobs = [];
-    for (const item of items) {
-      const rawTitle = xmlTag(item, 'title');
-      const link = xmlTag(item, 'link');
-      const description = stripTags(xmlTag(item, 'description'));
-      const searchable = stripTags(rawTitle) + ' ' + description;
-      if (!matchesKeyword(searchable, keyword)) continue;
-      const parts = splitTitleCompany(rawTitle);
-      const job = buildJob({
-        source: 'Jobzilla',
-        title: parts.title,
-        company: parts.company,
-        location: extractLocation(description),
-        url: link.trim(),
-      });
-      if (job) jobs.push(job);
-      if (jobs.length >= MAX_PER_SOURCE) break;
-    }
-    return jobs;
-  } catch (error) {
-    console.error('Jobzilla source failed: ' + error.message);
-    return [];
+async function fetchJobzilla(keyword, bypassCache) {
+  const xml = await fetchCachedText(
+    JOBZILLA_FEED,
+    'application/rss+xml,application/xml,text/xml',
+    bypassCache,
+    NG_PER_SOURCE_TIMEOUT_MS,
+  );
+  const items = xml.match(/<item>[\s\S]*?<\/item>/gi) || [];
+  if (!items.length) {
+    const looksLikeRss = /<rss[\s>]|<feed[\s>]/i.test(xml);
+    throw new Error(looksLikeRss ? 'RSS feed returned 0 items' : 'Unexpected response (not RSS)');
   }
+  const jobs = [];
+  for (const item of items) {
+    const rawTitle = xmlTag(item, 'title');
+    const link = xmlTag(item, 'link');
+    const description = stripTags(xmlTag(item, 'description'));
+    const searchable = stripTags(rawTitle) + ' ' + description;
+    if (!matchesKeyword(searchable, keyword)) continue;
+    const parts = splitTitleCompany(rawTitle);
+    const job = buildJob({
+      source: 'Jobzilla',
+      title: parts.title,
+      company: parts.company,
+      location: extractLocation(description),
+      url: link.trim(),
+    });
+    if (job) jobs.push(job);
+    if (jobs.length >= MAX_PER_SOURCE) break;
+  }
+  return { jobs, itemsScanned: items.length };
 }
 
-async function fetchMyJobMag(keyword) {
-  try {
-    const html = await fetchText('https://www.myjobmag.com/jobs-by-date/today', 'text/html');
-    const blocks = html.split('class="job-list-li"').slice(1);
-    const jobs = [];
-    for (const block of blocks) {
-      const linkMatch = block.match(
-        /<h2>\s*<a[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>\s*<\/h2>/i,
-      );
-      if (!linkMatch) continue;
-      const rawTitle = linkMatch[2];
-      if (!matchesKeyword(stripTags(rawTitle), keyword)) continue;
-      const href = linkMatch[1];
-      const locationMatch = block.match(
-        /href=['"]\/jobs-location\/[^'"]+['"][^>]*>([\s\S]*?)<\/a>/i,
-      );
-      const parts = splitTitleCompany(rawTitle);
-      const job = buildJob({
-        source: 'MyJobMag',
-        title: parts.title,
-        company: parts.company,
-        location: locationMatch ? stripTags(locationMatch[1]) : '',
-        url: href.startsWith('http') ? href : 'https://www.myjobmag.com' + href,
-      });
-      if (job) jobs.push(job);
-      if (jobs.length >= MAX_PER_SOURCE) break;
-    }
-    return jobs;
-  } catch (error) {
-    console.error('MyJobMag source failed: ' + error.message);
-    return [];
+async function fetchMyJobMag(keyword, bypassCache) {
+  const html = await fetchCachedText(
+    MYJOBMAG_LISTING,
+    'text/html',
+    bypassCache,
+    NG_PER_SOURCE_TIMEOUT_MS,
+  );
+  const blocks = html.split('class="job-list-li"').slice(1);
+  if (!blocks.length) throw new Error('Unexpected response (no listing blocks)');
+  let scanned = 0;
+  const jobs = [];
+  for (const block of blocks) {
+    const linkMatch = block.match(
+      /<h2>\s*<a[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>\s*<\/h2>/i,
+    );
+    if (!linkMatch) continue;
+    scanned += 1;
+    const rawTitle = linkMatch[2];
+    if (!matchesKeyword(stripTags(rawTitle), keyword)) continue;
+    const href = linkMatch[1];
+    const locationMatch = block.match(
+      /href=['"]\/jobs-location\/[^'"]+['"][^>]*>([\s\S]*?)<\/a>/i,
+    );
+    const parts = splitTitleCompany(rawTitle);
+    const job = buildJob({
+      source: 'MyJobMag',
+      title: parts.title,
+      company: parts.company,
+      location: locationMatch ? stripTags(locationMatch[1]) : '',
+      url: href.startsWith('http') ? href : 'https://www.myjobmag.com' + href,
+    });
+    if (job) jobs.push(job);
+    if (jobs.length >= MAX_PER_SOURCE) break;
   }
+  if (scanned === 0) throw new Error('Unexpected response (no job cards parsed)');
+  return { jobs, itemsScanned: scanned };
 }
 
 // ---------------------------------------------------------------------------
 // International fallback sources
 // ---------------------------------------------------------------------------
 
-async function fetchRemoteOKDemo(keyword) {
-  try {
-    const data = await fetchJson('https://remoteok.com/api');
-    if (!Array.isArray(data)) return [];
-    const jobs = [];
-    for (const item of data) {
-      if (!item || !item.position || !item.url) continue;
-      if (!item.position.toLowerCase().includes(keyword)) continue;
-      const job = buildJob({
-        source: 'RemoteOK',
-        title: item.position,
-        company: item.company,
-        location: 'Remote',
-        url: item.url,
-      });
-      if (job) jobs.push(job);
-      if (jobs.length >= MAX_PER_SOURCE) break;
-    }
-    return jobs;
-  } catch (error) {
-    console.error('RemoteOK source failed: ' + error.message);
-    return [];
+async function fetchRemoteOKDemo(keyword, bypassCache) {
+  const data = await fetchCachedJson('https://remoteok.com/api', bypassCache);
+  if (!Array.isArray(data)) throw new Error('Unexpected response (not an array)');
+  const jobs = [];
+  for (const item of data) {
+    if (!item || !item.position || !item.url) continue;
+    if (!item.position.toLowerCase().includes(keyword)) continue;
+    const job = buildJob({
+      source: 'RemoteOK',
+      title: item.position,
+      company: item.company,
+      location: 'Remote',
+      url: item.url,
+    });
+    if (job) jobs.push(job);
+    if (jobs.length >= MAX_PER_SOURCE) break;
   }
+  return { jobs, itemsScanned: data.length };
 }
 
-async function fetchArbeitnowDemo(keyword) {
-  try {
-    const data = await fetchJson('https://www.arbeitnow.com/api/job-board-api');
-    if (!data || !Array.isArray(data.data)) return [];
-    const jobs = [];
-    for (const item of data.data) {
-      if (!item || !item.title || !item.url) continue;
-      if (!item.title.toLowerCase().includes(keyword)) continue;
-      const job = buildJob({
-        source: 'Arbeitnow',
-        title: item.title,
-        company: item.company_name,
-        location: item.remote ? 'Remote' : item.location,
-        url: item.url,
-      });
-      if (job) jobs.push(job);
-      if (jobs.length >= MAX_PER_SOURCE) break;
-    }
-    return jobs;
-  } catch (error) {
-    console.error('Arbeitnow source failed: ' + error.message);
-    return [];
+async function fetchArbeitnowDemo(keyword, bypassCache) {
+  const data = await fetchCachedJson('https://www.arbeitnow.com/api/job-board-api', bypassCache);
+  if (!data || !Array.isArray(data.data)) throw new Error('Unexpected response (no data array)');
+  const jobs = [];
+  for (const item of data.data) {
+    if (!item || !item.title || !item.url) continue;
+    if (!item.title.toLowerCase().includes(keyword)) continue;
+    const job = buildJob({
+      source: 'Arbeitnow',
+      title: item.title,
+      company: item.company_name,
+      location: item.remote ? 'Remote' : item.location,
+      url: item.url,
+    });
+    if (job) jobs.push(job);
+    if (jobs.length >= MAX_PER_SOURCE) break;
   }
+  return { jobs, itemsScanned: data.data.length };
 }
 
-async function fetchRemotiveDemo(keyword) {
-  try {
-    const data = await fetchJson(
-      'https://remotive.com/api/remote-jobs?search=' + encodeURIComponent(keyword),
-    );
-    if (!data || !Array.isArray(data.jobs)) return [];
-    const jobs = [];
-    for (const item of data.jobs) {
-      if (!item || !item.title || !item.url) continue;
-      const job = buildJob({
-        source: 'Remotive',
-        title: item.title,
-        company: item.company_name,
-        location: item.candidate_required_location || 'Remote',
-        url: item.url,
-      });
-      if (job) jobs.push(job);
-      if (jobs.length >= MAX_PER_SOURCE) break;
-    }
-    return jobs;
-  } catch (error) {
-    console.error('Remotive source failed: ' + error.message);
-    return [];
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Orchestration: parallel fetch, per-source timeout, overall budget.
-// Each source resolves to an array and never rejects, so one slow/broken upstream
-// can never take down the route. Slots are filled as results arrive, so if the
-// 12s budget is hit we still return everything that finished in time.
-// ---------------------------------------------------------------------------
-
-async function gatherJobs(keyword) {
-  const sources = [
-    { group: 'ng', run: fetchHotNigerianJobs },
-    { group: 'ng', run: fetchJobzilla },
-    { group: 'ng', run: fetchMyJobMag },
-    { group: 'intl', run: fetchRemoteOKDemo },
-    { group: 'intl', run: fetchArbeitnowDemo },
-    { group: 'intl', run: fetchRemotiveDemo },
-  ];
-
-  const slots = new Array(sources.length).fill(null);
-  const tasks = sources.map((source, index) =>
-    Promise.resolve()
-      .then(() => source.run(keyword))
-      .then((value) => {
-        slots[index] = Array.isArray(value) ? value : [];
-        return slots[index];
-      })
-      .catch(() => {
-        slots[index] = [];
-        return slots[index];
-      }),
+async function fetchRemotiveDemo(keyword, bypassCache) {
+  const data = await fetchCachedJson(
+    'https://remotive.com/api/remote-jobs?search=' + encodeURIComponent(keyword),
+    bypassCache,
   );
+  if (!data || !Array.isArray(data.jobs)) throw new Error('Unexpected response (no jobs array)');
+  const jobs = [];
+  for (const item of data.jobs) {
+    if (!item || !item.title || !item.url) continue;
+    // Remotive's `search` query is not a reliable relevance filter (it returns a
+    // generic latest-jobs sample), so gate on the title locally like the RSS sources.
+    if (!matchesKeyword(item.title, keyword)) continue;
+    const job = buildJob({
+      source: 'Remotive',
+      title: item.title,
+      company: item.company_name,
+      location: item.candidate_required_location || 'Remote',
+      url: item.url,
+    });
+    if (job) jobs.push(job);
+    if (jobs.length >= MAX_PER_SOURCE) break;
+  }
+  return { jobs, itemsScanned: data.jobs.length };
+}
+
+const SOURCE_DEFS = [
+  { name: 'Hot Nigerian Jobs', group: 'ng', run: fetchHotNigerianJobs },
+  { name: 'Jobzilla', group: 'ng', run: fetchJobzilla },
+  { name: 'MyJobMag', group: 'ng', run: fetchMyJobMag },
+  { name: 'RemoteOK', group: 'intl', run: fetchRemoteOKDemo },
+  { name: 'Arbeitnow', group: 'intl', run: fetchArbeitnowDemo },
+  { name: 'Remotive', group: 'intl', run: fetchRemotiveDemo },
+];
+
+// Orchestration: parallel fetch with per-source timeout + overall budget. Each
+// source is caught independently, so a failure/timeout in one cannot break the
+// route. Slots are filled as results arrive; if the overall budget is hit we still
+// return whatever finished in time (and report the rest as timed out).
+async function gatherJobs(keyword, bypassCache) {
+  const slots = new Array(SOURCE_DEFS.length).fill(null);
+  const reports = SOURCE_DEFS.map((source) => ({
+    source: source.name,
+    attempted: true,
+    ok: false,
+    jobsFound: 0,
+    error: null,
+    ms: 0,
+    itemsScanned: 0,
+  }));
+
+  const tasks = SOURCE_DEFS.map((source, index) => {
+    const started = Date.now();
+    return Promise.resolve()
+      .then(() => source.run(keyword, bypassCache))
+      .then((value) => {
+        const jobs = value && Array.isArray(value.jobs) ? value.jobs : [];
+        slots[index] = jobs;
+        reports[index].ok = true;
+        reports[index].jobsFound = jobs.length;
+        reports[index].itemsScanned =
+          value && typeof value.itemsScanned === 'number' ? value.itemsScanned : 0;
+      })
+      .catch((error) => {
+        slots[index] = [];
+        reports[index].ok = false;
+        reports[index].error = error && error.message ? error.message : String(error);
+        // Visible in Vercel function logs even when nobody calls ?debug=1.
+        console.warn('[demo-scraper] ' + source.name + ' failed: ' + reports[index].error);
+      })
+      .finally(() => {
+        reports[index].ms = Date.now() - started;
+      });
+  });
 
   await Promise.race([
     Promise.allSettled(tasks),
     new Promise((resolve) => setTimeout(resolve, OVERALL_BUDGET_MS)),
   ]);
 
+  reports.forEach((report, index) => {
+    if (slots[index] === null) {
+      report.error =
+        report.error || 'Timed out at overall ' + OVERALL_BUDGET_MS + 'ms budget';
+    }
+  });
+
   const nigerian = [];
   const international = [];
-  sources.forEach((source, index) => {
+  SOURCE_DEFS.forEach((source, index) => {
     if (!slots[index]) return;
     if (source.group === 'ng') nigerian.push(...slots[index]);
     else international.push(...slots[index]);
   });
 
-  return { nigerian, international };
+  return { nigerian, international, reports };
 }
 
 export async function POST(request) {
+  const debug = new URL(request.url).searchParams.get('debug') === '1';
+
   let payload;
   try {
     payload = await request.json();
@@ -488,17 +584,43 @@ export async function POST(request) {
     );
   }
 
+  // Cache key IS the searched keyword (normalized for case/whitespace only).
   const keyword = trimmed.slice(0, MAX_KEYWORD).toLowerCase();
 
-  const cached = getCached(keyword);
-  if (cached) {
-    return NextResponse.json({ success: true, jobs: cached }, { status: 200 });
+  if (!debug) {
+    const cached = getCached(keyword);
+    if (cached) {
+      return NextResponse.json({ success: true, jobs: cached }, { status: 200 });
+    }
   }
 
   try {
-    const { nigerian, international } = await gatherJobs(keyword);
+    // debug=1 bypasses both the keyword cache and the raw-payload cache so the
+    // report reflects the live upstream state right now.
+    const { nigerian, international, reports } = await gatherJobs(keyword, debug);
     const jobs = finalizeJobs(nigerian, international);
-    setCached(keyword, jobs);
+
+    const nigerianReachable = reports.some(
+      (report, index) => SOURCE_DEFS[index].group === 'ng' && report.ok,
+    );
+    const ttl = nigerianReachable ? CACHE_TTL_MS : FAILED_NG_CACHE_TTL_MS;
+    // Diagnostics are read-only: don't let a debug run warm or poison the cache.
+    if (!debug) setCached(keyword, jobs, ttl);
+
+    if (debug) {
+      return NextResponse.json(
+        {
+          success: true,
+          jobs,
+          keyword,
+          cacheBypassed: true,
+          cachedForMs: ttl,
+          sources: reports,
+        },
+        { status: 200 },
+      );
+    }
+
     return NextResponse.json({ success: true, jobs }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
