@@ -77,13 +77,16 @@ export default function Vault() {
 
   // Upload document to vault bucket and insert into DB
   const uploadDocument = async (file: File) => {
-    if (!userId) return;
-
     setLoading(true);
     setError(null);
 
     try {
-      const storagePath = `vault/${userId}/${Date.now()}_${file.name}`;
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        throw new Error('You must be signed in to upload documents.');
+      }
+
+      const storagePath = `vault/${user.id}/${Date.now()}_${file.name}`;
 
       const { error: uploadError } = await supabase.storage
         .from('vault')
@@ -99,7 +102,7 @@ export default function Vault() {
       const { error: dbError } = await supabase
         .from('documents')
         .insert({
-          user_id: userId,
+          user_id: user.id,
           file_name: file.name,
           file_type: file.type || 'document',
           storage_path: storagePath,
@@ -113,7 +116,7 @@ export default function Vault() {
       const { data } = await supabase
         .from('documents')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       setDocuments(data as Document[]);
