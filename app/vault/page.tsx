@@ -12,6 +12,7 @@ interface Document {
   file_name: string;
   file_type: string;
   storage_path: string;
+  public_url?: string;
   extracted_text?: string;
   created_at: string;
 }
@@ -49,15 +50,23 @@ export default function Vault() {
 
       const { data, error } = await supabase
         .from('documents')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .select('*');
 
       if (error) {
         console.error('Failed to fetch documents:', error);
         setError('Failed to load documents. Please try again.');
       } else {
-        setDocuments(data as Document[]);
+        // Generate public URLs for each document
+        const docsWithUrls = (data as Document[]).map((doc) => {
+          const { data: urlData } = supabase.storage
+            .from('vault')
+            .getPublicUrl(doc.storage_path);
+          return {
+            ...doc,
+            public_url: urlData?.publicUrl,
+          };
+        });
+        setDocuments(docsWithUrls);
       }
       setLoading(false);
     };
@@ -217,6 +226,7 @@ export default function Vault() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {documents.map((doc) => {
             const { Component: IconComponent, badge } = getFileIconAndBadge(doc.file_type);
+            const isImage = doc.file_type && (doc.file_type.toLowerCase().includes('png') || doc.file_type.toLowerCase().includes('jpg') || doc.file_type.toLowerCase().includes('jpeg') || doc.file_type.toLowerCase().includes('gif') || doc.file_type.toLowerCase().includes('webp'));
 
             return (
               <div
@@ -225,7 +235,15 @@ export default function Vault() {
                 onClick={() => setIsAiOpen(true)}
               >
                 <div className="mb-3">
-                  {IconComponent && <IconComponent className="h-6 w-6 text-indigo-400 mb-2" />}
+                  {isImage && doc.public_url ? (
+                    <img
+                      src={doc.public_url}
+                      alt={doc.file_name}
+                      className="h-6 w-6 rounded-md object-cover border border-slate-700/50"
+                    />
+                  ) : (
+                    IconComponent && <IconComponent className="h-6 w-6 text-indigo-400 mb-2" />
+                  )}
                   <span className="text-xs font-medium text-slate-400 uppercase tracking-wider badge badge-primary">
                     {badge}
                   </span>
