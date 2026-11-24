@@ -64,6 +64,7 @@ export default function CVBuilder() {
   const [jobDescription, setJobDescription] = useState('');
   const [isMockData, setIsMockData] = useState(false);
   const [isAiOpen, setIsAiOpen] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -502,6 +503,27 @@ export default function CVBuilder() {
               </button>
             </div>
 
+            {showPreview ? (
+              <div className="my-4 p-4 bg-slate-950/80 rounded-xl border border-slate-800/50">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-orange-300 mb-2">Preview CV</h3>
+                <button
+                  onClick={() => setShowPreview(false)}
+                  className="text-xs text-slate-400 hover:text-slate-300 float-right mb-2"
+                  aria-label="Hide preview"
+                >
+                  Close
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowPreview(true)}
+                className="w-full inline-flex items-center justify-center gap-2 bg-indigo-600/10 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-600/20 text-xs font-semibold py-3 rounded-xl transition-colors mb-4"
+                aria-label="Preview CV"
+              >
+                <Eye size={14} className="mr-2" /> Preview CV
+              </button>
+            )}
+
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Full Placement Name</label>
@@ -658,7 +680,7 @@ export default function CVBuilder() {
               id="cv-preview-panel"
               role="tabpanel"
               aria-labelledby="cv-preview-tab"
-              className={`w-full justify-center ${activeView === 'preview' ? 'flex' : 'hidden print:flex'}`}
+              className={`w-full justify-center ${showPreview || activeView === 'preview' ? 'flex' : 'hidden print:flex'}`}
             >
               {theme === 'minimalist' ? (
                 <TemplateMinimalist fullName={previewFullName} email={previewEmail} phone={previewPhone} website={previewWebsite} summary={previewSummary} skills={previewSkills} experience={previewExperience} avatarUrl={avatarUrl} {...({ allowPhoto } as any)} />

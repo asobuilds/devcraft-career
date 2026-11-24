@@ -14,6 +14,7 @@ import {
   Send,
   Sparkles,
   TrendingUp,
+  ChevronDown,
   Users,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -196,6 +197,7 @@ export default function CommunityPage() {
   const [commentingPostId, setCommentingPostId] = useState<string | null>(null);
   const [localComments, setLocalComments] = useState<Record<string, { id: string; content: string }[]>>({});
   const [error, setError] = useState('');
+  const [circlesExpanded, setCirclesExpanded] = useState(false);
 
   const activeCircle = circles.find((circle) => circle.id === activeCircleId) ?? null;
 
@@ -451,6 +453,14 @@ export default function CommunityPage() {
               <h2 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
                 <Sparkles size={13} className="text-orange-400" /> Circles
               </h2>
+              <button
+                onClick={() => setCirclesExpanded((prev) => !prev)}
+                className="mt-2 w-full flex items-center justify-between rounded-xl px-3 py-2.5 text-left text-xs font-semibold transition-colors border border-slate-800/50 hover:bg-slate-900/80">
+                <span className="flex items-center gap-2">
+                  <ChevronDown size={16} className="text-slate-500" />
+                </span>
+                <span>{circles.length} circles</span>
+              </button>
               <nav className="space-y-1.5">
                 {circles.map((circle) => {
                   const Icon = circleIcon(circle.name);

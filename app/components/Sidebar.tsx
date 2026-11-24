@@ -126,7 +126,7 @@ export default function Sidebar() {
                     key={item.name}
                     href={item.href}
                     onClick={() => setIsMenuOpen(false)}
-                    className={`flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-colors ${
+                    className={`flex items-center gap-3 px-3.5 min-h-[48px] rounded-xl text-sm font-medium transition-colors ${
                       isActive ? 'bg-orange-500/10 text-orange-400 border-r-2 border-orange-500' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                     }`}
                   >
@@ -142,7 +142,7 @@ export default function Sidebar() {
             <div className="pt-4 mt-4 border-t border-slate-800">
               <button
                 onClick={handleSignOut}
-                className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors text-sm font-medium"
+                className="w-full flex items-center gap-3 px-3.5 min-h-[48px] rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors text-sm font-medium"
               >
                 <LogOut size={20} strokeWidth={1.5} />
                 <span>Sign Out</span>

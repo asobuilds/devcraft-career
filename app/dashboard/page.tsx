@@ -216,11 +216,11 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="w-full max-w-[1400px] mx-auto p-6 md:p-10">
+    <div className="w-full max-w-[1400px] mx-auto px-4 py-6 md:p-10">
       {/* Top Bar */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-white">
+          <h1 className="text-2xl md:text-4xl font-bold text-white">
             Welcome back, <span className="text-orange-400">{userProfile?.full_name || 'User'}</span>
           </h1>
           <p className="text-xs text-slate-500 mt-1">Account Session Status: Verified. Active.</p>
@@ -311,7 +311,7 @@ export default function Dashboard() {
       {/* Next Step Hero */}
       <Link
         href="/cv-builder"
-        className="group relative mb-10 flex flex-col justify-between overflow-hidden rounded-2xl border border-orange-500/30 bg-gradient-to-br from-orange-600 via-orange-500 to-emerald-600 p-6 md:p-8"
+        className="group relative mb-10 flex flex-col justify-between overflow-hidden rounded-2xl border border-orange-500/30 bg-gradient-to-br from-orange-600 via-orange-500 to-emerald-600 px-4 py-6 md:p-8"
       >
         <div className="relative z-10">
           <div className="inline-flex items-center justify-center h-11 w-11 rounded-xl bg-white/15 text-white mb-5">
