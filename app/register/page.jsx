@@ -61,10 +61,18 @@ export default function Register({ searchParams }) { // FIXED: Removed explicit 
         setFullName('');
         setEmail('');
         setPassword('');
-        
+
         // Redirect to dashboard or onboarding route after a small delay
         setTimeout(() => {
-          router.push('/dashboard');
+          let dest = '/dashboard';
+          try {
+            const kw = localStorage.getItem('devcraft_demo_keyword');
+            if (kw) {
+              localStorage.removeItem('devcraft_demo_keyword');
+              dest = '/cv-builder?target=' + encodeURIComponent(kw);
+            }
+          } catch (_) {}
+          router.push(dest);
         }, 3000);
       }
     } catch (err) { // FIXED: Stripped explicit : any type annotations blocker parameters

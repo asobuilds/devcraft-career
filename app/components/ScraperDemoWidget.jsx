@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Loader2, CheckCircle2, ArrowRight, UserPlus, LogIn } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
 const DEMO_LOG_STEPS = [
@@ -31,6 +32,7 @@ const STEPS = [
 ];
 
 export default function ScraperDemoWidget() {
+  const router = useRouter();
   const [jobTitle, setJobTitle] = useState('');
   const [scanning, setScanning] = useState(false);
   const [logIndex, setLogIndex] = useState(0);
@@ -91,6 +93,12 @@ export default function ScraperDemoWidget() {
   const handleExampleClick = (keyword) => {
     setJobTitle(keyword);
     handleTestScraper();
+  };
+
+  const saveDemoKeyword = () => {
+    if (jobTitle.trim()) {
+      try { localStorage.setItem('devcraft_demo_keyword', jobTitle.trim()); } catch (_) {}
+    }
   };
 
   return (
@@ -189,15 +197,31 @@ export default function ScraperDemoWidget() {
           {results !== null && results.length > 0 ? (
             <div className="space-y-2 pt-2">
               {results.map(function (job, index) {
-                return (
-                  <div key={index} className="rounded-xl border border-slate-800 bg-slate-900/60 backdrop-blur-md p-4 flex flex-col gap-1">
+                const card = (
+                  <div
+                    key={index}
+                    className={`rounded-xl border border-slate-800 bg-slate-900/60 backdrop-blur-md p-4 flex flex-col gap-1${job.url ? ' transition-colors hover:border-emerald-500/40' : ''}`}
+                  >
                     <p className="text-sm font-semibold text-white">{job.title}</p>
                     <p className="text-xs text-slate-400">{job.company} • {job.location}</p>
-                    <span className="inline-flex self-start rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
-                      {job.source}
-                    </span>
+                    <div className="flex items-center justify-between mt-1">
+                      <span className="inline-flex rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
+                        {job.source}
+                      </span>
+                      {job.url ? (
+                        <span className="text-xs font-medium text-emerald-400">Apply</span>
+                      ) : null}
+                    </div>
                   </div>
                 );
+                if (job.url) {
+                  return (
+                    <a key={index} href={job.url} target="_blank" rel="noopener noreferrer" className="block">
+                      {card}
+                    </a>
+                  );
+                }
+                return card;
               })}
             </div>
           ) : (
@@ -210,14 +234,14 @@ export default function ScraperDemoWidget() {
         {authChecked && isAuthenticated ? (
           <>
             <h3 className="text-lg font-bold text-white mb-2">You&apos;re in!</h3>
-            <p className="text-slate-300 text-sm mb-4">Head to your dashboard to tailor your CV to any of these jobs.</p>
-            <Link
-              href="/dashboard"
+            <p className="text-slate-300 text-sm mb-4">Tailor your CV to any of these jobs using our AI co-editor.</p>
+            <button
+              onClick={() => { saveDemoKeyword(); router.push('/cv-builder'); }}
               className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-6 py-3 text-sm font-semibold text-white hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20"
             >
               <ArrowRight size={14} />
-              Go to Dashboard
-            </Link>
+              Tailor my CV
+            </button>
           </>
         ) : (
           <>
@@ -226,6 +250,7 @@ export default function ScraperDemoWidget() {
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
                 href="/register"
+                onClick={() => { saveDemoKeyword(); }}
                 className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-6 py-3 text-sm font-semibold text-white hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20"
               >
                 <UserPlus size={14} />
@@ -233,6 +258,7 @@ export default function ScraperDemoWidget() {
               </Link>
               <Link
                 href="/login"
+                onClick={() => { saveDemoKeyword(); }}
                 className="inline-flex items-center gap-2 rounded-xl border border-slate-700 px-6 py-3 text-sm font-semibold text-slate-300 hover:border-emerald-500/60 hover:text-emerald-400 transition-colors"
               >
                 <LogIn size={14} />

@@ -46,7 +46,15 @@ export default function Login() {
       if (error) throw error;
       if (data.user) {
         localStorage.setItem('devcraft_session_active', 'true');
-        router.push('/dashboard');
+        let dest = '/dashboard';
+        try {
+          const kw = localStorage.getItem('devcraft_demo_keyword');
+          if (kw) {
+            localStorage.removeItem('devcraft_demo_keyword');
+            dest = '/cv-builder?target=' + encodeURIComponent(kw);
+          }
+        } catch (_) {}
+        router.push(dest);
       }
     } catch (err) { // FIXED: Stripped out explicit : any type parameter annotation
       setErrorMsg(err.message || 'Invalid login credentials.');
@@ -57,9 +65,17 @@ export default function Login() {
 
   const handleSocialSignIn = async (provider) => { // FIXED: Stripped out strict literal type annotation
     try {
+      let redirectTo = '/dashboard';
+      try {
+        const kw = localStorage.getItem('devcraft_demo_keyword');
+        if (kw) {
+          localStorage.removeItem('devcraft_demo_keyword');
+          redirectTo = '/cv-builder?target=' + encodeURIComponent(kw);
+        }
+      } catch (_) {}
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: '/dashboard' }
+        options: { redirectTo }
       });
       if (error) throw error;
     } catch (err) { // FIXED: Stripped out explicit : any type parameter annotation
