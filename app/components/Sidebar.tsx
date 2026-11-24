@@ -31,6 +31,7 @@ const navItems: NavItem[] = [
   { name: 'Build CV', href: '/cv-builder', icon: FileText },
   { name: 'My Portfolio', href: '/portfolio-builder', icon: Code2 },
   { name: 'Write Cover Letter', href: '/cover-letter', icon: Folder, isNew: true },
+  { name: 'My Vault', href: '/vault', icon: Folder },
   { name: 'Beat the ATS', href: '/analyzer', icon: FileSearch, isNew: true },
   { name: 'Job Tracker', href: '/tracker', icon: ListChecks },
   { name: 'Community', href: '/community', icon: Users },
