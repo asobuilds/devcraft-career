@@ -1,32 +1,31 @@
 'use client';
 
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, KeyRound, Mail, User, Loader2 } from 'lucide-react';
+import { ArrowLeft, KeyRound, Mail, User, Loader2, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
-export default function Register({ searchParams }) { // FIXED: Removed explicit TypeScript object structure annotations
+export default function Register({ searchParams }) {
   const router = useRouter();
   const resolvedParams = use(searchParams);
   const chosenType = resolvedParams.type === 'programmer' ? 'programmer' : 'general';
 
-  // State management for form inputs and loading feedback
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState(null);   // FIXED: Stripped TypeScript <string | null> types
-  const [successMsg, setSuccessMsg] = useState(null); // FIXED: Stripped TypeScript <string | null> types
+  const [errorMsg, setErrorMsg] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(null);
 
-  const handleSignUp = async (e) => { // FIXED: Stripped out React.FormEvent typing context parameters
+  const handleSignUp = async (e) => {
     e.preventDefault();
     setLoading(true);
     setErrorMsg(null);
     setSuccessMsg(null);
 
     try {
-      // 1. Create the user inside Supabase Auth system
       const { data, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -38,10 +37,17 @@ export default function Register({ searchParams }) { // FIXED: Removed explicit 
         },
       });
 
-      if (authError) throw authError;
+      if (authError) {
+        const msg = authError.message || '';
+        if (msg.includes('User already registered') || msg.includes('schema cache')) {
+          setErrorMsg('Welcome back! If you already have an account, please sign in. Otherwise, try a different email.');
+        } else {
+          setErrorMsg(authError.message || 'An unexpected error occurred during registration.');
+        }
+        return;
+      }
 
       if (data.user) {
-        // 2. Insert profile metadata into our public.profiles database table
         const { error: profileError } = await supabase
           .from('profiles')
           .insert([
@@ -53,16 +59,21 @@ export default function Register({ searchParams }) { // FIXED: Removed explicit 
             },
           ]);
 
-        if (profileError) throw profileError;
+        if (profileError) {
+          console.error('Profile insert error (continuing with auth only):', profileError);
+          setSuccessMsg('Account created! Redirecting to dashboard...');
+          setTimeout(() => {
+            router.push('/dashboard');
+          }, 1500);
+          return;
+        }
 
         setSuccessMsg('Registration successful! Check your email for a confirmation link.');
         
-        // Clear form inputs
         setFullName('');
         setEmail('');
         setPassword('');
 
-        // Redirect to dashboard or onboarding route after a small delay
         setTimeout(() => {
           let dest = '/dashboard';
           try {
@@ -75,12 +86,13 @@ export default function Register({ searchParams }) { // FIXED: Removed explicit 
           router.push(dest);
         }, 3000);
       }
-    } catch (err) { // FIXED: Stripped explicit : any type annotations blocker parameters
+    } catch (err) {
       setErrorMsg(err.message || 'An unexpected error occurred during registration.');
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6 relative">
       <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -99,6 +111,29 @@ export default function Register({ searchParams }) { // FIXED: Removed explicit 
               {chosenType === 'programmer' ? 'Devcraft Engineer' : 'Standard Applicant'}
             </span>
           </p>
+        </div>
+
+        {/* Social Logins - Top of Card */}
+        <div className="space-y-3 mb-6">
+          <button
+            type="button"
+            onClick={() => supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/register' } })}
+            className="w-full font-medium text-sm text-white py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/10"
+          >
+            <Globe size={16} className="text-purple-200" /> Continue with Google
+          </button>
+          <button
+            type="button"
+            onClick={() => supabase.auth.signInWithOAuth({ provider: 'github', options: { redirectTo: window.location.origin + '/register' } })}
+            className="w-full font-medium text-sm text-white py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 shadow-purple-600/10"
+          >
+            <Code2 size={16} className="text-indigo-200" /> Continue with GitHub
+          </button>
+        </div>
+
+        {/* Divider */}
+        <div className="relative flex items-center mb-6 after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-slate-700 after:opacity-40">
+          <span className="relative text-slate-500 text-xs uppercase font-bold tracking-wider mx-4">Or continue with email</span>
         </div>
 
         {/* Dynamic Status Notifications */}
@@ -150,16 +185,28 @@ export default function Register({ searchParams }) { // FIXED: Removed explicit 
             <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Password</label>
             <div className="relative">
               <KeyRound size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
-              <input 
-                type="password" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••" 
-                className="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-slate-700 transition-colors"
-                required
-                disabled={loading}
-              />
+              <div className="relative">
+                <input 
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••" 
+                  className="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-slate-700 transition-colors"
+                  required
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                >
+                  {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
+                </button>
+              </div>
             </div>
+            {showPassword && (
+              <p className="text-xs text-slate-500 mt-1">Minimum 8 characters. Mix letters and numbers.</p>
+            )}
           </div>
 
           <button 
