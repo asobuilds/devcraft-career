@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
@@ -35,6 +35,7 @@ export default function Vault() {
   const [showScanner, setShowScanner] = useState(false);
   const [scanningFile, setScanningFile] = useState<File | null>(null);
   const [isAiOpen, setIsAiOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch user profile and documents
   useEffect(() => {
@@ -82,11 +83,7 @@ export default function Vault() {
     setError(null);
 
     try {
-      const fileExt = file.name.split('.').pop() || 'pdf';
-      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_').substring(0, 50);
-      const timestamp = Date.now().toString(36);
-      const fileName = `vault-${userId}-${timestamp}-${safeName}.${fileExt}`;
-      const storagePath = `vault/${userId}/${fileName}`;
+      const storagePath = `vault/${userId}/${Date.now()}_${file.name}`;
 
       const { error: uploadError } = await supabase.storage
         .from('vault')
@@ -98,10 +95,6 @@ export default function Vault() {
       if (uploadError) {
         throw new Error('Upload failed: ' + uploadError.message);
       }
-
-      const { data: urlData } = supabase.storage
-        .from('vault')
-        .getPublicUrl(storagePath);
 
       const { error: dbError } = await supabase
         .from('documents')
@@ -125,8 +118,8 @@ export default function Vault() {
 
       setDocuments(data as Document[]);
       setError(null);
-    } catch (err: any) {
-      setError(err.message || 'Failed to upload document.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to upload document.');
     } finally {
       setLoading(false);
       setScanningFile(null);
@@ -287,6 +280,7 @@ export default function Vault() {
               </p>
 
               <input
+                ref={fileInputRef}
                 type="file"
                 accept="image/*"
                 capture="environment"
@@ -294,7 +288,7 @@ export default function Vault() {
                 className="hidden"
               />
               <button
-                onClick={toggleScanner}
+                onClick={() => fileInputRef.current?.click()}
                 className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-xl transition-colors"
               >
                 <Image size={16} className="mr-2" /> Use Camera
