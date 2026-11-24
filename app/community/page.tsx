@@ -85,7 +85,7 @@ function timeAgo(iso: string): string {
   const days = Math.floor(hours / 24);
   if (days < 7) return `${days} day${days === 1 ? '' : 's'} ago`;
 
-  return new Date(iso).toLocaleDateString();
+  return new Date(iso).toLocaleDateString('en-US', { timeZone: 'UTC' });
 }
 
 async function fetchFeed(circleId: string): Promise<FeedPost[]> {

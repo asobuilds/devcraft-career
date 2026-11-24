@@ -362,11 +362,7 @@ export default function CVBuilder() {
     <div className="min-h-screen bg-slate-950 text-slate-100 print:bg-white print:text-black">
 
       {toast && (
-        <div className={`fixed top-4 right-4 z-[200] flex items-center gap-3 px-4 py-3 rounded-xl border shadow-2xl text-xs font-medium max-w-sm transition-all ${
-          toast.type === 'success' ? 'bg-green-950/90 border-green-500/30 text-green-300' :
-          toast.type === 'error' ? 'bg-red-950/90 border-red-500/30 text-red-300' :
-          'bg-indigo-950/90 border-indigo-500/30 text-indigo-300'
-        }`}>
+        <div className={`fixed top-4 right-4 z-[200] flex items-center gap-3 px-4 py-3 rounded-xl border shadow-2xl text-xs font-medium max-w-sm transition-all ${toast.type === 'success' ? 'bg-green-950/90 border-green-500/30 text-green-300' : toast.type === 'error' ? 'bg-red-950/90 border-red-500/30 text-red-300' : 'bg-indigo-950/90 border-indigo-500/30 text-indigo-300'}`}>
           {toast.type === 'success' ? <CheckCircle2 size={14} /> : toast.type === 'error' ? <AlertCircle size={14} /> : <Sparkles size={14} />}
           <span className="flex-1">{toast.message}</span>
           <button onClick={() => setToast(null)} className="opacity-60 hover:opacity-100 transition-opacity">

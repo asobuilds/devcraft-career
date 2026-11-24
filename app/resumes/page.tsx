@@ -177,7 +177,7 @@ export default function ResumesLibrary() {
                       <p className="text-xs text-purple-400 mt-0.5">For: {resume.target_role}</p>
                     ) : null}
                     <p className="text-[11px] text-slate-500 mt-1">
-                      Updated {new Date(resume.updated_at).toLocaleDateString()}
+                      Updated {new Date(resume.updated_at).toLocaleDateString('en-US', { timeZone: 'UTC' })}
                     </p>
                   </div>
                 </div>

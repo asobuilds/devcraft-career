@@ -284,11 +284,7 @@ export default function Dashboard() {
                     onClick={() => toggleStep(index)}
                     aria-pressed={done}
                     aria-label={done ? `Mark "${task.label}" as incomplete` : `Mark "${task.label}" as complete`}
-                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors ${
-                      done
-                        ? 'border-emerald-500 bg-emerald-500 text-slate-950'
-                        : 'border-slate-600 text-transparent hover:border-emerald-500/60'
-                    }`}
+                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors ${done ? 'border-emerald-500 bg-emerald-500 text-slate-950' : 'border-slate-600 text-transparent hover:border-emerald-500/60'}`}
                   >
                     <Check size={13} strokeWidth={3} />
                   </button>

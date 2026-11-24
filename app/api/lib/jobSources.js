@@ -49,7 +49,7 @@ async function fetchAdzunaJobs(keywords, country) {
     location: job.location ? job.location.display_name : '',
     url: job.redirect_url,
     description: job.description || '',
-    salary: job.salary_min ? '₦' + Math.round(job.salary_min).toLocaleString() + '+' : null,
+    salary: job.salary_min ? '₦' + Math.round(job.salary_min).toLocaleString('en-US', { timeZone: 'UTC' }) + '+' : null,
   }));
 }
 
@@ -91,7 +91,7 @@ async function fetchRemoteOKJobs(keywords) {
       location: 'Remote',
       url: job.url,
       description: job.description || '',
-      salary: job.salary_min ? '$' + job.salary_min.toLocaleString() + '+' : null,
+      salary: job.salary_min ? '$' + job.salary_min.toLocaleString('en-US', { timeZone: 'UTC' }) + '+' : null,
     }));
 }
 
@@ -157,7 +157,7 @@ async function fetchJobicyJobs(keywords) {
       location: job.jobGeo || 'Remote',
       url: job.url,
       description: job.jobExcerpt || '',
-      salary: job.annualSalaryMin ? '$' + job.annualSalaryMin.toLocaleString() + '+' : null,
+      salary: job.annualSalaryMin ? '$' + job.annualSalaryMin.toLocaleString('en-US', { timeZone: 'UTC' }) + '+' : null,
     }));
 }
 

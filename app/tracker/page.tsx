@@ -33,11 +33,7 @@ function formatAppliedDate(value?: string): string {
   if (!value) return 'No date';
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return 'No date';
-  return parsed.toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
+  return parsed.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 }
 
 interface SourcedLead {
@@ -406,11 +402,7 @@ export default function JobTracker() {
     <div className="min-h-screen bg-slate-950 text-slate-100 p-6 font-sans">
 
       {toast && (
-        <div className={`fixed top-4 right-4 z-[200] flex items-center gap-3 px-4 py-3 rounded-xl border shadow-2xl text-xs font-medium max-w-sm ${
-          toast.type === 'success' ? 'bg-green-950/90 border-green-500/30 text-green-300' :
-          toast.type === 'error' ? 'bg-red-950/90 border-red-500/30 text-red-300' :
-          'bg-indigo-950/90 border-indigo-500/30 text-indigo-300'
-        }`}>
+        <div className={`fixed top-4 right-4 z-[200] flex items-center gap-3 px-4 py-3 rounded-xl border shadow-2xl text-xs font-medium max-w-sm ${toast.type === 'success' ? 'bg-green-950/90 border-green-500/30 text-green-300' : toast.type === 'error' ? 'bg-red-950/90 border-red-500/30 text-red-300' : 'bg-indigo-950/90 border-indigo-500/30 text-indigo-300'}`}>
           {toast.type === 'success' ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
           <span className="flex-1">{toast.message}</span>
           <button onClick={() => setToast(null)} className="opacity-60 hover:opacity-100 transition-opacity">

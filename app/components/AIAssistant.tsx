@@ -170,13 +170,7 @@ export default function AIAssistant({
         role="dialog"
         aria-modal={open ? true : undefined}
         aria-label={title}
-        className={`${
-          inline
-            ? 'fixed inset-0 z-[60] w-full xl:static xl:z-auto xl:h-[calc(100vh-65px)] xl:w-[400px] xl:shrink-0'
-            : 'fixed inset-0 z-[60] w-full sm:inset-y-0 sm:right-0 sm:left-auto sm:w-[420px]'
-        } bg-slate-900 border-l border-slate-800 shadow-2xl flex flex-col transition-transform duration-300 ${
-          open ? 'translate-x-0' : 'translate-x-full pointer-events-none'
-        }`}
+        className={`${inline ? 'fixed inset-0 z-[60] w-full xl:static xl:z-auto xl:h-[calc(100vh-65px)] xl:w-[400px] xl:shrink-0' : 'fixed inset-0 z-[60] w-full sm:inset-y-0 sm:right-0 sm:left-auto sm:w-[420px]'} bg-slate-900 border-l border-slate-800 shadow-2xl flex flex-col transition-transform duration-300 ${open ? 'translate-x-0' : 'translate-x-full pointer-events-none'}`}
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800">
           <div className="flex items-center gap-2.5">
