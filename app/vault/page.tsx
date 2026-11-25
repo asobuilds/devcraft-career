@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import AIAssistant from '@/app/components/AIAssistant';
+import UserHeader from '@/app/components/UserHeader';
 import { Folder, FileText, Image, Loader2, X, ArrowLeft, CheckCircle2, Calendar, GraduationCap, TrendingUp, Users, Sparkles, Heart, MessageCircle, Send, Eye, EyeOff, Download, Printer } from 'lucide-react';
 
 interface Document {
@@ -90,6 +91,8 @@ export default function Vault() {
         .select('avatar_url, cover_url, full_name')
         .eq('id', user.id)
         .maybeSingle();
+
+      console.log('Vault profile:', profile);
 
       if (profile) {
         setAvatarUrl(profile.avatar_url ?? null);
@@ -220,23 +223,21 @@ export default function Vault() {
 
         {/* Profile Header */}
         <div className="mb-6 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 backdrop-blur-md">
-          <div className="flex flex-col sm:flex-row items-center gap-3">
-            {/* Profile Picture */}
-            <div className="relative sm:w-24 sm:h-24">
-              <div className="flex h-full w-full items-center justify-center rounded-2xl border border-slate-700/50 bg-gradient-to-br from-indigo-600 to-purple-700 text-2xl font-bold text-white">
-                {userName.charAt(0).toUpperCase()}
-              </div>
-              {userId && (
-                <button
-                  onClick={toggleScanner}
-                  className="absolute bottom-1 right-1 bg-indigo-600 text-white text-xs font-medium rounded-full px-2 py-1 hover:bg-indigo-500 transition-colors"
-                >
-                  <Image size={12} className="mr-1" /> Scan
-                </button>
-              )}
-            </div>
-
-            {/* Document Stats */}
+          <UserHeader
+            avatarUrl={avatarUrl}
+            coverUrl={coverUrl}
+            name={userName}
+            showAvatarInTemplate={false}
+          />
+          <div className="flex flex-col sm:flex-row items-center gap-3 mt-4 pt-4 border-t border-slate-800/50">
+            {userId && (
+              <button
+                onClick={toggleScanner}
+                className="absolute bottom-1 right-1 bg-indigo-600 text-white text-xs font-medium rounded-full px-2 py-1 hover:bg-indigo-500 transition-colors"
+              >
+                <Image size={12} className="mr-1" /> Scan
+              </button>
+            )}
             <div>
               <h2 className="text-xl font-bold text-white">My Vault</h2>
               <p className="text-slate-400 mt-1">
