@@ -9,6 +9,12 @@ import type {
   PortfolioTemplateProps,
 } from '@/app/p/components/types';
 
+type PortfolioProfiles = {
+  full_name?: string | null;
+  avatar_url?: string | null;
+  cover_url?: string | null;
+};
+
 type PortfolioRow = {
   user_id: string;
   title?: string | null;
@@ -17,6 +23,7 @@ type PortfolioRow = {
   projects?: PortfolioProject[] | null;
   custom_subdomain?: string | null;
   selected_template?: string | null;
+  profiles?: PortfolioProfiles | null;
 };
 
 function renderTemplate(
