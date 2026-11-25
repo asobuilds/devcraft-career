@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { Folder, FileText, Image, Loader2, X, ArrowLeft, CheckCircle2, Calendar, GraduationCap, TrendingUp, Users, Sparkles, Heart, MessageCircle, Send, Eye, EyeOff } from 'lucide-react';
+import AIAssistant from '@/app/components/AIAssistant';
+import { Folder, FileText, Image, Loader2, X, ArrowLeft, CheckCircle2, Calendar, GraduationCap, TrendingUp, Users, Sparkles, Heart, MessageCircle, Send, Eye, EyeOff, Download, Printer } from 'lucide-react';
 
 interface Document {
   id: string;
@@ -12,7 +13,7 @@ interface Document {
   file_name: string;
   file_type: string;
   storage_path: string;
-  public_url?: string;
+  publicUrl?: string;
   extracted_text?: string;
   created_at: string;
 }
@@ -27,6 +28,21 @@ function getFileIconAndBadge(fileType: string) {
   return { Component: FileText, badge: 'Document' };
 }
 
+function isImageDocument(doc: Document) {
+  return /image\/|\.(png|jpe?g|gif|webp|avif|bmp|heic|heif)$/i.test(
+    `${doc.file_type} ${doc.file_name}`
+  );
+}
+
+function withPublicUrls(docs: Document[]): Document[] {
+  return docs.map((doc) => {
+    const publicUrl = supabase.storage
+      .from('vault')
+      .getPublicUrl(doc.storage_path).data.publicUrl;
+    return { ...doc, publicUrl };
+  });
+}
+
 export default function Vault() {
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
@@ -36,6 +52,10 @@ export default function Vault() {
   const [showScanner, setShowScanner] = useState(false);
   const [scanningFile, setScanningFile] = useState<File | null>(null);
   const [isAiOpen, setIsAiOpen] = useState(false);
+  const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
+  const [aiDoc, setAiDoc] = useState<Document | null>(null);
+  const [userName, setUserName] = useState('Candidate');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch user profile and documents
   useEffect(() => {
@@ -46,26 +66,21 @@ export default function Vault() {
         return;
       }
       setUserId(user.id);
+      setUserName(
+        (user.user_metadata?.full_name as string) || user.email || 'Candidate'
+      );
 
       const { data, error } = await supabase
         .from('documents')
-        .select('*');
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Failed to fetch documents:', error);
         setError('Failed to load documents. Please try again.');
       } else {
-        // Generate public URLs for each document
-        const docsWithUrls = (data as Document[]).map((doc) => {
-          const { data: urlData } = supabase.storage
-            .from('vault')
-            .getPublicUrl(doc.storage_path);
-          return {
-            ...doc,
-            public_url: urlData?.publicUrl,
-          };
-        });
-        setDocuments(docsWithUrls);
+        setDocuments(withPublicUrls(data as Document[]));
       }
       setLoading(false);
     };
@@ -109,10 +124,6 @@ export default function Vault() {
         throw new Error('Upload failed: ' + uploadError.message);
       }
 
-      const { data: urlData } = supabase.storage
-        .from('vault')
-        .getPublicUrl(storagePath);
-
       const { error: dbError } = await supabase
         .from('documents')
         .insert({
@@ -121,7 +132,6 @@ export default function Vault() {
           file_type: file.type || 'document',
           storage_path: storagePath,
           extracted_text: null,
-          public_url: urlData?.publicUrl,
         });
 
       if (dbError) {
@@ -134,10 +144,10 @@ export default function Vault() {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      setDocuments(data as Document[]);
+      setDocuments(withPublicUrls(data as Document[]));
       setError(null);
-    } catch (err: any) {
-      setError(err.message || 'Failed to upload document.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to upload document.');
     } finally {
       setLoading(false);
       setScanningFile(null);
@@ -149,16 +159,18 @@ export default function Vault() {
 
   // Open AI Assistant with document context
   const openAiWithDocument = (doc: Document) => {
+    setAiDoc(doc);
     setIsAiOpen(true);
-    // We'll set a timeout to allow the AI panel to open, then dispatch an event
-    // The CV builder/dashboard can listen for ai-doc-updated events
-    const docInfo = {
-      fileName: doc.file_name,
-      fileType: doc.file_type,
-      message: `Use my document ${doc.file_name} to update my CV`,
+  };
+
+  const printDocument = (doc: Document) => {
+    if (!doc.publicUrl) return;
+    const printWindow = window.open(doc.publicUrl, '_blank');
+    if (!printWindow) return;
+    printWindow.onload = () => {
+      printWindow.focus();
+      printWindow.print();
     };
-    // Store document info for the AI assistant to use
-    localStorage.setItem('vault_ai_doc', JSON.stringify(docInfo));
   };
 
   if (loading) {
@@ -196,12 +208,9 @@ export default function Vault() {
           <div className="flex flex-col sm:flex-row items-center gap-3">
             {/* Profile Picture */}
             <div className="relative sm:w-24 sm:h-24">
-              <img
-                src="/api/placeholder-user"
-                alt="Profile"
-                className="w-full h-full rounded-2xl object-cover border border-slate-700/50"
-                style={{ objectFit: 'cover' }}
-              />
+              <div className="flex h-full w-full items-center justify-center rounded-2xl border border-slate-700/50 bg-gradient-to-br from-indigo-600 to-purple-700 text-2xl font-bold text-white">
+                {userName.charAt(0).toUpperCase()}
+              </div>
               {userId && (
                 <button
                   onClick={toggleScanner}
@@ -246,18 +255,17 @@ export default function Vault() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {documents.map((doc) => {
             const { Component: IconComponent, badge } = getFileIconAndBadge(doc.file_type);
-            const isImage = doc.file_type && (doc.file_type.toLowerCase().includes('png') || doc.file_type.toLowerCase().includes('jpg') || doc.file_type.toLowerCase().includes('jpeg') || doc.file_type.toLowerCase().includes('gif') || doc.file_type.toLowerCase().includes('webp'));
 
             return (
               <div
                 key={doc.id}
-                className="group bg-slate-950/80 border border-slate-800/50 rounded-xl p-4 backdrop-blur-md hover:border-indigo-500/30 transition-colors cursor-pointer"
-                onClick={() => openAiWithDocument(doc)}
+                onClick={() => setSelectedDoc(doc)}
+                className="group bg-slate-950/80 border border-slate-800/50 rounded-xl p-4 backdrop-blur-md cursor-pointer hover:border-orange-500 transition"
               >
                 <div className="mb-3">
-                  {isImage && doc.public_url ? (
+                  {isImageDocument(doc) && doc.publicUrl ? (
                     <img
-                      src={doc.public_url}
+                      src={doc.publicUrl}
                       alt={doc.file_name}
                       className="h-6 w-6 rounded-md object-cover border border-slate-700/50"
                     />
@@ -279,19 +287,90 @@ export default function Vault() {
                     day: 'numeric',
                   })}</p>
 
-                <div className="mt-2 pt-2 border-t border-slate-800/20">
+                <div className="mt-2 pt-2 border-t border-slate-800/20 flex flex-wrap gap-2">
+                  {doc.publicUrl && (
+                    <a
+                      href={doc.publicUrl}
+                      download={doc.file_name}
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-slate-800 border border-slate-700 px-2.5 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-700 transition-colors"
+                    >
+                      <Download size={12} /> Download
+                    </a>
+                  )}
                   <button
-                    onClick={() => openAiWithDocument(doc)}
-                    className="w-full inline-flex items-center gap-2 justify-center py-1.5 rounded-xl bg-indigo-600/10 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-600/20 text-sm font-medium transition-colors"
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      printDocument(doc);
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-slate-800 border border-slate-700 px-2.5 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-700 transition-colors"
+                  >
+                    <Printer size={12} /> Print
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openAiWithDocument(doc);
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600/10 border border-indigo-500/30 px-2.5 py-1.5 text-xs font-medium text-indigo-300 hover:bg-indigo-600/20 transition-colors"
                     aria-label="Ask AI to use this document"
                   >
-                    <Sparkles size={10} className="text-indigo-400" /> Ask AI
+                    <Sparkles size={12} /> Ask AI
                   </button>
                 </div>
               </div>
             );
           })}
         </div>
+
+        {/* Document Preview Modal */}
+        {selectedDoc && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Document preview"
+            className="fixed inset-0 z-[110] bg-black/90 p-4 flex flex-col"
+            onClick={() => setSelectedDoc(null)}
+          >
+            <div
+              className="flex items-center justify-between gap-4 mb-3"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-sm font-semibold text-white truncate">
+                {selectedDoc.file_name}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setSelectedDoc(null)}
+                className="inline-flex items-center gap-2 rounded-lg bg-slate-800 border border-slate-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-700 transition-colors"
+              >
+                <X size={14} /> Close
+              </button>
+            </div>
+            <div
+              className="flex-1 min-h-0 flex items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {selectedDoc.publicUrl && isImageDocument(selectedDoc) ? (
+                <img
+                  src={selectedDoc.publicUrl}
+                  alt={selectedDoc.file_name}
+                  className="max-h-full max-w-full object-contain"
+                />
+              ) : selectedDoc.publicUrl ? (
+                <iframe
+                  src={selectedDoc.publicUrl}
+                  title={selectedDoc.file_name}
+                  className="h-full w-full rounded-lg bg-white"
+                />
+              ) : (
+                <p className="text-sm text-slate-400">Preview unavailable.</p>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Scanner Modal */}
         {showScanner && (
@@ -321,6 +400,7 @@ export default function Vault() {
               </p>
 
               <input
+                ref={fileInputRef}
                 type="file"
                 accept="image/*"
                 capture="environment"
@@ -328,7 +408,7 @@ export default function Vault() {
                 className="hidden"
               />
               <button
-                onClick={toggleScanner}
+                onClick={() => fileInputRef.current?.click()}
                 className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-xl transition-colors"
               >
                 <Image size={16} className="mr-2" /> Use Camera
@@ -354,6 +434,24 @@ export default function Vault() {
           </div>
         )}
       </div>
+
+      <AIAssistant
+        title="Career Vault Copilot"
+        triggerLabel="Ask about my documents"
+        prompt={
+          aiDoc
+            ? `Use my document ${aiDoc.file_name} to help with my CV.`
+            : 'Ask about documents in my Career Vault.'
+        }
+        context={{
+          page: 'vault',
+          resumeText: aiDoc?.extracted_text ?? '',
+        }}
+        userName={userName}
+        userSkills={[]}
+        forceOpen={isAiOpen}
+        onOpenChange={setIsAiOpen}
+      />
     </div>
   );
 }
