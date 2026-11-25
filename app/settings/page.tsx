@@ -108,8 +108,10 @@ export default function AccountSettings() {
       .getPublicUrl(path);
 
     const publicUrl = urlData?.publicUrl ?? '';
+    console.log('Avatar public URL:', publicUrl);
     setAvatarUrl(publicUrl);
-    await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', userId);
+    await supabase.from('profiles').upsert({ id: userId, avatar_url: publicUrl }, { onConflict: 'id' });
+    console.log('Saved avatar_url to profiles for user:', userId);
     setStatusMsg('Profile picture updated successfully.');
     setUploadingAvatar(false);
   };
@@ -137,8 +139,10 @@ export default function AccountSettings() {
       .getPublicUrl(path);
 
     const publicUrl = urlData?.publicUrl ?? '';
+    console.log('Cover public URL:', publicUrl);
     setCoverUrl(publicUrl);
-    await supabase.from('profiles').update({ cover_url: publicUrl }).eq('id', userId);
+    await supabase.from('profiles').upsert({ id: userId, cover_url: publicUrl }, { onConflict: 'id' });
+    console.log('Saved cover_url to profiles for user:', userId);
     setStatusMsg('Cover picture updated successfully.');
     setUploadingCover(false);
   };
@@ -146,14 +150,16 @@ export default function AccountSettings() {
   const handleRemoveAvatar = async () => {
     if (!userId) return;
     setAvatarUrl(null);
-    await supabase.from('profiles').update({ avatar_url: null }).eq('id', userId);
+    await supabase.from('profiles').upsert({ id: userId, avatar_url: null }, { onConflict: 'id' });
+    console.log('Cleared avatar_url for user:', userId);
     setStatusMsg('Profile picture removed.');
   };
 
   const handleRemoveCover = async () => {
     if (!userId) return;
     setCoverUrl(null);
-    await supabase.from('profiles').update({ cover_url: null }).eq('id', userId);
+    await supabase.from('profiles').upsert({ id: userId, cover_url: null }, { onConflict: 'id' });
+    console.log('Cleared cover_url for user:', userId);
     setStatusMsg('Cover picture removed.');
   };
 
