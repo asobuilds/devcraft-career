@@ -17,6 +17,8 @@ export default function UserHeader({
   showAvatarInTemplate = false,
   className = '',
 }: UserHeaderProps) {
+  console.log('UserHeader render:', { avatarUrl, coverUrl, name, showAvatarInTemplate });
+
   return (
     <>
       {coverUrl && (
@@ -25,21 +27,12 @@ export default function UserHeader({
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
         </div>
       )}
-      {avatarUrl && showAvatarInTemplate && (
+      {avatarUrl && (
         <img
           src={avatarUrl}
           alt={`${name || ''} avatar`}
           className="w-16 h-16 rounded-full object-cover border-2 border-orange-500"
         />
-      )}
-      {avatarUrl && !showAvatarInTemplate && (
-        <div className="flex items-center gap-3">
-          <img
-            src={avatarUrl}
-            alt={`${name || ''} avatar`}
-            className="w-10 h-10 rounded-full object-cover border-2 border-orange-500 shrink-0"
-          />
-        </div>
       )}
     </>
   );

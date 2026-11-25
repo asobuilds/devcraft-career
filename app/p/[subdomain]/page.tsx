@@ -66,7 +66,8 @@ export default async function PublicPortfolioView({
     .eq('custom_subdomain', subdomainSlug)
     .maybeSingle();
 
-  console.log('Portfolio data:', portfolioData);
+  console.log('Portfolio Query Result:', portfolioData);
+  console.log('Profiles relation:', portfolioData?.profiles);
 
   if (portfolioError || !portfolioData) {
     notFound();
