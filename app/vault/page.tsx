@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
@@ -20,7 +20,7 @@ interface Document {
 function getFileIconAndBadge(fileType: string) {
   const lower = fileType.toLowerCase();
   if (lower.includes('pdf')) return { Component: FileText, badge: 'PDF' };
-  if (lower.includes('image') || lower.includes('png') || lower.includes('jpg') || lower.includes('jpeg')) return { Component: Image, badge: 'Image' };
+  if (lower.includes('image') || lower.includes('png') || lower.includes('jpg') || lower.includes('jpeg') || lower.includes('gif') || lower.includes('webp')) return { Component: Image, badge: 'Image' };
   if (lower.includes('nysc') || lower.includes('certificate')) return { Component: GraduationCap, badge: 'Certificate' };
   if (lower.includes('id') || lower.includes('passport')) return { Component: Users, badge: 'ID' };
   if (lower.includes('transcript')) return { Component: Loader2, badge: 'Transcript' };
@@ -36,7 +36,6 @@ export default function Vault() {
   const [showScanner, setShowScanner] = useState(false);
   const [scanningFile, setScanningFile] = useState<File | null>(null);
   const [isAiOpen, setIsAiOpen] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch user profile and documents
   useEffect(() => {
@@ -86,6 +85,8 @@ export default function Vault() {
 
   // Upload document to vault bucket and insert into DB
   const uploadDocument = async (file: File) => {
+    if (!userId) return;
+
     setLoading(true);
     setError(null);
 
@@ -108,6 +109,10 @@ export default function Vault() {
         throw new Error('Upload failed: ' + uploadError.message);
       }
 
+      const { data: urlData } = supabase.storage
+        .from('vault')
+        .getPublicUrl(storagePath);
+
       const { error: dbError } = await supabase
         .from('documents')
         .insert({
@@ -116,6 +121,7 @@ export default function Vault() {
           file_type: file.type || 'document',
           storage_path: storagePath,
           extracted_text: null,
+          public_url: urlData?.publicUrl,
         });
 
       if (dbError) {
@@ -130,8 +136,8 @@ export default function Vault() {
 
       setDocuments(data as Document[]);
       setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to upload document.');
+    } catch (err: any) {
+      setError(err.message || 'Failed to upload document.');
     } finally {
       setLoading(false);
       setScanningFile(null);
@@ -140,6 +146,20 @@ export default function Vault() {
 
   // Toggle scanner modal
   const toggleScanner = () => setShowScanner((prev) => !prev);
+
+  // Open AI Assistant with document context
+  const openAiWithDocument = (doc: Document) => {
+    setIsAiOpen(true);
+    // We'll set a timeout to allow the AI panel to open, then dispatch an event
+    // The CV builder/dashboard can listen for ai-doc-updated events
+    const docInfo = {
+      fileName: doc.file_name,
+      fileType: doc.file_type,
+      message: `Use my document ${doc.file_name} to update my CV`,
+    };
+    // Store document info for the AI assistant to use
+    localStorage.setItem('vault_ai_doc', JSON.stringify(docInfo));
+  };
 
   if (loading) {
     return (
@@ -232,7 +252,7 @@ export default function Vault() {
               <div
                 key={doc.id}
                 className="group bg-slate-950/80 border border-slate-800/50 rounded-xl p-4 backdrop-blur-md hover:border-indigo-500/30 transition-colors cursor-pointer"
-                onClick={() => setIsAiOpen(true)}
+                onClick={() => openAiWithDocument(doc)}
               >
                 <div className="mb-3">
                   {isImage && doc.public_url ? (
@@ -261,7 +281,7 @@ export default function Vault() {
 
                 <div className="mt-2 pt-2 border-t border-slate-800/20">
                   <button
-                    onClick={() => setIsAiOpen(true)}
+                    onClick={() => openAiWithDocument(doc)}
                     className="w-full inline-flex items-center gap-2 justify-center py-1.5 rounded-xl bg-indigo-600/10 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-600/20 text-sm font-medium transition-colors"
                     aria-label="Ask AI to use this document"
                   >
@@ -301,7 +321,6 @@ export default function Vault() {
               </p>
 
               <input
-                ref={fileInputRef}
                 type="file"
                 accept="image/*"
                 capture="environment"
@@ -309,7 +328,7 @@ export default function Vault() {
                 className="hidden"
               />
               <button
-                onClick={() => fileInputRef.current?.click()}
+                onClick={toggleScanner}
                 className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-xl transition-colors"
               >
                 <Image size={16} className="mr-2" /> Use Camera
