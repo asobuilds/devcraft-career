@@ -227,7 +227,7 @@ export default function Dashboard() {
             alt="Cover"
             className="w-full h-32 sm:h-40 md:h-48 object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent" />
         </div>
       )}
 
@@ -238,7 +238,7 @@ export default function Dashboard() {
             <img
               src={userProfile.avatar_url}
               alt="Avatar"
-              className="w-10 h-10 rounded-full object-cover border-2 border-orange-500 shrink-0"
+              className="w-24 h-24 rounded-full object-cover ring-4 ring-orange-500 ring-offset-4 ring-offset-slate-950 shrink-0"
             />
           )}
           <div>
