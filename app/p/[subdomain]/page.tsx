@@ -54,7 +54,7 @@ export default async function PublicPortfolioView({
 
   const { data: portfolioData, error: portfolioError } = await supabase
     .from('portfolios')
-    .select('*')
+    .select('*, profiles(full_name, avatar_url, cover_url)')
     .eq('custom_subdomain', subdomainSlug)
     .maybeSingle();
 
@@ -64,21 +64,15 @@ export default async function PublicPortfolioView({
 
   const portfolio = portfolioData as PortfolioRow;
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('full_name, avatar_url, cover_url')
-    .eq('id', portfolio.user_id)
-    .maybeSingle();
-
-  const developerName = profile?.full_name || '';
+  const developerName = portfolio?.profiles?.full_name || '';
 
   return (
     <main className="min-h-screen">
       {/* Cover Banner */}
-      {profile?.cover_url && (
+      {portfolio?.profiles?.cover_url && (
         <div className="relative w-full overflow-hidden">
           <img
-            src={profile.cover_url}
+            src={portfolio.profiles.cover_url}
             alt="Cover"
             className="w-full h-64 object-cover"
           />
@@ -89,12 +83,12 @@ export default async function PublicPortfolioView({
       )}
 
       {/* Avatar overlapping the cover banner */}
-      {profile?.avatar_url && (
+      {portfolio?.profiles?.avatar_url && (
         <div
           className="absolute bottom-0 left-1/2 -translate-x-1/2 -mt-16 w-32 h-32 rounded-full border-2 border-slate-950 overflow-hidden"
         >
           <img
-            src={profile.avatar_url}
+            src={portfolio.profiles.avatar_url}
             alt={`${developerName} avatar`}
             className="w-full h-full object-cover rounded-full"
           />
@@ -118,7 +112,7 @@ export default async function PublicPortfolioView({
         techStack: portfolio.tech_stack ?? [],
         projects: portfolio.projects ?? [],
         subdomain: portfolio.custom_subdomain || subdomainSlug,
-        avatarUrl: profile?.avatar_url ?? null,
+        avatarUrl: portfolio?.profiles?.avatar_url ?? null,
       })}
     </main>
   );
