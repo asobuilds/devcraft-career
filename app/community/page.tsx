@@ -155,16 +155,20 @@ function Avatar({
 }: {
   name: string | null;
   src: string | null;
-  size?: 'sm' | 'md';
+  size?: 'sm' | 'md' | 'lg';
 }) {
-  const dimensions = size === 'sm' ? 'h-8 w-8 text-[10px]' : 'h-10 w-10 text-xs';
+  const dimensions = size === 'sm'
+    ? 'h-8 w-8 text-[10px]'
+    : size === 'lg'
+      ? 'h-14 w-14 text-xs ring-2 ring-orange-500/50 rounded-full'
+      : 'h-12 w-12 text-xs ring-2 ring-orange-500/50 rounded-full';
 
   if (src) {
     return (
       <img
         src={src}
         alt={name ?? 'Member avatar'}
-        className={`${dimensions} shrink-0 rounded-full border border-slate-700 object-cover`}
+        className={`${dimensions} shrink-0 object-cover`}
       />
     );
   }
@@ -671,7 +675,7 @@ export default function CommunityPage() {
               <div className="mt-4 space-y-3">
                 {suggested.map((person) => (
                   <div key={person.id} className="flex items-center gap-3">
-                    <Avatar name={person.full_name} src={person.avatar_url} size="sm" />
+                    <Avatar name={person.full_name} src={person.avatar_url} />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-xs font-semibold text-slate-200">
                         {person.full_name || 'DevCraft Member'}
