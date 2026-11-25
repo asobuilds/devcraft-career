@@ -66,7 +66,7 @@ export default async function PublicPortfolioView({
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name')
+    .select('full_name, avatar_url, cover_url')
     .eq('id', portfolio.user_id)
     .maybeSingle();
 
@@ -74,6 +74,16 @@ export default async function PublicPortfolioView({
 
   return (
     <main className="min-h-screen">
+      {profile?.cover_url && (
+        <div className="relative w-full overflow-hidden">
+          <img
+            src={profile.cover_url}
+            alt="Cover"
+            className="w-full h-48 sm:h-60 md:h-72 object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
+        </div>
+      )}
       {renderTemplate(portfolio.selected_template, {
         name: developerName || 'DevCraft Engineer',
         title: portfolio.title,
@@ -81,6 +91,7 @@ export default async function PublicPortfolioView({
         techStack: portfolio.tech_stack ?? [],
         projects: portfolio.projects ?? [],
         subdomain: portfolio.custom_subdomain || subdomainSlug,
+        avatarUrl: profile?.avatar_url ?? null,
       })}
     </main>
   );

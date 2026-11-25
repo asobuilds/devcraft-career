@@ -14,6 +14,7 @@ export type PortfolioTemplateProps = {
   techStack?: string | string[] | null;
   projects?: PortfolioProject[] | null;
   subdomain?: string | null;
+  avatarUrl?: string | null;
 };
 
 export function parseTechStack(

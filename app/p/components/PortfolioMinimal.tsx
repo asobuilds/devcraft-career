@@ -8,6 +8,7 @@ export default function PortfolioMinimal({
   techStack,
   projects,
   subdomain,
+  avatarUrl,
 }: PortfolioTemplateProps) {
   const stack = parseTechStack(techStack);
   const visibleProjects = (projects ?? []).filter((project) => project.title);
@@ -16,15 +17,26 @@ export default function PortfolioMinimal({
     <div className="min-h-screen w-full bg-white text-neutral-900">
       <div className="mx-auto max-w-3xl px-6 py-16 sm:px-10 md:py-24">
         <header className="border-b border-neutral-200 pb-10">
-          <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-neutral-400">
-            {subdomain ? `${subdomain}.devcraft.com` : 'Portfolio'}
-          </p>
-          <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-6xl">
-            {name || 'Your Name'}
-          </h1>
-          {title && (
-            <p className="mt-3 text-base text-neutral-500">{title}</p>
-          )}
+          <div className="flex items-center gap-4 mb-6">
+            {avatarUrl && (
+              <img
+                src={avatarUrl}
+                alt={`${name} avatar`}
+                className="w-16 h-16 rounded-full object-cover border-2 border-orange-500"
+              />
+            )}
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-neutral-400">
+                {subdomain ? `${subdomain}.devcraft.com` : 'Portfolio'}
+              </p>
+              <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-6xl">
+                {name || 'Your Name'}
+              </h1>
+              {title && (
+                <p className="mt-3 text-base text-neutral-500">{title}</p>
+              )}
+            </div>
+          </div>
         </header>
 
         {bio && (

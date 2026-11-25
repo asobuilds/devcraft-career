@@ -8,6 +8,7 @@ export default function PortfolioDeveloper({
   techStack,
   projects,
   subdomain,
+  avatarUrl,
 }: PortfolioTemplateProps) {
   const stack = parseTechStack(techStack);
   const visibleProjects = (projects ?? []).filter((project) => project.title);
@@ -26,22 +27,33 @@ export default function PortfolioDeveloper({
 
         <div className="space-y-12 p-6 font-mono sm:p-10">
           <header className="space-y-4">
-            <p className="text-xs text-slate-500">
-              <span className="text-emerald-400">const</span> developer ={' '}
-              <span className="text-sky-300">{'{'}</span>
-            </p>
-            <h1 className="pl-4 text-3xl font-bold tracking-tight text-white sm:text-5xl">
-              &quot;{name || 'Your Name'}&quot;
-            </h1>
-            {title && (
-              <p className="pl-4 text-sm text-slate-400">
-                <span className="text-slate-600">{'// '}</span>
-                {title}
-              </p>
-            )}
-            <p className="text-xs text-slate-500">
-              <span className="text-sky-300">{'}'}</span>;
-            </p>
+            <div className="flex items-center gap-4">
+              {avatarUrl && (
+                <img
+                  src={avatarUrl}
+                  alt={`${name} avatar`}
+                  className="w-14 h-14 rounded-full object-cover border-2 border-orange-500 shrink-0"
+                />
+              )}
+              <div>
+                <p className="text-xs text-slate-500">
+                  <span className="text-emerald-400">const</span> developer ={' '}
+                  <span className="text-sky-300">{'{'}</span>
+                </p>
+                <h1 className="pl-4 text-3xl font-bold tracking-tight text-white sm:text-5xl">
+                  &quot;{name || 'Your Name'}&quot;
+                </h1>
+                {title && (
+                  <p className="pl-4 text-sm text-slate-400">
+                    <span className="text-slate-600">{'// '}</span>
+                    {title}
+                  </p>
+                )}
+                <p className="text-xs text-slate-500">
+                  <span className="text-sky-300">{'}'}</span>;
+                </p>
+              </div>
+            </div>
           </header>
 
           {bio && (

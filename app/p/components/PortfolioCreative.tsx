@@ -8,6 +8,7 @@ export default function PortfolioCreative({
   techStack,
   projects,
   subdomain,
+  avatarUrl,
 }: PortfolioTemplateProps) {
   const stack = parseTechStack(techStack);
   const visibleProjects = (projects ?? []).filter((project) => project.title);
@@ -31,15 +32,25 @@ export default function PortfolioCreative({
               )}
             </div>
 
-            <h1 className="text-5xl font-black uppercase leading-[0.9] tracking-tighter sm:text-7xl md:text-8xl">
-              {name || 'Your Name'}
-            </h1>
-
-            {title && (
-              <p className="max-w-2xl text-xl font-semibold text-[#ff4d00] sm:text-2xl">
-                {title}
-              </p>
-            )}
+            <div className="flex items-center gap-5">
+              {avatarUrl && (
+                <img
+                  src={avatarUrl}
+                  alt={`${name} avatar`}
+                  className="w-20 h-20 rounded-full object-cover border-2 border-[#ff4d00] shrink-0"
+                />
+              )}
+              <div>
+                <h1 className="text-5xl font-black uppercase leading-[0.9] tracking-tight sm:text-7xl md:text-8xl">
+                  {name || 'Your Name'}
+                </h1>
+                {title && (
+                  <p className="mt-3 max-w-2xl text-xl font-semibold text-[#ff4d00] sm:text-2xl">
+                    {title}
+                  </p>
+                )}
+              </div>
+            </div>
           </header>
 
           {bio && (

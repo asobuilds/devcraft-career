@@ -20,6 +20,8 @@ import Link from 'next/link';
 type Profile = {
   full_name?: string;
   is_admin?: boolean;
+  avatar_url?: string | null;
+  cover_url?: string | null;
 };
 
 const checklistTasks = [
@@ -217,13 +219,34 @@ export default function Dashboard() {
 
   return (
     <div className="w-full max-w-[1400px] mx-auto px-4 py-6 md:p-10">
+      {/* Cover Banner */}
+      {userProfile?.cover_url && (
+        <div className="relative -mx-4 sm:-mx-6 md:-mx-10 mb-6 overflow-hidden rounded-2xl border border-slate-800">
+          <img
+            src={userProfile.cover_url}
+            alt="Cover"
+            className="w-full h-32 sm:h-40 md:h-48 object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+        </div>
+      )}
+
       {/* Top Bar */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl md:text-4xl font-bold text-white">
-            Welcome back, <span className="text-orange-400">{userProfile?.full_name || 'User'}</span>
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">Account Session Status: Verified. Active.</p>
+        <div className="flex items-center gap-3">
+          {userProfile?.avatar_url && (
+            <img
+              src={userProfile.avatar_url}
+              alt="Avatar"
+              className="w-10 h-10 rounded-full object-cover border-2 border-orange-500 shrink-0"
+            />
+          )}
+          <div>
+            <h1 className="text-2xl md:text-4xl font-bold text-white">
+              Welcome back, <span className="text-orange-400">{userProfile?.full_name || 'User'}</span>
+            </h1>
+            <p className="text-xs text-slate-500 mt-1">Account Session Status: Verified. Active.</p>
+          </div>
         </div>
         <div className="flex flex-col items-start gap-2 sm:items-end">
           <button
