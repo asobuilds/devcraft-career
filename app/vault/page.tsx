@@ -55,6 +55,8 @@ export default function Vault() {
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
   const [aiDoc, setAiDoc] = useState<Document | null>(null);
   const [userName, setUserName] = useState('Candidate');
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch user profile and documents
@@ -82,6 +84,19 @@ export default function Vault() {
       } else {
         setDocuments(withPublicUrls(data as Document[]));
       }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('avatar_url, cover_url, full_name')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (profile) {
+        setAvatarUrl(profile.avatar_url ?? null);
+        setCoverUrl(profile.cover_url ?? null);
+        setUserName(profile.full_name || userName);
+      }
+
       setLoading(false);
     };
 
@@ -230,6 +245,37 @@ export default function Vault() {
             </div>
           </div>
         </div>
+
+        {/* Profile Pictures Section */}
+        {(avatarUrl || coverUrl) && (
+          <div className="mb-6">
+            <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">Profile Images</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {coverUrl && (
+                <div className="group bg-slate-950/80 border border-slate-800/50 rounded-xl overflow-hidden backdrop-blur-md cursor-pointer hover:border-orange-500 transition" onClick={() => setSelectedDoc({ id: 'cover', user_id: userId ?? '', file_name: 'Cover Picture', file_type: 'image/jpeg', storage_path: '', publicUrl: coverUrl, created_at: new Date().toISOString() } as Document)}>
+                  <div className="relative h-32 w-full">
+                    <img src={coverUrl} alt="Cover" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="p-3 flex items-center justify-between">
+                    <span className="text-xs font-medium text-slate-300">Cover Picture</span>
+                    <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400">Image</span>
+                  </div>
+                </div>
+              )}
+              {avatarUrl && (
+                <div className="group bg-slate-950/80 border border-slate-800/50 rounded-xl overflow-hidden backdrop-blur-md cursor-pointer hover:border-orange-500 transition" onClick={() => setSelectedDoc({ id: 'avatar', user_id: userId ?? '', file_name: 'Profile Picture', file_type: 'image/jpeg', storage_path: '', publicUrl: avatarUrl, created_at: new Date().toISOString() } as Document)}>
+                  <div className="relative h-32 w-full flex items-center justify-center bg-slate-900/50">
+                    <img src={avatarUrl} alt="Avatar" className="w-24 h-24 rounded-full object-cover border-2 border-orange-500" />
+                  </div>
+                  <div className="p-3 flex items-center justify-between">
+                    <span className="text-xs font-medium text-slate-300">Profile Picture</span>
+                    <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400">Image</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Documents Grid */}
         {error && (
