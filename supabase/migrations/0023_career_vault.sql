@@ -52,7 +52,7 @@ GRANT SELECT, INSERT, DELETE ON public.documents TO authenticated;
 
 -- 3. Private storage bucket for vault files
 INSERT INTO storage.buckets (id, name, public)
-VALUES ('vault', 'vault', false)
+VALUES ('vault', 'vault', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- 4. Storage policies: files are kept in <user_id>/ folders and owned by that user
