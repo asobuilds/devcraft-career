@@ -10,12 +10,6 @@ import type {
   PortfolioTemplateProps,
 } from '@/app/p/components/types';
 
-type PortfolioProfiles = {
-  full_name?: string | null;
-  avatar_url?: string | null;
-  cover_url?: string | null;
-};
-
 type PortfolioRow = {
   user_id: string;
   title?: string | null;
@@ -24,7 +18,12 @@ type PortfolioRow = {
   projects?: PortfolioProject[] | null;
   custom_subdomain?: string | null;
   selected_template?: string | null;
-  profiles?: PortfolioProfiles | null;
+};
+
+type ProfileRow = {
+  full_name?: string | null;
+  avatar_url?: string | null;
+  cover_url?: string | null;
 };
 
 function renderTemplate(
@@ -60,14 +59,14 @@ export default async function PublicPortfolioView({
     notFound();
   }
 
+  // Fetch portfolio first
   const { data: portfolioData, error: portfolioError } = await supabase
     .from('portfolios')
-    .select('*, profiles(full_name, avatar_url, cover_url)')
+    .select('*')
     .eq('custom_subdomain', subdomainSlug)
     .maybeSingle();
 
-  console.log('Portfolio Query Result:', portfolioData);
-  console.log('Profiles relation:', portfolioData?.profiles);
+  console.log('Portfolio Query Result:', JSON.stringify(portfolioData, null, 2));
 
   if (portfolioError || !portfolioData) {
     notFound();
@@ -75,13 +74,25 @@ export default async function PublicPortfolioView({
 
   const portfolio = portfolioData as PortfolioRow;
 
-  const developerName = portfolio?.profiles?.full_name || '';
+  // Fetch profile separately to avoid join issues with anon key
+  const { data: profileData, error: profileError } = await supabase
+    .from('profiles')
+    .select('full_name, avatar_url, cover_url')
+    .eq('id', portfolio.user_id)
+    .maybeSingle();
+
+  console.log('Profile Query Result:', JSON.stringify(profileData, null, 2));
+  console.log('Profile Error:', profileError);
+
+  const developerName = profileData?.full_name || '';
+  const avatarUrl = profileData?.avatar_url ?? null;
+  const coverUrl = profileData?.cover_url ?? null;
 
   return (
     <main className="min-h-screen">
       <UserHeader
-        avatarUrl={portfolio?.profiles?.avatar_url ?? null}
-        coverUrl={portfolio?.profiles?.cover_url ?? null}
+        avatarUrl={avatarUrl}
+        coverUrl={coverUrl}
         name={developerName || null}
       />
       {renderTemplate(portfolio.selected_template, {
@@ -91,7 +102,7 @@ export default async function PublicPortfolioView({
         techStack: portfolio.tech_stack ?? [],
         projects: portfolio.projects ?? [],
         subdomain: portfolio.custom_subdomain || subdomainSlug,
-        avatarUrl: portfolio?.profiles?.avatar_url ?? null,
+        avatarUrl,
       })}
     </main>
   );
